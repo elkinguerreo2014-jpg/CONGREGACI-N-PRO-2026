@@ -413,7 +413,7 @@
     async function save() { 
         localStorage.setItem(DB_KEY, JSON.stringify(state)); 
         updateDatalist(); 
-        if(CLOUD_URL.includes("PEGAR_AQUI")) { console.warn("Nube no configurada."); return; }
+        if(CLOUD_URL.includes("https://script.google.com/macros/s/AKfycbxzKaSX7nbyN2D0eKG8Z6Tpq1ucECxAEbT6Uqgf4KMHtmIp5sPU7kNwjz2ZWBIjZTfW/exec")) { console.warn("Nube no configurada."); return; }
         const btn = $('#btnSaveReports') || $('#btnSaveAsist') || $('#btnSaveP');
         const oldText = btn ? btn.textContent : '';
         if(btn) btn.textContent = "☁️ Guardando...";
@@ -631,4 +631,5 @@
 </script>
 </body>
 </html>
+
 
