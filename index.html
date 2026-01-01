@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-    <title>Congregación Pro - Master v75</title>
+    <title>Congregación Pro - Master v79</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -26,11 +26,12 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--fg); line-height: 1.5; font-size: 16px; -webkit-tap-highlight-color: transparent; }
-        body.readonly header, body.readonly .tabs-container, body.readonly .container { display: none !important; }
+        
+        #app-content { display: none; }
 
         #toast { position: fixed; top: 20px; right: 20px; background: var(--fg); color: var(--surface); padding: 12px 24px; border-radius: 8px; font-weight: 600; box-shadow: var(--shadow); display: none; z-index: 2000; border-left: 5px solid var(--accent); }
 
-        /* HEADER (Por defecto Sticky en PC) */
+        /* HEADER */
         header.top { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; flex-wrap: wrap; gap: 10px; }
         
         .tabs-container { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0.5rem 1rem; overflow-x: auto; position: sticky; top: 70px; z-index: 90; -webkit-overflow-scrolling: touch; }
@@ -46,14 +47,13 @@
         .tab { display: none; }
         .tab.active { display: block; animation: fadeIn 0.3s ease; }
         
-        /* TABLAS RESPONSIVAS */
         .table-container { overflow-x: auto; border-radius: var(--radius-md); border: 1px solid var(--border); -webkit-overflow-scrolling: touch; }
         .table { width: 100%; border-spacing: 0; border-collapse: separate; background: var(--card); min-width: 600px; }
         .table th { background: var(--panel); color: var(--muted); font-size: 0.75rem; font-weight: 800; padding: 12px; text-align: left; text-transform: uppercase; border-bottom: 1px solid var(--border); }
         .table td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
         .row-sacado td:first-child { color: var(--danger) !important; font-weight: 800; text-decoration: line-through; }
 
-        /* FORMATOS IMPRESIÓN */
+        /* IMPRESIÓN */
         #preview-viewport, #s88-preview-viewport { overflow-x: auto; padding: 20px; background: #cbd5e1; border-radius: 12px; display:flex; flex-direction:column; align-items:center; }
         .print-canvas { width: 190mm; min-width: 190mm; background: #fff; color: #000; padding: 12mm; border: 2.5px solid #000 !important; font-family: 'Inter', sans-serif; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
         .print-title { font-size: 13pt; font-weight: 900; text-align: center; margin-bottom: 10px; text-transform: uppercase; border-bottom: 2.5px solid #000; padding-bottom: 5px; }
@@ -82,9 +82,515 @@
 
         /* MEDIA QUERIES (MOVIL) */
         @media (max-width: 768px) {
-            /* AQUÍ ESTÁ EL CAMBIO: Quitar Sticky en móvil */
             header.top, .tabs-container { position: relative !important; top: auto !important; z-index: 1; }
-            
             header.top { flex-direction: column; align-items: stretch; gap: 15px; padding: 1rem 1rem; }
             header.top > div { justify-content: space-between; width: 100%; }
             .tabs-container { padding: 0.5rem; overflow-x: auto; }
+            .container { padding: 1rem 0.5rem; }
+            .card { padding: 1rem; }
+            .admin-tools-grid { grid-template-columns: 1fr; gap: 1rem; } 
+            .asist-grid-layout { grid-template-columns: 1fr; gap: 2rem; }
+            .btn { width: 100%; margin-bottom: 5px; }
+            .table th, .table td { padding: 8px; font-size: 0.85rem; }
+            #resumenContent { grid-template-columns: 1fr !important; }
+            #modalAuth .card, #modalPwd .card { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="toast"></div>
+
+<div id="app-content">
+    <header class="top">
+        <div style="display:flex; align-items:center; gap:12px;">
+            <div style="background:var(--accent); width:32px; height:32px; border-radius:8px;"></div>
+            <h1 style="font-size: 1.1rem; font-weight: 800;">Congregación Pro</h1>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+            <button class="btn success" id="btnSyncCloud">☁️ Nube</button>
+            <div style="display:flex; gap:5px; align-items:center;">
+                <input type="number" id="headerYear" style="width:70px; padding:8px;">
+                <select id="headerMonth" style="width:110px; padding:8px;"></select>
+            </div>
+            <button class="btn danger" onclick="location.reload()">🔒</button>
+            <select id="themeSelectorUI" style="width:80px;"><option value="light">Claro</option><option value="blue">Azul</option></select>
+        </div>
+    </header>
+
+    <div class="tabs-container">
+        <div class="tabs">
+            <button data-tab="personas" class="active">1. Miembros</button>
+            <button data-tab="actividad">2. Informes</button>
+            <button data-tab="asistencia">3. Asistencia</button>
+            <button data-tab="precursores">4. Precursores</button>
+            <button data-tab="tarjeta">5. S-21-S</button>
+            <button data-tab="s88">6. S-88-S</button>
+            <button data-tab="resumen">7. Resumen</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <section id="personas" class="tab active">
+            <div class="card">
+                <h3>Gestión de Miembros</h3>
+                <div class="admin-tools-grid">
+                    <input type="hidden" id="pId">
+                    <div><label>Nombre Completo</label><input type="text" id="pNombre" placeholder="Ej: Juan Pérez"></div>
+                    <div><label>Grupo</label><select id="pGrupo"><option value="1">G1</option><option value="2">G2</option><option value="3">G3</option><option value="4">G4</option><option value="5">G5</option></select></div>
+                    <div><label>Sexo</label><select id="pSexo"><option value="Hombre">Hombre</option><option value="Mujer">Mujer</option></select></div>
+                    <div><label>Esperanza</label><select id="pEsp"><option value="Otras ovejas">Otras ovejas</option><option value="Ungido">Ungido</option></select></div>
+                </div>
+                <div class="admin-tools-grid">
+                    <div><label>Nacimiento</label><input type="date" id="pNac"></div>
+                    <div><label>Bautismo</label><input type="date" id="pBau"></div>
+                    <div><label>Fecha Expulsión</label><input type="date" id="pFSac"></div>
+                    <div style="display:flex; flex-direction:column; justify-content:flex-end; gap:5px;">
+                        <button class="btn primary" id="btnSaveP">💾 Guardar Miembro</button>
+                        <div style="display:flex; gap:5px;">
+                            <button class="btn" id="btnCancelEdit" style="display:none; flex:1;">Cancelar</button>
+                            <button class="btn danger" id="btnDeleteP" style="display:none; flex:1;">🗑️ Eliminar</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="admin-tools-grid" style="background:var(--panel);">
+                    <div style="grid-column:1/-1; display:flex; gap:15px; flex-wrap:wrap;">
+                        <label><input type="checkbox" id="pAnc"> Anciano</label>
+                        <label><input type="checkbox" id="pSM"> Siervo Min.</label>
+                        <label><input type="checkbox" id="pPR"> P. Regular</label>
+                        <label><input type="checkbox" id="pPE"> P. Especial</label>
+                        <label><input type="checkbox" id="pMis"> Misionero</label>
+                    </div>
+                </div>
+                <div class="admin-tools-grid">
+                    <div style="grid-column: span 2;"><label>Buscar para editar</label><input type="search" id="qPersona" list="pList" placeholder="Escriba nombre..."></div>
+                    <div style="grid-column:1/-1; display:flex; gap:8px; flex-wrap:wrap;">
+                        <button class="btn primary" id="btnQEdit">✏️ Editar</button>
+                        <button class="btn" id="btnExport">💾 Backup</button>
+                        <button class="btn" onclick="$('#fileInputJSON').click()">📂 Restaurar</button>
+                        <input type="file" id="fileInputJSON" style="display:none;" accept=".json">
+                        <button class="btn warning" id="btnOpenPwd">🔑 Clave</button>
+                        <button class="btn danger" id="btnResetAll">⚠️ Reset</button>
+                        <input type="checkbox" id="chkResetConfirm">
+                    </div>
+                </div>
+                <datalist id="pList"></datalist>
+            </div>
+            <div class="card">
+                <h3 style="margin-bottom:10px;">Listado General</h3>
+                <div class="table-container">
+                    <table class="table" id="tblMiembros"><thead><tr><th>Nombre</th><th>G</th><th>Sexo</th><th>Bautismo</th><th>Privilegios</th><th>Acciones</th></tr></thead><tbody></tbody></table>
+                </div>
+            </div>
+        </section>
+
+        <section id="actividad" class="tab">
+            <div class="card">
+                <h3>Registro de Informes</h3>
+                <div class="admin-tools-grid">
+                    <div><label>Mes</label><select id="actMonthSelect"></select></div>
+                    <div><label>Año</label><input type="number" id="actYearInput"></div>
+                    <div><label>Grupo</label><select id="selGInforme"><option value="1">G1</option><option value="2">G2</option><option value="3">G3</option><option value="4">G4</option><option value="5">G5</option></select></div>
+                    <div style="display:flex; align-items:flex-end;"><button class="btn success" id="btnSaveReports">💾 Guardar Todos</button></div>
+                </div>
+                <div class="table-container"><table class="table" id="tblActividad"><thead><tr><th>Nombre</th><th>Part.</th><th>Horas</th><th>Cursos</th><th>P. Aux</th><th>Notas</th></tr></thead><tbody></tbody></table></div>
+            </div>
+        </section>
+
+        <section id="asistencia" class="tab">
+            <div class="card">
+                <h3>Asistencia Mensual</h3>
+                <div class="admin-tools-grid" style="margin-bottom: 20px; border: 1px solid var(--accent);">
+                    <div><label>Mes</label><select id="asistMonthSelect"></select></div>
+                    <div><label>Año</label><input type="number" id="asistYearInput"></div>
+                    <div style="display:flex; align-items:flex-end; color:var(--muted); font-size:0.8rem;">* Datos para S-88-S y Resumen</div>
+                </div>
+
+                <div class="asist-grid-layout">
+                    <div>
+                        <h4 style="color:var(--accent); margin-bottom:15px; text-transform:uppercase; font-size:0.8rem; border-bottom:1px solid var(--border); padding-bottom:5px;">Reunión entre semana</h4>
+                        <div id="contES" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap:10px;"></div>
+                    </div>
+                    <div>
+                        <h4 style="color:var(--accent); margin-bottom:15px; text-transform:uppercase; font-size:0.8rem; border-bottom:1px solid var(--border); padding-bottom:5px;">Reunión fin de semana</h4>
+                        <div id="contFS" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap:10px;"></div>
+                    </div>
+                </div>
+                <button class="btn success" id="btnSaveAsist" style="margin-top:30px; width:100%;">💾 Guardar Asistencia</button>
+            </div>
+        </section>
+
+        <section id="precursores" class="tab">
+            <div class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    <h3>P. Regulares</h3>
+                    <div class="badge-count">Total: <span id="totalPR">0</span></div>
+                </div>
+                <div class="table-container">
+                    <table class="table" id="tblPrecursores"><thead><tr><th>Nombre</th><th>Grupo</th><th>Bautismo</th><th>Estado</th></tr></thead><tbody></tbody></table>
+                </div>
+            </div>
+            <div class="card">
+                <h3>P. Auxiliares (Mes Actual)</h3>
+                <div class="table-container">
+                    <table class="table" id="tblAuxiliares"><thead><tr><th>Nombre</th><th>Grupo</th><th>Horas</th></tr></thead><tbody></tbody></table>
+                </div>
+            </div>
+        </section>
+
+        <section id="tarjeta" class="tab">
+            <div class="card">
+                <div class="admin-tools-grid">
+                    <input type="text" id="s21Search" list="pList" placeholder="Seleccionar publicador...">
+                    <input type="number" id="s21Year" placeholder="Año Servicio">
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <button class="btn primary" id="btnPreviewS21">👁️ Ver</button>
+                        <button class="btn primary" onclick="generatePDF('s21')">📥 PDF</button>
+                    </div>
+                </div>
+                <div id="preview-viewport"></div>
+            </div>
+        </section>
+
+        <section id="s88" class="tab">
+            <div class="card">
+                <div class="admin-tools-grid">
+                    <div><label>Año Servicio</label><input type="number" id="s88Year"></div>
+                    <div style="display:flex; align-items:flex-end; gap:8px;">
+                        <button class="btn primary" id="btnPreviewS88">👁️ Ver</button>
+                        <button class="btn primary" onclick="generatePDF('s88')">📥 PDF</button>
+                    </div>
+                </div>
+                <div id="s88-preview-viewport"></div>
+            </div>
+        </section>
+
+        <section id="resumen" class="tab">
+            <div class="card">
+                <div class="admin-tools-grid">
+                    <div><label>Mes</label><select id="resMonth"></select></div>
+                    <div><label>Año</label><input type="number" id="resYear"></div>
+                    <div style="display:flex; align-items:flex-end;"><button class="btn primary" id="btnSearchRes">🔍 Buscar</button></div>
+                </div>
+            </div>
+            <div id="resumenContent" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:1.5rem;"></div>
+        </section>
+    </div>
+</div>
+
+<div id="modalAuth">
+    <div class="card" style="width:360px; max-width:90%; text-align:center;">
+        <h2 style="font-weight:900; margin-bottom:12px;">Acceso</h2>
+        <input type="password" id="mPwd" placeholder="••••" style="text-align:center; font-size:2.2rem; letter-spacing:12px; margin-bottom:25px;">
+        <button class="btn primary" id="mEnter" style="width:100%;">ENTRAR</button>
+    </div>
+</div>
+
+<div id="modalPwd">
+    <div class="card" style="width:320px; max-width:90%; text-align:center;">
+        <h3>Cambiar Clave</h3>
+        <div><label>Anterior</label><input type="password" id="pOld" style="margin-bottom:10px;"></div>
+        <div><label>Nueva</label><input type="password" id="pNew" style="margin-bottom:20px;"></div>
+        <div style="display:flex; gap:10px; justify-content:center;"><button class="btn" onclick="$('#modalPwd').style.display='none'">Cancelar</button><button class="btn primary" id="btnUpdatePwd">Guardar</button></div>
+    </div>
+</div>
+
+<script>
+    // URL DE GOOGLE CONFIGURADA CORRECTAMENTE
+    const CLOUD_URL = "https://script.google.com/macros/s/AKfycbx9bKJy3Tsgj2F2t7wlewk12WTK1SIFJqBhKBMJtD9rSSu-wUuUgdp_atey0KFU0ZSt/exec"; 
+    
+    const DB_KEY = 'cong_pro_v79_master';
+    const $=s=>document.querySelector(s);
+    const ymKey = (y,m) => `${y}-${String(m).padStart(2,'0')}`;
+    const MESES_NOM = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    const CICLO_S88 = [9,10,11,12,1,2,3,4,5,6,7,8];
+
+    // INICIALIZACIÓN CON PROTECCIÓN ANTI-PANTALLA BLANCA
+    let state = { personas:[], activity:{}, attendance:{}, config: { pwd: '12345' } };
+    
+    window.onerror = function(msg, url, line) { alert("Error Detectado: " + msg); return false; };
+
+    try {
+        const saved = localStorage.getItem(DB_KEY);
+        if(saved) state = JSON.parse(saved);
+    } catch(e) { console.error("Error local", e); }
+
+    if(!state.config) state.config = { pwd: '12345' };
+    if(!state.personas) state.personas = [];
+    if(!state.activity) state.activity = {};
+    if(!state.attendance) state.attendance = {};
+
+    let curY = new Date().getFullYear(), curM = new Date().getMonth()+1;
+    let actY = curY, actM = curM; 
+    let asistY = curY, asistM = curM;
+
+    function init() {
+        const bind = (id, evt, fn) => { const el = $(id); if(el) el[evt] = fn; };
+
+        bind('#mEnter', 'onclick', login);
+        bind('#mPwd', 'onkeydown', (e) => { if(e.key === 'Enter') login(); });
+        bind('#btnSaveP', 'onclick', savePersona);
+        bind('#btnDeleteP', 'onclick', deletePersona); // NUEVO BOTÓN BORRAR
+        
+        bind('#btnQEdit', 'onclick', () => { 
+            const val = $('#qPersona').value.toLowerCase();
+            const p = state.personas.find(x => x.nombre.toLowerCase() === val); 
+            if(p) editP(p.id); 
+        });
+        bind('#btnExport', 'onclick', exportBackup);
+        bind('#btnResetAll', 'onclick', resetDatabase);
+        bind('#fileInputJSON', 'onchange', handleImport);
+        bind('#btnOpenPwd', 'onclick', () => $('#modalPwd').style.display='flex');
+        bind('#btnUpdatePwd', 'onclick', updatePassword);
+        bind('#btnSyncCloud', 'onclick', loadFromCloud);
+
+        bind('#btnSaveReports', 'onclick', () => { save(); showToast("Informes guardados"); });
+        bind('#btnSaveAsist', 'onclick', () => { save(); showToast("Asistencia guardada"); renderS88Preview(); });
+        bind('#selGInforme', 'onchange', renderActividad);
+        bind('#btnPreviewS21', 'onclick', renderS21Preview);
+        bind('#btnPreviewS88', 'onclick', renderS88Preview);
+        bind('#btnSearchRes', 'onclick', () => renderResumenMensual(parseInt($('#resYear').value), parseInt($('#resMonth').value)));
+
+        const mSels = [$('#headerMonth'), $('#actMonthSelect'), $('#resMonth'), $('#asistMonthSelect')];
+        mSels.forEach(sel => {
+            if(sel) {
+                sel.innerHTML = '';
+                MESES_NOM.forEach((m,i)=>{
+                    const o = document.createElement('option'); o.value=i+1; o.textContent=m;
+                    if(i+1 === curM) o.selected=true;
+                    sel.appendChild(o);
+                });
+            }
+        });
+
+        const hM = $('#headerMonth'); if(hM) hM.onchange = (e) => { curM = parseInt(e.target.value); renderAll(); };
+        const hY = $('#headerYear'); if(hY) { hY.value = curY; hY.onchange = (e) => { curY = parseInt(e.target.value); renderAll(); }; }
+
+        const aM = $('#actMonthSelect'); if(aM) { aM.value = actM; aM.onchange = (e) => { actM = parseInt(e.target.value); renderActividad(); }; }
+        const aY = $('#actYearInput'); if(aY) { aY.value = actY; aY.onchange = (e) => { actY = parseInt(e.target.value); renderActividad(); }; }
+
+        const asM = $('#asistMonthSelect'); if(asM) { asM.value = asistM; asM.onchange = (e) => { asistM = parseInt(e.target.value); renderAsistInputs(); }; }
+        const asY = $('#asistYearInput'); if(asY) { asY.value = asistY; asY.onchange = (e) => { asistY = parseInt(e.target.value); renderAsistInputs(); }; }
+
+        const rY = $('#resYear'); if(rY) rY.value = curY;
+        const s21Y = $('#s21Year'); if(s21Y) s21Y.value = (curM>=9) ? curY : curY-1;
+        const s88Y = $('#s88Year'); if(s88Y) s88Y.value = (curM>=9) ? curY : curY-1;
+
+        const themeSel = $('#themeSelectorUI');
+        if(themeSel) themeSel.onchange = (e) => document.body.setAttribute('data-theme', e.target.value);
+
+        document.querySelectorAll('.tabs button').forEach(b => {
+            b.onclick = () => {
+                document.querySelectorAll('.tabs button, .tab').forEach(el=>el.classList.remove('active'));
+                b.classList.add('active'); 
+                const targetId = b.dataset.tab;
+                $(`#${targetId}`).classList.add('active');
+                if(targetId === 'asistencia') renderAsistInputs();
+                if(targetId === 'precursores') { renderPrecursores(); renderAuxiliares(); }
+                if(targetId === 'resumen') renderResumenMensual(parseInt($('#resYear').value), parseInt($('#resMonth').value));
+                if(targetId === 'tarjeta') updateDatalist();
+                renderTab(targetId);
+            };
+        });
+    }
+
+    function login() { 
+        if(!state.config || !state.config.pwd) state.config = { pwd: '12345' };
+        if($('#mPwd').value === state.config.pwd) { 
+            $('#modalAuth').style.display='none'; 
+            $('#app-content').style.display='block';
+            try { renderAll(); } catch(e) { console.error(e); alert("Error visual: " + e.message); }
+        } else alert("Clave Incorrecta (Default: 12345)"); 
+    }
+
+    function renderAll() { renderMiembros(); updateDatalist(); }
+    function updateDatalist() { const l=$('#pList'); if(l){ l.innerHTML = ''; state.personas.forEach(p => l.innerHTML += `<option value="${p.nombre}">`); } }
+    function showToast(m) { const t=$('#toast'); t.textContent="✔ "+m; t.style.display='block'; setTimeout(()=>t.style.display='none',3000); }
+    
+    function resetPForm() { 
+        $('#pId').value=''; $('#pNombre').value=''; 
+        ['pNac','pBau','pFSac','pSexo','pEsp'].forEach(id=>$('#'+id).value=''); 
+        ['pAnc','pSM','pPE','pMis','pPR'].forEach(id=>$('#'+id).checked=false); 
+        $('#btnCancelEdit').style.display='none';
+        $('#btnDeleteP').style.display='none'; // OCULTAR BORRAR AL RESETEAR
+    }
+
+    function renderTab(t) { 
+        if(t==='personas') renderMiembros(); 
+        if(t==='actividad') renderActividad(); 
+    }
+
+    // --- NUEVA FUNCIÓN BORRAR ---
+    function deletePersona() {
+        const id = $('#pId').value;
+        if(!id) return;
+        if(confirm("¿Estás SEGURO de ELIMINAR definitivamente a este miembro?\nEsta acción no se puede deshacer.")) {
+            state.personas = state.personas.filter(p => p.id !== id);
+            save();
+            renderMiembros();
+            resetPForm();
+            showToast("Miembro eliminado correctamente");
+        }
+    }
+
+    function exportBackup() {
+        const blob=new Blob([JSON.stringify(state)],{type:'application/json'}); 
+        const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`Backup_${new Date().toISOString().slice(0,10)}.json`; a.click();
+    }
+
+    function resetDatabase() {
+        if($('#chkResetConfirm').checked) { 
+            if(confirm("¿Estás seguro de BORRAR TODOS los datos? Esta acción no se puede deshacer.")) {
+                localStorage.clear(); location.reload(); 
+            }
+        } else { alert("Marque la casilla de confirmación para resetear."); }
+    }
+
+    async function save() { 
+        localStorage.setItem(DB_KEY, JSON.stringify(state)); 
+        updateDatalist(); 
+        if(CLOUD_URL.includes("PEGAR_AQUI")) { console.warn("Nube no configurada."); return; }
+        const btn = $('#btnSaveReports') || $('#btnSaveAsist') || $('#btnSaveP');
+        const oldText = btn ? btn.textContent : '';
+        if(btn) btn.textContent = "☁️...";
+        try { await fetch(CLOUD_URL, { method: 'POST', body: JSON.stringify(state) }); if(btn) btn.textContent = oldText; } catch(e) { if(btn) btn.textContent = "⚠️ Error Red"; }
+    }
+
+    async function loadFromCloud() {
+        if(CLOUD_URL.includes("PEGAR_AQUI")) return alert("Configure la URL del Script.");
+        if(!confirm("¿Sobrescribir datos locales con la nube?")) return;
+        const btn = $('#btnSyncCloud'); btn.textContent = "⏳...";
+        try {
+            const res = await fetch(CLOUD_URL); const data = await res.json();
+            if(Object.keys(data).length === 0 || (!data.personas && !data.activity)) { showToast("⚠️ Nube conectada pero sin datos."); } 
+            else if(data && (data.personas || data.activity)) { state = data; localStorage.setItem(DB_KEY, JSON.stringify(state)); renderAll(); showToast("✅ Sincronizado correctamente"); } 
+            else { alert("Formato de nube desconocido."); }
+        } catch(e) { alert("Error de conexión. Verifique internet."); } finally { btn.textContent = "☁️ Nube"; }
+    }
+
+    function updatePassword() { 
+        if($('#pOld').value !== state.config.pwd) return alert("Error clave anterior");
+        state.config.pwd=$('#pNew').value; save(); $('#modalPwd').style.display='none'; showToast("Clave actualizada.");
+    }
+
+    function handleImport(e) { 
+        const f=e.target.files[0]; if(!f)return;
+        if(!confirm("⚠️ ADVERTENCIA: Reemplazo total de datos locales.")) { e.target.value = ''; return; } 
+        showToast("⏳ Procesando...");
+        const r=new FileReader(); 
+        r.onload=(ev)=>{ 
+            try { 
+                const cleanText = ev.target.result.trim().replace(/;$/, ""); const json = JSON.parse(cleanText);
+                if(json.meses && !json.activity) {
+                    json.activity = {}; json.attendance = {};
+                    Object.keys(json.meses).forEach(k => {
+                        if(json.meses[k].per) json.activity[k] = json.meses[k].per;
+                        if(json.meses[k].es) { if(!json.attendance[k]) json.attendance[k] = {es:[], fs:[]}; json.attendance[k].es = json.meses[k].es; json.attendance[k].fs = json.meses[k].fs; }
+                    });
+                }
+                if(!json.config) json.config = { pwd: '12345' };
+                state = json; save(); renderAll(); showToast("Importación exitosa.");
+            } catch(e){ alert("Error crítico leyendo archivo: " + e.message); } finally { e.target.value = ''; }
+        }; 
+        r.readAsText(f); 
+    }
+
+    function renderAsistInputs() {
+        const k = ymKey(asistY, asistM);
+        if(!state.attendance[k]) state.attendance[k] = { es:[0,0,0,0,0,0], fs:[0,0,0,0,0,0] };
+        const cES = $('#contES'), cFS = $('#contFS');
+        if(!cES || !cFS) return;
+        cES.innerHTML = ''; cFS.innerHTML = '';
+        for(let i=0; i<6; i++){
+            cES.innerHTML += `<div><label>Sem ${i+1}</label><input type="number" value="${state.attendance[k].es[i]||0}" oninput="updAsist('es', ${i}, this.value)"></div>`;
+            cFS.innerHTML += `<div><label>Sem ${i+1}</label><input type="number" value="${state.attendance[k].fs[i]||0}" oninput="updAsist('fs', ${i}, this.value)"></div>`;
+        }
+    }
+
+    window.updAsist = (type, idx, val) => { const k = ymKey(asistY, asistM); state.attendance[k][type][idx] = parseInt(val || 0); save(); };
+
+    function buildS88TableContent(sy, type) {
+        let rows = '', tA = 0, tR = 0;
+        CICLO_S88.forEach(m => {
+            const y = (m >= 9) ? sy : sy + 1; const d = state.attendance[ymKey(y,m)]?.[type] || [0,0,0,0,0,0];
+            const re = d.filter(v => v > 0).length; const as = d.reduce((a,b) => a+b, 0); const pr = re > 0 ? Math.round(as / re) : '';
+            tA += as; tR += re; rows += `<tr><td style="text-align:left">${MESES_NOM[m-1]}</td><td>${re||''}</td><td>${as||''}</td><td>${pr}</td></tr>`;
+        });
+        const avg = tR > 0 ? Math.round(tA / tR) : ''; return { h: rows, avg: avg };
+    }
+
+    function renderS88Preview() {
+        const sy = parseInt($('#s88Year').value); const es = buildS88TableContent(sy, 'es'); const fs = buildS88TableContent(sy, 'fs');
+        $('#s88-preview-viewport').innerHTML = `<div class="print-canvas"><div class="print-title">REGISTRO DE ASISTENCIA A LAS REUNIONES DE CONGREGACIÓN</div><div style="font-weight:800; margin:10px 0 5px; text-transform:uppercase; font-size:10pt;">Reunión de entre semana</div><table class="official-table"><thead><tr><th>Año de servicio ${sy}-${sy+1}</th><th>Número de reuniones</th><th>Asistencia total</th><th>Promedio de asistencia semanal</th></tr></thead><tbody>${es.h}</tbody><tfoot><tr style="font-weight:bold;"><td style="text-align:right">Promedio de asistencia mensual</td><td colspan="2"></td><td>${es.avg}</td></tr></tfoot></table><div style="font-weight:800; margin:20px 0 5px; text-transform:uppercase; font-size:10pt;">Reunión del fin de semana</div><table class="official-table"><thead><tr><th>Año de servicio ${sy}-${sy+1}</th><th>Número de reuniones</th><th>Asistencia total</th><th>Promedio de asistencia semanal</th></tr></thead><tbody>${fs.h}</tbody><tfoot><tr style="font-weight:bold;"><td style="text-align:right">Promedio de asistencia mensual</td><td colspan="2"></td><td>${fs.avg}</td></tr></tfoot></table><div style="font-size:7pt; margin-top:15px; font-weight:700;">S-88-S 12/18</div></div>`;
+    }
+
+    function renderS21Preview() {
+        const n = $('#s21Search').value, sy = parseInt($('#s21Year').value), p = state.personas.find(x=>x.nombre === n); if(!p) return alert("Seleccione");
+        let rows = '', tHor = 0;
+        CICLO_S88.forEach(m => {
+            const y = (m>=9) ? sy : sy+1; const r = state.activity[ymKey(y,m)]?.[p.id] || {horas:0, est:0, pa:false, part:false}; tHor += (r.horas||0);
+            const partX = (r.horas > 0 || r.part) ? 'X' : ' '; const paX = r.pa ? 'X' : ' ';
+            rows += `<tr><td>${MESES_NOM[m-1]}</td><td>[${partX}]</td><td>${r.est||''}</td><td>[${paX}]</td><td>${r.horas||''}</td><td></td></tr>`;
+        });
+        $('#preview-viewport').innerHTML = `<div class="print-canvas"><div class="print-title">REGISTRO DE PUBLICADOR DE LA CONGREGACIÓN</div><div class="s21-header-box"><div><b>Nombre:</b> ${p.nombre} | <b>F. Nacimiento:</b> ${p.nac || '-'}</div><div style="display:flex; gap:15px; margin-top:5px;"><span>[${p.sexo==='Hombre'?'X':' '}] Hombre</span><span>[${p.sexo==='Mujer'?'X':' '}] Mujer</span><span style="margin-left:20px"><b>Bautismo:</b> ${p.bau || '-'}</span></div><div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:5px;"><span>[${p.esp==='Ungido'?'X':' '}] Ungido</span><span>Anciano [${p.anciano?'X':' '}]</span><span>SM [${p.sm?'X':' '}]</span><span>PR [${p.pr?'X':' '}]</span><span>P. Especial [${p.pe?'X':' '}]</span><span>Misionero [${p.mis?'X':' '}]</span></div></div><table class="official-table"><thead><tr><th>Año servicio ${sy}-${sy+1}</th><th>Participación</th><th>Cursos bíblicos</th><th>Prec. auxiliar</th><th>Horas</th><th>Notas</th></tr></thead><tbody>${rows}</tbody><tfoot><tr style="font-weight:bold; background:#eee;"><td colspan="4" style="text-align:right;">Total</td><td>${tHor}</td><td></td></tr></tfoot></table><div style="font-size:7pt; margin-top:10px; font-weight:700;">S-21-S 11/23</div></div>`;
+    }
+
+    function savePersona() {
+        const id = $('#pId').value, n = $('#pNombre').value.trim(); if(!n) return alert("Nombre obligatorio");
+        const data = { id: id || 'p'+Date.now(), nombre: n, grupo: $('#pGrupo').value, sexo: $('#pSexo').value, esp: $('#pEsp').value, nac: $('#pNac').value, bau: $('#pBau').value, fsac: $('#pFSac').value, pr: $('#pPR').checked, anciano: $('#pAnc').checked, sm: $('#pSM').checked, pe: $('#pPE').checked, mis: $('#pMis').checked, sacado: !!$('#pFSac').value };
+        if(id) state.personas[state.personas.findIndex(x=>x.id===id)] = data; else state.personas.push(data);
+        save(); renderMiembros(); resetPForm();
+    }
+
+    function renderMiembros() {
+        const tb = $('#tblMiembros tbody'); if(!tb) return; tb.innerHTML = '';
+        state.personas.sort((a,b)=>a.nombre.localeCompare(b.nombre)).forEach(p => {
+            const tr = document.createElement('tr'); if(p.sacado) tr.className='row-sacado';
+            tr.innerHTML = `<td><b>${p.nombre}</b></td><td>G${p.grupo}</td><td>${p.sexo}</td><td>${p.bau||'-'}</td><td>${[p.anciano?'Anc':'', p.sm?'SM':'', p.pr?'PR':'', p.pe?'PE':'', p.mis?'Mis':''].filter(x=>x).join(', ')}</td><td><button class="btn primary" onclick="editP('${p.id}')">✏️</button></td>`;
+            tb.appendChild(tr);
+        });
+    }
+
+    function renderActividad() {
+        const g=$('#selGInforme').value, tb=$('#tblActividad tbody'), k=ymKey(actY,actM); if(!tb) return; tb.innerHTML='';
+        state.personas.filter(p => p.grupo == g && !p.sacado).forEach(p => {
+            const r = state.activity[k]?.[p.id] || {part:false, horas:0, est:0, pa:false};
+            tb.innerHTML += `<tr><td>${p.nombre}</td><td><input type="checkbox" ${r.part?'checked':''} onchange="updAct('${p.id}','part',this.checked)"></td><td><input type="number" value="${r.horas}" onchange="updAct('${p.id}','horas',this.value)" style="width:60px"></td><td><input type="number" value="${r.est}" onchange="updAct('${p.id}','est',this.value)" style="width:60px"></td><td><input type="checkbox" ${r.pa?'checked':''} onchange="updAct('${p.id}','pa',this.checked)"></td><td><input type="text" value="${r.nota||''}" onchange="updAct('${p.id}','nota',this.value)" style="width:130px"></td></tr>`;
+        });
+    }
+
+    function renderResumenMensual(y, m) {
+        const k = ymKey(y, m), act = state.activity[k] || {}, att = state.attendance[k] || {es:[], fs:[]};
+        const last6 = []; for (let i = 0; i < 6; i++) { let tm = m - i, ty = y; if (tm <= 0) { tm += 12; ty -= 1; } last6.push(ymKey(ty, tm)); }
+        let totalMembers=0, actives=0, pubC=0, pubE=0, prC=0, prH=0, prE=0, paC=0, paH=0, paE=0;
+        state.personas.forEach(p => {
+            if(p.sacado) return; totalMembers++; 
+            let haInf = false; for(const key of last6) { if(state.activity[key]?.[p.id]?.horas > 0 || state.activity[key]?.[p.id]?.part) { haInf = true; break; } } if(haInf) actives++;
+            const r = act[p.id] || {}; 
+            if(r.horas > 0 || r.part) { const horas = parseFloat(r.horas || 0), est = parseInt(r.est || 0);
+                if(p.pr) { prC++; prH+=horas; prE+=est; } else if(r.pa) { paC++; paH+=horas; paE+=est; } else { pubC++; pubE+=est; }
+            }
+        });
+        const calcAvg = (arr) => { if(!arr) return 0; const valid = arr.filter(n => n > 0); return valid.length ? Math.round(valid.reduce((a,b)=>a+b, 0) / valid.length) : 0; };
+        const avgES = calcAvg(att.es); const avgFS = calcAvg(att.fs);
+        $('#resumenContent').innerHTML = `<div style="grid-column:1/-1; text-align:center; font-weight:800; color:var(--accent); margin-bottom:10px;">RESUMEN: ${MESES_NOM[m-1].toUpperCase()} ${y}</div><div class="stat-block"><h4>Población Total</h4><div class="stat-row"><label>Total Miembros</label><span class="stat-value">${totalMembers}</span></div><div class="stat-row"><label>Activos (6m)</label><span class="stat-value">${actives}</span></div></div><div class="stat-block"><h4>Publicadores</h4><div class="stat-row"><label>Cantidad</label><span class="stat-value">${pubC}</span></div><div class="stat-row"><label>Estudios</label><span class="stat-value">${pubE}</span></div></div><div class="stat-block" style="border-top-color:var(--success)"><h4>P. Regulares</h4><div class="stat-row"><label>Cantidad</label><span class="stat-value">${prC}</span></div><div class="stat-row"><label>Horas</label><span class="stat-value">${prH.toFixed(1)}</span></div><div class="stat-row"><label>Estudios</label><span class="stat-value">${prE}</span></div></div><div class="stat-block" style="border-top-color:var(--warning)"><h4>P. Auxiliares</h4><div class="stat-row"><label>Cantidad</label><span class="stat-value">${paC}</span></div><div class="stat-row"><label>Horas</label><span class="stat-value">${paH.toFixed(1)}</span></div><div class="stat-row"><label>Estudios</label><span class="stat-value">${paE}</span></div></div><div class="stat-block" style="border-top-color:var(--purple)"><h4>Promedio Asistencia</h4><div class="stat-row"><label>Entre Semana</label><span class="stat-value">${avgES}</span></div><div class="stat-row"><label>Fin de Semana</label><span class="stat-value">${avgFS}</span></div></div>`;
+    }
+
+    function renderPrecursores() {
+        const tb = $('#tblPrecursores tbody'); const counter = $('#totalPR'); if(!tb) return; tb.innerHTML = '';
+        const list = state.personas.filter(p => p.pr && !p.sacado).sort((a,b)=>a.nombre.localeCompare(b.nombre)); if(counter) counter.innerText = list.length;
+        list.forEach(p => { tb.innerHTML += `<tr><td><b>${p.nombre}</b></td><td>G${p.grupo}</td><td>${p.bau||'-'}</td><td style="color:var(--success); font-weight:800;">Activo</td></tr>`; });
+    }
+
+    function renderAuxiliares() { 
+        const tb=$('#tblAuxiliares tbody'), k=ymKey(curY,curM); if(!tb) return; tb.innerHTML=''; 
+        state.personas.filter(p=>!p.sacado && state.activity[k]?.[p.id]?.pa).forEach(p=>{ tb.innerHTML+=`<tr><td><b>${p.nombre}</b></td><td>G${p.grupo}</td><td>${state.activity[k][p.id].horas}</td></tr>`; }); 
+    }
+
+    window.addEventListener("DOMContentLoaded", () => { try { init(); } catch(e) { alert("Error: " + e.message); } });
+
+    window.editP = (id) => { const p = state.personas.find(x=>x.id===id); if(!p) return; $('#pId').value = p.id; $('#pNombre').value = p.nombre; $('#pSexo').value = p.sexo; $('#pEsp').value = p.esp; $('#pNac').value = p.nac; $('#pBau').value = p.bau; $('#pFSac').value = p.fsac || ''; $('#pPR').checked = !!p.pr; $('#pAnc').checked = !!p.anciano; $('#pSM').checked = !!p.sm; $('#pPE').checked = !!p.pe; $('#pMis').checked = !!p.mis; $('#btnCancelEdit').style.display='inline-flex'; $('#btnDeleteP').style.display='inline-flex'; window.scrollTo(0,0); }
+    window.updAct = (pid, f, v) => { const k = ymKey(actY, actM); if(!state.activity[k]) state.activity[k] = {}; if(!state.activity[k][pid]) state.activity[k][pid] = {part:false, horas:0, est:0, pa:false}; state.activity[k][pid][f] = (f==='pa'||f==='part'||f==='nota') ? v : parseFloat(v||0); save(); }
+</script>
+</body>
+</html>
