@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Congregación Pro - Master v66</title>
+    <title>Congregación Pro - Master v72</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -85,6 +85,7 @@
         <h1 style="font-size: 1.2rem; font-weight: 800;">Congregación Pro</h1>
     </div>
     <div style="display:flex; gap:12px; align-items:center;">
+        <button class="btn success" id="btnSyncCloud" title="Descargar datos de Drive">☁️ Cargar Nube</button>
         <div style="display:flex; flex-direction:column; align-items:flex-end;">
             <label style="margin-bottom:2px; font-size:0.6rem;">Global</label>
             <div style="display:flex; gap:5px;">
@@ -274,7 +275,13 @@
 </div>
 
 <script>
-    const DB_KEY = 'cong_pro_v66_master';
+    const DB_KEY = 'cong_pro_v72_master';
+    
+    // =================================================================
+    // ⚠️ 1. PEGA AQUÍ TU URL DE GOOGLE APPS SCRIPT:
+    const CLOUD_URL = "https://script.google.com/macros/s/AKfycbxzKaSX7nbyN2D0eKG8Z6Tpq1ucECxAEbT6Uqgf4KMHtmIp5sPU7kNwjz2ZWBIjZTfW/exec"; 
+    // =================================================================
+
     const $=s=>document.querySelector(s);
     const ymKey = (y,m) => `${y}-${String(m).padStart(2,'0')}`;
     const MESES_NOM = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -307,6 +314,7 @@
         bind('#fileInputJSON', 'onchange', handleImport);
         bind('#btnOpenPwd', 'onclick', () => $('#modalPwd').style.display='flex');
         bind('#btnUpdatePwd', 'onclick', updatePassword);
+        bind('#btnSyncCloud', 'onclick', loadFromCloud);
 
         bind('#btnSaveReports', 'onclick', () => { save(); showToast("Informes guardados"); });
         bind('#btnSaveAsist', 'onclick', () => { save(); showToast("Asistencia guardada"); renderS88Preview(); });
@@ -350,8 +358,9 @@
                 const targetId = b.dataset.tab;
                 $(`#${targetId}`).classList.add('active');
                 if(targetId === 'asistencia') renderAsistInputs();
-                if(targetId === 'precursores') renderPrecursores();
+                if(targetId === 'precursores') { renderPrecursores(); renderAuxiliares(); }
                 if(targetId === 'resumen') renderResumenMensual(parseInt($('#resYear').value), parseInt($('#resMonth').value));
+                if(targetId === 'tarjeta') updateDatalist();
                 renderTab(targetId);
             };
         });
@@ -366,6 +375,74 @@
         } else alert("Clave Incorrecta (Default: 12345)"); 
     }
 
+    // --- FUNCIONES RESTAURADAS (SOLUCIÓN DEL ERROR) ---
+    function renderAll() { renderMiembros(); updateDatalist(); }
+    function updateDatalist() { const l=$('#pList'); if(l){ l.innerHTML = ''; state.personas.forEach(p => l.innerHTML += `<option value="${p.nombre}">`); } }
+    function showToast(m) { const t=$('#toast'); t.textContent="✔ "+m; t.style.display='block'; setTimeout(()=>t.style.display='none',3000); }
+    function resetPForm() { $('#pId').value=''; $('#pNombre').value=''; ['pNac','pBau','pFSac','pSexo','pEsp'].forEach(id=>$('#'+id).value=''); ['pAnc','pSM','pPE','pMis','pPR'].forEach(id=>$('#'+id).checked=false); }
+    function renderTab(t) { 
+        if(t==='personas') renderMiembros(); 
+        if(t==='actividad') renderActividad(); 
+        if(t==='resumen') renderResumenMensual(parseInt($('#resYear').value), parseInt($('#resMonth').value)); 
+        if(t==='asistencia') renderAsistInputs(); 
+        if(t==='s88') renderS88Preview(); 
+        if(t==='precursores') { renderPrecursores(); renderAuxiliares(); }
+        if(t==='tarjeta') updateDatalist();
+    }
+
+    function exportBackup() {
+        const blob=new Blob([JSON.stringify(state)],{type:'application/json'}); 
+        const a=document.createElement('a'); 
+        a.href=URL.createObjectURL(blob); 
+        a.download=`Backup_${new Date().toISOString().slice(0,10)}.json`; 
+        a.click();
+    }
+
+    function resetDatabase() {
+        if($('#chkResetConfirm').checked) { 
+            if(confirm("¿Estás seguro de BORRAR TODOS los datos? Esta acción no se puede deshacer.")) {
+                localStorage.clear(); 
+                location.reload(); 
+            }
+        } else {
+            alert("Marque la casilla de confirmación para resetear.");
+        }
+    }
+
+    // --- NUBE ---
+    async function save() { 
+        localStorage.setItem(DB_KEY, JSON.stringify(state)); 
+        updateDatalist(); 
+        if(CLOUD_URL.includes("PEGAR_AQUI")) { console.warn("Nube no configurada."); return; }
+        const btn = $('#btnSaveReports') || $('#btnSaveAsist') || $('#btnSaveP');
+        const oldText = btn ? btn.textContent : '';
+        if(btn) btn.textContent = "☁️ Guardando...";
+        try {
+            await fetch(CLOUD_URL, { method: 'POST', body: JSON.stringify(state) });
+            if(btn) btn.textContent = oldText;
+            console.log("Sincronizado con Drive");
+        } catch(e) {
+            if(btn) btn.textContent = "⚠️ Error Red";
+        }
+    }
+
+    async function loadFromCloud() {
+        if(CLOUD_URL.includes("PEGAR_AQUI")) return alert("Configure la URL del Script.");
+        if(!confirm("¿Sobrescribir datos locales con la nube?")) return;
+        const btn = $('#btnSyncCloud');
+        btn.textContent = "⏳...";
+        try {
+            const res = await fetch(CLOUD_URL);
+            const data = await res.json();
+            if(data && (data.personas || data.activity)) {
+                state = data;
+                localStorage.setItem(DB_KEY, JSON.stringify(state)); 
+                renderAll();
+                showToast("✅ Sincronizado");
+            } else { alert("Nube vacía o error."); }
+        } catch(e) { alert("Error de conexión."); } finally { btn.textContent = "☁️ Cargar Nube"; }
+    }
+
     function updatePassword() { 
         if($('#pOld').value !== state.config.pwd) return alert("Error clave anterior");
         state.config.pwd=$('#pNew').value; 
@@ -375,16 +452,14 @@
 
     function handleImport(e) { 
         const f=e.target.files[0]; if(!f)return;
-        if(!confirm("⚠️ ADVERTENCIA: Esta acción reemplazará TODOS los datos actuales.\n\n¿Desea continuar?")) {
-            e.target.value = ''; return;
-        } 
+        if(!confirm("⚠️ ADVERTENCIA: Reemplazo total de datos locales.")) { e.target.value = ''; return; } 
         const r=new FileReader(); 
         r.onload=(ev)=>{ 
             try { 
-                const json = JSON.parse(ev.target.result);
+                const cleanText = ev.target.result.trim().replace(/;$/, ""); // Intento básico de limpieza
+                const json = JSON.parse(cleanText);
                 if(json.meses && !json.activity) {
-                    json.activity = {};
-                    json.attendance = {};
+                    json.activity = {}; json.attendance = {};
                     Object.keys(json.meses).forEach(k => {
                         if(json.meses[k].per) json.activity[k] = json.meses[k].per;
                         if(json.meses[k].es) {
@@ -395,20 +470,19 @@
                     });
                 }
                 if(!json.config) json.config = { pwd: '12345' };
-                if(!json.personas) json.personas = [];
-                if(!json.activity) json.activity = {};
-                if(!json.attendance) json.attendance = {};
                 state = json;
-                save();
+                save(); 
                 renderAll();
-                showToast("Datos importados");
+                showToast("Importación exitosa");
+            } catch(e){
+                alert("Error crítico leyendo el archivo JSON.\nDetalles: " + e.message);
+            } finally {
                 e.target.value = '';
-            } catch(e){alert("Error: Archivo corrupto");} 
+            }
         }; 
         r.readAsText(f); 
     }
 
-    // --- ASISTENCIA ---
     function renderAsistInputs() {
         const k = ymKey(asistY, asistM);
         if(!state.attendance[k]) state.attendance[k] = { es:[0,0,0,0,0,0], fs:[0,0,0,0,0,0] };
@@ -427,7 +501,6 @@
         save();
     };
 
-    // --- S-88-S ---
     function buildS88TableContent(sy, type) {
         let rows = '', tA = 0, tR = 0;
         CICLO_S88.forEach(m => {
@@ -450,7 +523,6 @@
         $('#s88-preview-viewport').innerHTML = `<div class="print-canvas"><div class="print-title">REGISTRO DE ASISTENCIA A LAS REUNIONES DE CONGREGACIÓN</div><div style="font-weight:800; margin:10px 0 5px; text-transform:uppercase; font-size:10pt;">Reunión de entre semana</div><table class="official-table"><thead><tr><th>Año de servicio ${sy}-${sy+1}</th><th>Número de reuniones</th><th>Asistencia total</th><th>Promedio de asistencia semanal</th></tr></thead><tbody>${es.h}</tbody><tfoot><tr style="font-weight:bold;"><td style="text-align:right">Promedio de asistencia mensual</td><td colspan="2"></td><td>${es.avg}</td></tr></tfoot></table><div style="font-weight:800; margin:20px 0 5px; text-transform:uppercase; font-size:10pt;">Reunión del fin de semana</div><table class="official-table"><thead><tr><th>Año de servicio ${sy}-${sy+1}</th><th>Número de reuniones</th><th>Asistencia total</th><th>Promedio de asistencia semanal</th></tr></thead><tbody>${fs.h}</tbody><tfoot><tr style="font-weight:bold;"><td style="text-align:right">Promedio de asistencia mensual</td><td colspan="2"></td><td>${fs.avg}</td></tr></tfoot></table><div style="font-size:7pt; margin-top:15px; font-weight:700;">S-88-S 12/18</div></div>`;
     }
 
-    // --- S-21-S ---
     function renderS21Preview() {
         const n = $('#s21Search').value, sy = parseInt($('#s21Year').value), p = state.personas.find(x=>x.nombre === n);
         if(!p) return alert("Seleccione");
@@ -466,7 +538,6 @@
         $('#preview-viewport').innerHTML = `<div class="print-canvas"><div class="print-title">REGISTRO DE PUBLICADOR DE LA CONGREGACIÓN</div><div class="s21-header-box"><div><b>Nombre:</b> ${p.nombre} | <b>F. Nacimiento:</b> ${p.nac || '-'}</div><div style="display:flex; gap:15px; margin-top:5px;"><span>[${p.sexo==='Hombre'?'X':' '}] Hombre</span><span>[${p.sexo==='Mujer'?'X':' '}] Mujer</span><span style="margin-left:20px"><b>Bautismo:</b> ${p.bau || '-'}</span></div><div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:5px;"><span>[${p.esp==='Ungido'?'X':' '}] Ungido</span><span>Anciano [${p.anciano?'X':' '}]</span><span>SM [${p.sm?'X':' '}]</span><span>PR [${p.pr?'X':' '}]</span><span>P. Especial [${p.pe?'X':' '}]</span><span>Misionero [${p.mis?'X':' '}]</span></div></div><table class="official-table"><thead><tr><th>Año servicio ${sy}-${sy+1}</th><th>Participación</th><th>Cursos bíblicos</th><th>Prec. auxiliar</th><th>Horas</th><th>Notas</th></tr></thead><tbody>${rows}</tbody><tfoot><tr style="font-weight:bold; background:#eee;"><td colspan="4" style="text-align:right;">Total</td><td>${tHor}</td><td></td></tr></tfoot></table><div style="font-size:7pt; margin-top:10px; font-weight:700;">S-21-S 11/23</div></div>`;
     }
 
-    // --- CORE ---
     function savePersona() {
         const id = $('#pId').value, n = $('#pNombre').value.trim();
         if(!n) return alert("Nombre obligatorio");
@@ -499,9 +570,8 @@
 
         state.personas.forEach(p => {
             if(p.sacado) return;
-            totalMembers++; // Nuevo contador solicitado
+            totalMembers++; 
             let haInf = false; for(const key of last6) { if(state.activity[key]?.[p.id]?.horas > 0 || state.activity[key]?.[p.id]?.part) { haInf = true; break; } } if(haInf) actives++;
-            
             const r = act[p.id] || {}; 
             if(r.horas > 0 || r.part) {
                 const horas = parseFloat(r.horas || 0), est = parseInt(r.est || 0);
@@ -551,28 +621,13 @@
         }); 
     }
 
-    function save() { localStorage.setItem(DB_KEY, JSON.stringify(state)); updateDatalist(); }
-    function showToast(m) { const t=$('#toast'); t.textContent="✔ "+m; t.style.display='block'; setTimeout(()=>t.style.display='none',3000); }
-    function updateDatalist() { const l=$('#pList'); if(l){ l.innerHTML = ''; state.personas.forEach(p => l.innerHTML += `<option value="${p.nombre}">`); } }
-    function resetPForm() { $('#pId').value=''; $('#pNombre').value=''; ['pNac','pBau','pFSac','pSexo','pEsp'].forEach(id=>$('#'+id).value=''); ['pAnc','pSM','pPE','pMis','pPR'].forEach(id=>$('#'+id).checked=false); }
-    function updSacad(id, v) { const p=state.personas.find(x=>x.id===id); if(p){p.sacado=v; save(); renderAll();}}
-    function renderTab(t) { 
-        if(t==='personas') renderMiembros(); 
-        if(t==='actividad') renderActividad(); 
-        if(t==='resumen') renderResumenMensual(parseInt($('#resYear').value), parseInt($('#resMonth').value)); 
-        if(t==='asistencia') renderAsistInputs(); 
-        if(t==='s88') renderS88Preview(); 
-        if(t==='precursores') renderPrecursores();
-        if(t==='auxiliares') renderAuxiliares();
-    }
-    function renderAll() { renderMiembros(); updateDatalist(); }
-    async function generatePDF(type) { const area = (type==='s21') ? $('#preview-viewport') : $('#s88-preview-viewport'); html2pdf().from(area).set({ margin:10, filename: type.toUpperCase()+'.pdf' }).save(); }
-    function exportBackup() { const blob=new Blob([JSON.stringify(state)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`Backup.json`; a.click(); }
-    function resetDatabase() { if($('#chkResetConfirm').checked) { localStorage.clear(); location.reload(); } }
+    // DIAGNÓSTICO EN INICIO
+    document.addEventListener("DOMContentLoaded", () => {
+        try { init(); } catch(e) { alert("Error crítico al iniciar: " + e.message); }
+    });
+
     window.editP = (id) => { const p = state.personas.find(x=>x.id===id); if(!p) return; $('#pId').value = p.id; $('#pNombre').value = p.nombre; $('#pSexo').value = p.sexo; $('#pEsp').value = p.esp; $('#pNac').value = p.nac; $('#pBau').value = p.bau; $('#pFSac').value = p.fsac || ''; $('#pPR').checked = !!p.pr; $('#pAnc').checked = !!p.anciano; $('#pSM').checked = !!p.sm; $('#pPE').checked = !!p.pe; $('#pMis').checked = !!p.mis; $('#btnCancelEdit').style.display='inline-flex'; window.scrollTo(0,0); }
     window.updAct = (pid, f, v) => { const k = ymKey(actY, actM); if(!state.activity[k]) state.activity[k] = {}; if(!state.activity[k][pid]) state.activity[k][pid] = {part:false, horas:0, est:0, pa:false}; state.activity[k][pid][f] = (f==='pa'||f==='part'||f==='nota') ? v : parseFloat(v||0); save(); }
-
-    init();
 </script>
 </body>
 </html>
