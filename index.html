@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Congregación Pro - Master v72</title>
+    <title>Congregación Pro - Master v73</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -275,11 +275,11 @@
 </div>
 
 <script>
-    const DB_KEY = 'cong_pro_v72_master';
+    const DB_KEY = 'cong_pro_v73_master';
     
     // =================================================================
-    // ⚠️ 1. PEGA AQUÍ TU URL DE GOOGLE APPS SCRIPT:
-    const CLOUD_URL = "PEGAR_AQUI_TU_URL_DE_GOOGLE_APPS_SCRIPT"; 
+    // ✅ URL DE GOOGLE APPS SCRIPT CONFIGURADA:
+    const CLOUD_URL = "https://script.google.com/macros/s/AKfycbx9bKJy3Tsgj2F2t7wlewk12WTK1SIFJqBhKBMJtD9rSSu-wUuUgdp_atey0KFU0ZSt/exec"; 
     // =================================================================
 
     const $=s=>document.querySelector(s);
@@ -375,7 +375,7 @@
         } else alert("Clave Incorrecta (Default: 12345)"); 
     }
 
-    // --- FUNCIONES RESTAURADAS (SOLUCIÓN DEL ERROR) ---
+    // --- FUNCIONES CORE ---
     function renderAll() { renderMiembros(); updateDatalist(); }
     function updateDatalist() { const l=$('#pList'); if(l){ l.innerHTML = ''; state.personas.forEach(p => l.innerHTML += `<option value="${p.nombre}">`); } }
     function showToast(m) { const t=$('#toast'); t.textContent="✔ "+m; t.style.display='block'; setTimeout(()=>t.style.display='none',3000); }
@@ -409,7 +409,7 @@
         }
     }
 
-    // --- NUBE ---
+    // --- NUBE MEJORADA ---
     async function save() { 
         localStorage.setItem(DB_KEY, JSON.stringify(state)); 
         updateDatalist(); 
@@ -434,13 +434,22 @@
         try {
             const res = await fetch(CLOUD_URL);
             const data = await res.json();
-            if(data && (data.personas || data.activity)) {
+            
+            if(Object.keys(data).length === 0 || (!data.personas && !data.activity)) {
+                showToast("⚠️ Nube conectada pero sin datos. Guarde algo primero.");
+            } else if(data && (data.personas || data.activity)) {
                 state = data;
                 localStorage.setItem(DB_KEY, JSON.stringify(state)); 
                 renderAll();
-                showToast("✅ Sincronizado");
-            } else { alert("Nube vacía o error."); }
-        } catch(e) { alert("Error de conexión."); } finally { btn.textContent = "☁️ Cargar Nube"; }
+                showToast("✅ Sincronizado correctamente");
+            } else { 
+                alert("Formato de nube desconocido."); 
+            }
+        } catch(e) { 
+            alert("Error de conexión. Verifique internet."); 
+        } finally { 
+            btn.textContent = "☁️ Cargar Nube"; 
+        }
     }
 
     function updatePassword() { 
@@ -453,10 +462,13 @@
     function handleImport(e) { 
         const f=e.target.files[0]; if(!f)return;
         if(!confirm("⚠️ ADVERTENCIA: Reemplazo total de datos locales.")) { e.target.value = ''; return; } 
+        
+        showToast("⏳ Procesando y subiendo a nube...");
+        
         const r=new FileReader(); 
         r.onload=(ev)=>{ 
             try { 
-                const cleanText = ev.target.result.trim().replace(/;$/, ""); // Intento básico de limpieza
+                const cleanText = ev.target.result.trim().replace(/;$/, ""); 
                 const json = JSON.parse(cleanText);
                 if(json.meses && !json.activity) {
                     json.activity = {}; json.attendance = {};
@@ -473,7 +485,7 @@
                 state = json;
                 save(); 
                 renderAll();
-                showToast("Importación exitosa");
+                showToast("Importación exitosa y subida a Drive iniciada");
             } catch(e){
                 alert("Error crítico leyendo el archivo JSON.\nDetalles: " + e.message);
             } finally {
