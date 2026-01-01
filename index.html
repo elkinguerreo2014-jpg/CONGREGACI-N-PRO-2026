@@ -427,7 +427,7 @@
     }
 
     async function loadFromCloud() {
-        if(CLOUD_URL.includes("PEGAR_AQUI")) return alert("Configure la URL del Script.");
+        if(CLOUD_URL.includes("https://script.google.com/macros/s/AKfycbxzKaSX7nbyN2D0eKG8Z6Tpq1ucECxAEbT6Uqgf4KMHtmIp5sPU7kNwjz2ZWBIjZTfW/exec")) return alert("Configure la URL del Script.");
         if(!confirm("¿Sobrescribir datos locales con la nube?")) return;
         const btn = $('#btnSyncCloud');
         btn.textContent = "⏳...";
@@ -631,3 +631,4 @@
 </script>
 </body>
 </html>
+
