@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-    <title>Congregación Pro - Master v80</title>
+    <title>Congregación Pro - Master v81</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -193,7 +193,12 @@
                     <div><label>Mes</label><select id="actMonthSelect"></select></div>
                     <div><label>Año</label><input type="number" id="actYearInput"></div>
                     <div><label>Grupo</label><select id="selGInforme"><option value="1">G1</option><option value="2">G2</option><option value="3">G3</option><option value="4">G4</option><option value="5">G5</option></select></div>
-                    <div style="display:flex; align-items:flex-end;"><button class="btn success" id="btnSaveReports">💾 Guardar Todos</button></div>
+                    
+                    <div style="display:flex; flex-direction:column; justify-content:flex-end; gap:5px;">
+                        <button class="btn success" id="btnSaveReports">💾 Guardar Todos</button>
+                        <button class="btn warning" onclick="$('#fileInputSatelite').click()">📥 Importar Satélite</button>
+                        <input type="file" id="fileInputSatelite" style="display:none;" accept=".json" onchange="importSatelliteData(this)">
+                    </div>
                 </div>
                 <div class="table-container"><table class="table" id="tblActividad"><thead><tr><th>Nombre</th><th>Part.</th><th>Horas</th><th>Cursos</th><th>P. Aux</th><th>Notas</th></tr></thead><tbody></tbody></table></div>
             </div>
@@ -327,7 +332,7 @@
     // URL DE GOOGLE
     const CLOUD_URL = "https://script.google.com/macros/s/AKfycbx9bKJy3Tsgj2F2t7wlewk12WTK1SIFJqBhKBMJtD9rSSu-wUuUgdp_atey0KFU0ZSt/exec"; 
     
-    const DB_KEY = 'cong_pro_v80_master';
+    const DB_KEY = 'cong_pro_v81_master';
     const $=s=>document.querySelector(s);
     const ymKey = (y,m) => `${y}-${String(m).padStart(2,'0')}`;
     const MESES_NOM = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -384,6 +389,39 @@
         else alert("Clave Incorrecta"); 
     }
 
+    // --- NUEVA LÓGICA IMPORTAR GRUPO ---
+    function importSatelliteData(input) {
+        const file = input.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const data = JSON.parse(e.target.result);
+                if(data.type === 'satelite_data' && data.activity) {
+                    // Fusión inteligente: Solo actualizamos las claves de actividad que vienen en el archivo
+                    // No tocamos nada más
+                    Object.keys(data.activity).forEach(monthKey => {
+                        if(!state.activity[monthKey]) state.activity[monthKey] = {};
+                        Object.keys(data.activity[monthKey]).forEach(personId => {
+                            state.activity[monthKey][personId] = data.activity[monthKey][personId];
+                        });
+                    });
+                    
+                    save(); // Guardar en local y nube
+                    renderActividad(); // Refrescar pantalla
+                    alert("✅ Datos del grupo importados y fusionados con éxito.");
+                } else {
+                    alert("El archivo no parece ser un reporte de grupo válido (formato incorrecto).");
+                }
+            } catch(ex) {
+                alert("Error al leer el archivo del grupo: " + ex.message);
+            } finally {
+                input.value = ''; // Limpiar input para poder seleccionar el mismo archivo de nuevo si se necesita
+            }
+        };
+        reader.readAsText(file);
+    }
+
     // --- LÓGICA S-21-S MULTIPLE ---
     function toggleS21Inputs() {
         const mode = $('#s21Mode').value;
@@ -421,13 +459,10 @@
         const list = getTargetList();
         if(list.length === 0) return alert("No se encontraron publicadores.");
         
-        // Solo mostrar los primeros 5 para previsualizar si son muchos
         const previewLimit = 5;
         let html = '';
         list.slice(0, previewLimit).forEach(p => html += getS21HTML(p, sy));
-        
         if(list.length > previewLimit) html += `<div style="text-align:center; padding:20px; font-weight:bold; color:var(--muted);">... y ${list.length - previewLimit} tarjetas más (Ver en PDF)</div>`;
-        
         $('#preview-viewport').innerHTML = html;
         showToast(`Mostrando ${list.length > previewLimit ? previewLimit : list.length} de ${list.length} tarjetas`);
     }
@@ -436,18 +471,12 @@
         const sy = parseInt($('#s21Year').value);
         const list = getTargetList();
         if(list.length === 0) return alert("No hay datos para generar.");
-        
         showToast(`Generando PDF de ${list.length} tarjetas...`);
-        
-        // Crear contenedor temporal
         const div = document.createElement('div');
         list.forEach(p => div.innerHTML += getS21HTML(p, sy));
-        
         const opt = { margin: 0, filename: `S21_${list.length}_Publicadores.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
         html2pdf().set(opt).from(div).save();
     }
-
-    // --- FIN LOGICA S-21 ---
 
     function renderAll() { renderMiembros(); updateDatalist(); }
     function updateDatalist() { const l=$('#pList'); if(l){ l.innerHTML = ''; state.personas.forEach(p => l.innerHTML += `<option value="${p.nombre}">`); } }
