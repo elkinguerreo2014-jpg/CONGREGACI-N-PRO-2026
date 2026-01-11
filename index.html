@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-    <title>Congregación Pro - Master v91</title>
+    <title>Congregación Pro - Master v95</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -53,35 +53,22 @@
         .table td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
         .row-sacado td:first-child { color: var(--danger) !important; font-weight: 800; text-decoration: line-through; }
 
-        /* IMPRESIÓN S-21 - CORREGIDO: Fondo blanco y sin padding extra */
-        #preview-viewport { 
-            overflow-x: auto; 
-            /* Quitamos el padding y el fondo de color para que no salga en el PDF */
-            padding: 0; 
-            background: transparent; 
-            display:flex; 
-            flex-direction:column; 
-            align-items:center; 
-            gap: 0; /* Sin espacio entre elementos para evitar saltos raros */
-            margin-top: 20px;
-        }
+        /* IMPRESIÓN S-21 */
+        #preview-viewport, #s88-preview-viewport { padding: 0; background: transparent; display:flex; flex-direction:column; align-items:center; margin-top: 20px; }
         
-        /* ESTILO PDF CLEAN - Tarjeta Individual */
+        /* ESTILO PDF CLEAN */
         .print-canvas { 
             width: 190mm; 
             min-width: 190mm; 
-            background: #ffffff !important; /* BLANCO PURO */
+            background: #ffffff !important; 
             color: #000; 
             padding: 10mm; 
             border: 2px solid #000; 
             font-family: 'Inter', sans-serif; 
-            /* Margen solo para visualización en pantalla, se quita en PDF */
-            margin-bottom: 20px; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1); /* Sombra suave solo en pantalla */
-            
-            /* Propiedades de salto de página */
+            margin-bottom: 0; 
             page-break-after: always; 
             break-after: page;
+            box-shadow: none !important;
         }
         
         .print-title { font-size: 13pt; font-weight: 900; text-align: center; margin-bottom: 10px; text-transform: uppercase; border-bottom: 2.5px solid #000; padding-bottom: 5px; }
@@ -89,9 +76,6 @@
         .official-table th, .official-table td { border: 1.2px solid #000 !important; padding: 4px; font-size: 8.5pt; text-align: center; color: #000; }
         .official-table th { background: #f2f2f2 !important; font-weight: 800; }
         .s21-header-box { border: 1.5px solid #000; padding: 10px; margin-bottom: 10px; font-size: 9pt; line-height: 1.6; }
-
-        /* S-88 Viewport - También corregido */
-        #s88-preview-viewport { overflow-x: auto; padding: 0; background: transparent; display:flex; flex-direction:column; align-items:center; margin-top: 20px; }
 
         .stat-block { background: var(--card); border: 1px solid var(--border); padding: 1.2rem; border-radius: var(--radius-md); border-top: 5px solid var(--accent); box-shadow: var(--shadow); }
         .stat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
@@ -157,6 +141,8 @@
             <button data-tab="tarjeta">5. S-21-S</button>
             <button data-tab="s88">6. S-88-S</button>
             <button data-tab="resumen">7. Resumen</button>
+            <button data-tab="sacados" style="color:var(--danger)">8. Sacados</button>
+            <button data-tab="inactivos" style="color:var(--warning)">9. Inactivos / Irreg.</button>
         </div>
     </div>
 
@@ -266,7 +252,9 @@
                 </div>
             </div>
             <div class="card">
-                <h3>P. Auxiliares (Mes Actual)</h3>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    <h3 id="lblPAux">P. Auxiliares (Mes Actual)</h3>
+                </div>
                 <div class="table-container">
                     <table class="table" id="tblAuxiliares"><thead><tr><th>Nombre</th><th>Grupo</th><th>Horas</th></tr></thead><tbody></tbody></table>
                 </div>
@@ -337,6 +325,52 @@
             </div>
             <div id="resumenContent" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:1.5rem;"></div>
         </section>
+
+        <section id="sacados" class="tab">
+            <div class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    <h3>Registro de Sacados</h3>
+                    <div class="badge-count" style="background:var(--danger);">Total: <span id="totalSacados">0</span></div>
+                </div>
+                <div class="table-container">
+                    <table class="table" id="tblSacados">
+                        <thead><tr><th>Nombre</th><th>Bautismo</th><th>Fecha Salida</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="inactivos" class="tab">
+            <div class="card" style="border-left: 5px solid var(--danger);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    <h3 style="color:var(--danger);">Inactivos (+6 Meses)</h3>
+                    <div class="badge-count" style="background:var(--danger);">Total: <span id="totalInactivos">0</span></div>
+                </div>
+                <div class="table-container">
+                    <table class="table" id="tblInactivos">
+                        <thead><tr><th>Nombre</th><th>G</th><th>Última Actividad</th><th>Tiempo Inactivo</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card" style="border-left: 5px solid var(--warning); margin-top:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    <h3 style="color:var(--warning); filter: brightness(0.7);">Irregulares (Año Servicio Actual)</h3>
+                    <div class="badge-count" style="background:var(--warning); color:black;">Total: <span id="totalIrregulares">0</span></div>
+                </div>
+                <div style="margin-bottom:15px; font-size:0.8rem; color:var(--muted);">
+                    * Publicadores que han fallado algún mes dentro del Año de Servicio actual (desde Septiembre).
+                </div>
+                <div class="table-container">
+                    <table class="table" id="tblIrregulares">
+                        <thead><tr><th>Nombre</th><th>G</th><th>Meses Fallados</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
     </div>
 </div>
 
@@ -361,7 +395,7 @@
     // URL DE GOOGLE
     const CLOUD_URL = "https://script.google.com/macros/s/AKfycbx9bKJy3Tsgj2F2t7wlewk12WTK1SIFJqBhKBMJtD9rSSu-wUuUgdp_atey0KFU0ZSt/exec"; 
     
-    const DB_KEY = 'cong_pro_v91_master';
+    const DB_KEY = 'cong_pro_v95_master';
     const $=s=>document.querySelector(s);
     const ymKey = (y,m) => `${y}-${String(m).padStart(2,'0')}`;
     const MESES_NOM = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -407,6 +441,8 @@
                 const targetId = b.dataset.tab; $(`#${targetId}`).classList.add('active');
                 if(targetId === 'asistencia') renderAsistInputs(); if(targetId === 'precursores') { renderPrecursores(); renderAuxiliares(); }
                 if(targetId === 'resumen') renderResumenMensual(parseInt($('#resYear').value), parseInt($('#resMonth').value));
+                if(targetId === 'sacados') renderSacados(); 
+                if(targetId === 'inactivos') renderEstadoEspiritual(); 
                 if(targetId === 'tarjeta') updateDatalist(); renderTab(targetId);
             };
         });
@@ -527,7 +563,15 @@
         }
     }
 
-    function renderAll() { renderMiembros(); updateDatalist(); }
+    function renderAll() { 
+        renderMiembros(); 
+        updateDatalist(); 
+        renderPrecursores(); 
+        renderAuxiliares();
+        renderSacados();
+        renderEstadoEspiritual();
+    }
+    
     function updateDatalist() { const l=$('#pList'); if(l){ l.innerHTML = ''; state.personas.forEach(p => l.innerHTML += `<option value="${p.nombre}">`); } }
     function showToast(m) { const t=$('#toast'); t.textContent="✔ "+m; t.style.display='block'; setTimeout(()=>t.style.display='none',3000); }
     function resetPForm() { $('#pId').value=''; $('#pNombre').value=''; ['pNac','pBau','pFSac','pSexo','pEsp'].forEach(id=>$('#'+id).value=''); ['pAnc','pSM','pPE','pMis','pPR'].forEach(id=>$('#'+id).checked=false); $('#btnCancelEdit').style.display='none'; $('#btnDeleteP').style.display='none'; }
@@ -549,14 +593,108 @@
     function renderResumenMensual(y, m) { const k=ymKey(y,m), act=state.activity[k]||{}, att=state.attendance[k]||{es:[],fs:[]}; let tM=0,activos=0,pubC=0,pubE=0,prC=0,prH=0,prE=0,paC=0,paH=0,paE=0; const last6=[]; for(let i=0;i<6;i++){let tm=m-i,ty=y; if(tm<=0){tm+=12;ty-=1;} last6.push(ymKey(ty,tm));} state.personas.forEach(p=>{ if(p.sacado)return; tM++; let haInf=false; for(const lk of last6){ if(state.activity[lk]?.[p.id]?.horas>0 || state.activity[lk]?.[p.id]?.part){ haInf=true; break; } } if(haInf) activos++; const r=act[p.id]||{}; if(r.horas>0||r.part){ const h=parseFloat(r.horas||0), e=parseInt(r.est||0); if(p.pr){prC++;prH+=h;prE+=e;} else if(r.pa){paC++;paH+=h;paE+=e;} else{pubC++;pubE+=e;} } }); const avgES=att.es.filter(n=>n>0).length?Math.round(att.es.reduce((a,b)=>a+b,0)/att.es.filter(n=>n>0).length):0; const avgFS=att.fs.filter(n=>n>0).length?Math.round(att.fs.reduce((a,b)=>a+b,0)/att.fs.filter(n=>n>0).length):0; $('#resumenContent').innerHTML=`<div class="stat-block"><h4>Totales</h4><div class="stat-row"><label>Miembros</label><span class="stat-value">${tM}</span></div><div class="stat-row"><label>Activos</label><span class="stat-value">${activos}</span></div></div><div class="stat-block"><h4>Publicadores</h4><div class="stat-row"><label>Cant</label><span class="stat-value">${pubC}</span></div><div class="stat-row"><label>Est</label><span class="stat-value">${pubE}</span></div></div><div class="stat-block"><h4>P. Regulares</h4><div class="stat-row"><label>Cant</label><span class="stat-value">${prC}</span></div><div class="stat-row"><label>Horas</label><span class="stat-value">${prH}</span></div><div class="stat-row"><label>Est</label><span class="stat-value">${prE}</span></div></div><div class="stat-block"><h4>P. Auxiliares</h4><div class="stat-row"><label>Cant</label><span class="stat-value">${paC}</span></div><div class="stat-row"><label>Horas</label><span class="stat-value">${paH}</span></div><div class="stat-row"><label>Est</label><span class="stat-value">${paE}</span></div></div><div class="stat-block"><h4>Asistencia</h4><div class="stat-row"><label>Vida y Min</label><span class="stat-value">${avgES}</span></div><div class="stat-row"><label>Pública</label><span class="stat-value">${avgFS}</span></div></div>`; }
     function renderPrecursores() { 
         const tb=$('#tblPrecursores tbody'); 
-        const counter=$('#totalPR'); // CORRECCIÓN CLAVE
+        const counter=$('#totalPR'); 
         if(!tb)return; 
         tb.innerHTML=''; 
         const list = state.personas.filter(p=>p.pr&&!p.sacado).sort((a,b)=>a.nombre.localeCompare(b.nombre));
-        if(counter) counter.innerText = list.length; // ACTUALIZAR CONTADOR
+        if(counter) counter.innerText = list.length; 
         list.forEach(p=>{ tb.innerHTML+=`<tr><td><b>${p.nombre}</b></td><td>G${p.grupo}</td><td>${p.bau||'-'}</td><td style="color:var(--success)">Activo</td></tr>`; }); 
     }
-    function renderAuxiliares() { const tb=$('#tblAuxiliares tbody'), k=ymKey(curY,curM); if(!tb)return; tb.innerHTML=''; state.personas.filter(p=>!p.sacado&&state.activity[k]?.[p.id]?.pa).forEach(p=>{ tb.innerHTML+=`<tr><td><b>${p.nombre}</b></td><td>G${p.grupo}</td><td>${state.activity[k][p.id].horas}</td></tr>`; }); }
+    function renderAuxiliares() { 
+        const tb=$('#tblAuxiliares tbody'), k=ymKey(curY,curM); 
+        if(!tb)return; 
+        tb.innerHTML=''; 
+        const lbl = $('#lblPAux');
+        if(lbl) lbl.innerText = `P. Auxiliares (${MESES_NOM[curM-1]})`;
+        state.personas.filter(p=>!p.sacado&&state.activity[k]?.[p.id]?.pa).forEach(p=>{ 
+            tb.innerHTML+=`<tr><td><b>${p.nombre}</b></td><td>G${p.grupo}</td><td>${state.activity[k][p.id].horas}</td></tr>`; 
+        }); 
+    }
+    function renderSacados() {
+        const tb = $('#tblSacados tbody'); const counter = $('#totalSacados'); if (!tb) return;
+        tb.innerHTML = '';
+        const list = state.personas.filter(p => p.sacado).sort((a,b) => a.nombre.localeCompare(b.nombre));
+        if (counter) counter.innerText = list.length;
+        list.forEach(p => { tb.innerHTML += `<tr><td><b>${p.nombre}</b></td><td>${p.bau || '-'}</td><td style="color:var(--danger); font-weight:bold;">${p.fsac || 'No registrada'}</td></tr>`; });
+    }
+
+    // --- NUEVA LÓGICA DE INACTIVOS E IRREGULARES ---
+    function renderEstadoEspiritual() {
+        const tbInactivos = $('#tblInactivos tbody');
+        const cInactivos = $('#totalInactivos');
+        const tbIrregulares = $('#tblIrregulares tbody');
+        const cIrregulares = $('#totalIrregulares');
+        
+        if (!tbInactivos || !tbIrregulares) return;
+        tbInactivos.innerHTML = '';
+        tbIrregulares.innerHTML = '';
+        
+        let countInactivos = 0;
+        let countIrregulares = 0;
+        
+        // Determinar inicio del Año de Servicio (Si curM >= 9, inicia en Sept de curY, si no, Sept de curY-1)
+        const syYear = (curM >= 9) ? curY : curY - 1;
+        
+        state.personas.filter(p => !p.sacado).sort((a,b) => a.nombre.localeCompare(b.nombre)).forEach(p => {
+            
+            // --- CHECK INACTIVO (6 Meses Absolutos) ---
+            let consecutiveZero = 0;
+            let lastActive = 'Sin registro';
+            
+            // Mirar hacia atrás para encontrar la última actividad y contar ceros consecutivos
+            for (let i = 0; i < 36; i++) {
+                let tY = curY, tM = curM - i;
+                while (tM <= 0) { tM += 12; tY--; }
+                
+                const k = ymKey(tY, tM);
+                const act = state.activity[k]?.[p.id];
+                if (act && (act.horas > 0 || act.part)) {
+                    lastActive = `${MESES_NOM[tM-1]} ${tY}`;
+                    break;
+                } else {
+                    if (i < 6) consecutiveZero++; // Solo importan los primeros 6 para el estado crítico
+                }
+            }
+
+            const esInactivo = consecutiveZero >= 6;
+
+            if (esInactivo) {
+                countInactivos++;
+                tbInactivos.innerHTML += `<tr><td><b>${p.nombre}</b></td><td>G${p.grupo}</td><td>${lastActive}</td><td style="color:var(--danger); font-weight:bold;">+${consecutiveZero} meses</td></tr>`;
+            }
+
+            // --- CHECK IRREGULAR (Dentro del Año de Servicio Actual) ---
+            // Solo si NO es inactivo (para no duplicar en listas)
+            if (!esInactivo) {
+                let mesesFallados = [];
+                // Revisamos desde el mes actual hacia atrás hasta llegar a Septiembre del SY
+                for (let i = 1; i <= 12; i++) {
+                    let tY = curY, tM = curM - i; // Mes vencido (anterior al actual)
+                    while (tM <= 0) { tM += 12; tY--; }
+                    
+                    // Si nos pasamos de Septiembre del año de servicio, paramos
+                    if (tY < syYear || (tY === syYear && tM < 9)) break;
+                    
+                    const k = ymKey(tY, tM);
+                    const act = state.activity[k]?.[p.id];
+                    const tuvoActividad = act && (act.horas > 0 || act.part);
+                    
+                    if (!tuvoActividad) {
+                        mesesFallados.push(MESES_NOM[tM-1]);
+                    }
+                }
+
+                if (mesesFallados.length > 0) {
+                    countIrregulares++;
+                    tbIrregulares.innerHTML += `<tr><td><b>${p.nombre}</b></td><td>G${p.grupo}</td><td style="color:var(--warning); font-size:0.85rem;">${mesesFallados.join(', ')}</td></tr>`;
+                }
+            }
+        });
+        
+        if (cInactivos) cInactivos.innerText = countInactivos;
+        if (cIrregulares) cIrregulares.innerText = countIrregulares;
+    }
+
     window.addEventListener("DOMContentLoaded", () => { try { init(); } catch(e) { alert("Error: " + e.message); } });
     window.editP = (id) => { const p = state.personas.find(x=>x.id===id); if(!p) return; $('#pId').value = p.id; $('#pNombre').value = p.nombre; $('#pSexo').value = p.sexo; $('#pEsp').value = p.esp; $('#pNac').value = p.nac; $('#pBau').value = p.bau; $('#pFSac').value = p.fsac || ''; $('#pPR').checked = !!p.pr; $('#pAnc').checked = !!p.anciano; $('#pSM').checked = !!p.sm; $('#pPE').checked = !!p.pe; $('#pMis').checked = !!p.mis; $('#btnCancelEdit').style.display='inline-flex'; $('#btnDeleteP').style.display='inline-flex'; window.scrollTo(0,0); }
     window.updAct = (pid, f, v) => { const k = ymKey(actY, actM); if(!state.activity[k]) state.activity[k] = {}; if(!state.activity[k][pid]) state.activity[k][pid] = {part:false, horas:0, est:0, pa:false}; state.activity[k][pid][f] = (f==='pa'||f==='part'||f==='nota') ? v : parseFloat(v||0); save(); }
