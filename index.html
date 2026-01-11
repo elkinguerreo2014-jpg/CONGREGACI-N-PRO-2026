@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-    <title>Congregación Pro - Master v82</title>
+    <title>Congregación Pro - Master v91</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -53,17 +53,45 @@
         .table td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
         .row-sacado td:first-child { color: var(--danger) !important; font-weight: 800; text-decoration: line-through; }
 
-        /* IMPRESIÓN S-21 */
-        #preview-viewport { overflow-x: auto; padding: 20px; background: #cbd5e1; border-radius: 12px; display:flex; flex-direction:column; align-items:center; gap: 30px; }
-        .print-canvas { width: 190mm; min-width: 190mm; background: #fff; color: #000; padding: 12mm; border: 2.5px solid #000 !important; font-family: 'Inter', sans-serif; box-shadow: 0 0 20px rgba(0,0,0,0.1); margin-bottom: 20px; page-break-after: always; }
+        /* IMPRESIÓN S-21 - CORREGIDO: Fondo blanco y sin padding extra */
+        #preview-viewport { 
+            overflow-x: auto; 
+            /* Quitamos el padding y el fondo de color para que no salga en el PDF */
+            padding: 0; 
+            background: transparent; 
+            display:flex; 
+            flex-direction:column; 
+            align-items:center; 
+            gap: 0; /* Sin espacio entre elementos para evitar saltos raros */
+            margin-top: 20px;
+        }
+        
+        /* ESTILO PDF CLEAN - Tarjeta Individual */
+        .print-canvas { 
+            width: 190mm; 
+            min-width: 190mm; 
+            background: #ffffff !important; /* BLANCO PURO */
+            color: #000; 
+            padding: 10mm; 
+            border: 2px solid #000; 
+            font-family: 'Inter', sans-serif; 
+            /* Margen solo para visualización en pantalla, se quita en PDF */
+            margin-bottom: 20px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); /* Sombra suave solo en pantalla */
+            
+            /* Propiedades de salto de página */
+            page-break-after: always; 
+            break-after: page;
+        }
+        
         .print-title { font-size: 13pt; font-weight: 900; text-align: center; margin-bottom: 10px; text-transform: uppercase; border-bottom: 2.5px solid #000; padding-bottom: 5px; }
         .official-table { width: 100%; border-collapse: collapse !important; border: 1.5px solid #000 !important; margin-top: 5px; }
         .official-table th, .official-table td { border: 1.2px solid #000 !important; padding: 4px; font-size: 8.5pt; text-align: center; color: #000; }
         .official-table th { background: #f2f2f2 !important; font-weight: 800; }
         .s21-header-box { border: 1.5px solid #000; padding: 10px; margin-bottom: 10px; font-size: 9pt; line-height: 1.6; }
 
-        /* S-88 Viewport */
-        #s88-preview-viewport { overflow-x: auto; padding: 20px; background: #cbd5e1; border-radius: 12px; display:flex; flex-direction:column; align-items:center; }
+        /* S-88 Viewport - También corregido */
+        #s88-preview-viewport { overflow-x: auto; padding: 0; background: transparent; display:flex; flex-direction:column; align-items:center; margin-top: 20px; }
 
         .stat-block { background: var(--card); border: 1px solid var(--border); padding: 1.2rem; border-radius: var(--radius-md); border-top: 5px solid var(--accent); box-shadow: var(--shadow); }
         .stat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
@@ -254,6 +282,7 @@
                         <select id="s21Mode" onchange="toggleS21Inputs()">
                             <option value="individual">Individual (Un Publicador)</option>
                             <option value="group">Por Grupo de Predicación</option>
+                            <option value="pr">Todos los Precursores Regulares</option>
                             <option value="all">Todos (Congregación Completa)</option>
                         </select>
                     </div>
@@ -332,7 +361,7 @@
     // URL DE GOOGLE
     const CLOUD_URL = "https://script.google.com/macros/s/AKfycbx9bKJy3Tsgj2F2t7wlewk12WTK1SIFJqBhKBMJtD9rSSu-wUuUgdp_atey0KFU0ZSt/exec"; 
     
-    const DB_KEY = 'cong_pro_v82_master';
+    const DB_KEY = 'cong_pro_v91_master';
     const $=s=>document.querySelector(s);
     const ymKey = (y,m) => `${y}-${String(m).padStart(2,'0')}`;
     const MESES_NOM = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -389,7 +418,6 @@
         else alert("Clave Incorrecta"); 
     }
 
-    // --- NUEVA LÓGICA IMPORTAR GRUPO ---
     function importSatelliteData(input) {
         const file = input.files[0];
         if(!file) return;
@@ -421,7 +449,7 @@
     function getS21HTML(p, sy) {
         let rows = '', tHor = 0;
         CICLO_S88.forEach(m => {
-            const y = (m>=9) ? sy : sy+1; const r = state.activity[ymKey(y,m)]?.[p.id] || {horas:0, est:0, pa:false, part:false}; tHor += (r.horas||0);
+            const y = (m >= 9) ? sy : sy + 1; const r = state.activity[ymKey(y,m)]?.[p.id] || {horas:0, est:0, pa:false, part:false}; tHor += (r.horas||0);
             const partX = (r.horas > 0 || r.part) ? 'X' : ' '; const paX = r.pa ? 'X' : ' ';
             rows += `<tr><td>${MESES_NOM[m-1]}</td><td>[${partX}]</td><td>${r.est||''}</td><td>[${paX}]</td><td>${r.horas||''}</td><td></td></tr>`;
         });
@@ -430,9 +458,18 @@
 
     function getTargetList() {
         const mode = $('#s21Mode').value;
-        if(mode === 'individual') { const n = $('#s21Search').value; const p = state.personas.find(x => x.nombre === n); return p ? [p] : []; } 
-        else if(mode === 'group') { const g = $('#s21GroupSel').value; return state.personas.filter(p => p.grupo == g && !p.sacado).sort((a,b)=>a.nombre.localeCompare(b.nombre)); } 
-        else { return state.personas.filter(p => !p.sacado).sort((a,b)=>a.nombre.localeCompare(b.nombre)); }
+        if(mode === 'individual') { 
+            const n = $('#s21Search').value; 
+            const p = state.personas.find(x => x.nombre === n); 
+            return p ? [p] : []; 
+        } else if(mode === 'group') { 
+            const g = $('#s21GroupSel').value; 
+            return state.personas.filter(p => p.grupo == g && !p.sacado).sort((a,b)=>a.nombre.localeCompare(b.nombre)); 
+        } else if (mode === 'pr') {
+            return state.personas.filter(p => p.pr && !p.sacado).sort((a,b)=>a.nombre.localeCompare(b.nombre));
+        } else { 
+            return state.personas.filter(p => !p.sacado).sort((a,b)=>a.nombre.localeCompare(b.nombre)); 
+        }
     }
 
     function previewS21() {
@@ -448,11 +485,46 @@
     function downloadPDFS21() {
         const sy = parseInt($('#s21Year').value); const list = getTargetList();
         if(list.length === 0) return alert("No hay datos para generar.");
-        showToast(`Generando PDF de ${list.length} tarjetas...`);
-        const div = document.createElement('div');
-        list.forEach(p => div.innerHTML += getS21HTML(p, sy));
-        const opt = { margin: 0, filename: `S21_${list.length}_Publicadores.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
-        html2pdf().set(opt).from(div).save();
+        
+        const mode = $('#s21Mode').value;
+        let fName = 'S21_Reporte.pdf';
+
+        if(mode === 'individual' && list.length > 0) {
+            fName = `S21_${list[0].nombre}.pdf`;
+        } else if (mode === 'group') {
+            fName = `S21_Grupo_${$('#s21GroupSel').value}.pdf`;
+        } else if (mode === 'pr') {
+            fName = `S21_Precursores_Regulares.pdf`;
+        } else {
+            fName = `S21_Congregacion_Completa.pdf`;
+        }
+
+        showToast(`Generando PDF...`);
+        
+        const container = document.getElementById('preview-viewport');
+        let htmlContent = '';
+        list.forEach(p => htmlContent += getS21HTML(p, sy));
+        container.innerHTML = htmlContent;
+        
+        const opt = { 
+            margin: 0, 
+            filename: fName, 
+            image: { type: 'jpeg', quality: 0.98 }, 
+            html2canvas: { scale: 1.5, useCORS: true }, 
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } 
+        };
+        
+        html2pdf().set(opt).from(container).save().then(() => {
+            showToast("PDF Descargado ✅");
+        });
+    }
+
+    function generatePDF(type) {
+        if(type === 's88') {
+            const el = document.getElementById('s88-preview-viewport');
+            const opt = { margin: 5, filename: 'S88_Registro.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+            html2pdf().set(opt).from(el).save();
+        }
     }
 
     function renderAll() { renderMiembros(); updateDatalist(); }
@@ -484,7 +556,7 @@
         if(counter) counter.innerText = list.length; // ACTUALIZAR CONTADOR
         list.forEach(p=>{ tb.innerHTML+=`<tr><td><b>${p.nombre}</b></td><td>G${p.grupo}</td><td>${p.bau||'-'}</td><td style="color:var(--success)">Activo</td></tr>`; }); 
     }
-    function renderAuxiliares() { const tb=$('#tblAuxiliares tbody'), k=ymKey(curY,curM); if(!tb)return; tb.innerHTML=''; state.personas.filter(p=>!p.sacado&&state.activity[k]?.[p.id]?.pa).forEach(p=>{ tb.innerHTML+=`<tr><td>${p.nombre}</td><td>G${p.grupo}</td><td>${state.activity[k][p.id].horas}</td></tr>`; }); }
+    function renderAuxiliares() { const tb=$('#tblAuxiliares tbody'), k=ymKey(curY,curM); if(!tb)return; tb.innerHTML=''; state.personas.filter(p=>!p.sacado&&state.activity[k]?.[p.id]?.pa).forEach(p=>{ tb.innerHTML+=`<tr><td><b>${p.nombre}</b></td><td>G${p.grupo}</td><td>${state.activity[k][p.id].horas}</td></tr>`; }); }
     window.addEventListener("DOMContentLoaded", () => { try { init(); } catch(e) { alert("Error: " + e.message); } });
     window.editP = (id) => { const p = state.personas.find(x=>x.id===id); if(!p) return; $('#pId').value = p.id; $('#pNombre').value = p.nombre; $('#pSexo').value = p.sexo; $('#pEsp').value = p.esp; $('#pNac').value = p.nac; $('#pBau').value = p.bau; $('#pFSac').value = p.fsac || ''; $('#pPR').checked = !!p.pr; $('#pAnc').checked = !!p.anciano; $('#pSM').checked = !!p.sm; $('#pPE').checked = !!p.pe; $('#pMis').checked = !!p.mis; $('#btnCancelEdit').style.display='inline-flex'; $('#btnDeleteP').style.display='inline-flex'; window.scrollTo(0,0); }
     window.updAct = (pid, f, v) => { const k = ymKey(actY, actM); if(!state.activity[k]) state.activity[k] = {}; if(!state.activity[k][pid]) state.activity[k][pid] = {part:false, horas:0, est:0, pa:false}; state.activity[k][pid][f] = (f==='pa'||f==='part'||f==='nota') ? v : parseFloat(v||0); save(); }
