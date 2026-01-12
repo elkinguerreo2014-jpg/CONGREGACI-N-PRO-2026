@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-    <title>Congregación Pro - Master v103</title>
+    <title>Congregación Pro - Master v104</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -101,7 +101,7 @@
             <button class="btn success admin-only" id="btnSyncCloud">☁️ Recibir Informes</button>
             
             <button class="btn warning" onclick="$('#fileInputSatelite').click()">📥 Cargar Archivo</button>
-            <input type="file" id="fileInputSatelite" style="display:none;" accept=".json" onchange="importSatelliteData(this)">
+            <input type="file" id="fileInputSatelite" style="display:none;" accept=".json" onchange="handleImport(event)">
             
             <button class="btn cloud satellite-only" id="btnSendCloud" style="display:none;" onclick="sendToCloud()">☁️ Enviar Informe</button>
             
@@ -133,7 +133,7 @@
                 <h3>Gestión de Miembros</h3>
                 <div class="admin-tools-grid">
                     <input type="hidden" id="pId">
-                    <div><label>Nombre</label><input type="text" id="pNombre" placeholder="Ej: Juan Pérez"></div>
+                    <div><label>Nombre</label><input type="text" id="pNombre"></div>
                     <div><label>Grupo</label><select id="pGrupo"><option value="1">G1</option><option value="2">G2</option><option value="3">G3</option><option value="4">G4</option><option value="5">G5</option></select></div>
                     <div><label>Sexo</label><select id="pSexo"><option value="Hombre">Hombre</option><option value="Mujer">Mujer</option></select></div>
                     <div><label>Esperanza</label><select id="pEsp"><option value="Otras ovejas">Otras ovejas</option><option value="Ungido">Ungido</option></select></div>
@@ -246,7 +246,7 @@
     // --- CONFIGURACIÓN DE LA NUBE ---
     const CLOUD_URL = "https://script.google.com/macros/s/AKfycbz2h9AeXOftkTSim8in8PzJoWVGWJzzeEYtCVNswgeeIWEgqVNAvxzY-ZmqcHcnjmiQ/exec"; 
     
-    const DB_KEY = 'cong_pro_v103_master';
+    const DB_KEY = 'cong_pro_v104_master';
     const $ = s => document.querySelector(s);
     const ymKey = (y,m) => `${y}-${String(m).padStart(2,'0')}`;
     const MESES_NOM = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -371,7 +371,7 @@
                 await fetch(CLOUD_URL + "?action=clear");
                 alert(`✅ Se importaron ${count} informes de grupos.`);
             } else { alert("No hay informes nuevos en la nube."); }
-        } catch(e) { alert("Error al sincronizar: " + e.message); } finally { btn.textContent = "☁️ Sincronizar"; }
+        } catch(e) { alert("Error al sincronizar: " + e.message); } finally { btn.textContent = "☁️ Recibir Informes"; }
     }
 
     // --- NUEVAS FUNCIONES DE RESPALDO EN LA NUBE ---
@@ -478,7 +478,39 @@
         window.scrollTo(0,0); 
     }
     
-    function handleImport(e) { const f=e.target.files[0]; if(!f||!confirm("¿Reemplazar datos?")){e.target.value='';return;} const r=new FileReader(); r.onload=(ev)=>{ try{ state=JSON.parse(ev.target.result); save(); renderAll(); alert("Importado"); }catch(e){alert("Error JSON");} }; r.readAsText(f); }
+    function handleImport(e) { 
+        // CORRECCIÓN PARA EL BOTÓN DE CARGA
+        const input = e.target;
+        const f = input.files[0]; 
+        if(!f) return;
+        
+        if(!confirm("⚠️ ¿Cargar este archivo y reemplazar la base de datos actual?")) {
+            input.value = ''; // Limpiar input si cancela
+            return;
+        } 
+        
+        const r = new FileReader(); 
+        r.onload = (ev) => { 
+            try { 
+                const newData = JSON.parse(ev.target.result); 
+                // Validación básica
+                if(newData && newData.personas) {
+                    state = newData; 
+                    save(); 
+                    renderAll(); 
+                    alert("✅ Base de datos cargada con éxito."); 
+                } else {
+                    alert("❌ El archivo no parece ser un respaldo válido.");
+                }
+            } catch(ex) { 
+                alert("❌ Error al leer el archivo JSON: " + ex.message); 
+            } finally {
+                input.value = ''; // Limpiar input para permitir recargar el mismo archivo
+            }
+        }; 
+        r.readAsText(f); 
+    }
+
     function exportBackup() { const blob=new Blob([JSON.stringify(state)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`Backup_${new Date().toISOString().slice(0,10)}.json`; a.click(); }
     function updatePassword() { if(!state.config) state.config={}; state.config.pwd=$('#pNew').value; save(); $('#modalPwd').style.display='none'; alert("Clave admin actualizada"); }
     function renderSacados() { const tb=$('#tblSacados tbody'); const c=$('#totalSacados'); if(!tb)return; tb.innerHTML=''; const l=state.personas.filter(p=>p.sacado).sort((a,b)=>a.nombre.localeCompare(b.nombre)); if(c)c.innerText=l.length; l.forEach(p=>{ tb.innerHTML+=`<tr><td>${p.nombre}</td><td>${p.bau||'-'}</td><td style="color:var(--danger)">${p.fsac||'-'}</td></tr>`; }); }
