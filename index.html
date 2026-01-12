@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-    <title>Congregación Pro - Master v107</title>
+    <title>Congregación Pro - Master v108</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -19,58 +19,91 @@
             --bg: #020617; --surface: #0f172a; --card: #1e293b; --panel: #334155; --fg: #f1f5f9; --muted: #94a3b8; --border: #334155; --accent: #38bdf8;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--fg); line-height: 1.5; font-size: 16px; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--fg); line-height: 1.5; font-size: 15px; -webkit-tap-highlight-color: transparent; }
         
         #app-content { display: none; }
         #toast { position: fixed; top: 20px; right: 20px; background: var(--fg); color: var(--surface); padding: 12px 24px; border-radius: 8px; font-weight: 600; box-shadow: var(--shadow); display: none; z-index: 2000; border-left: 5px solid var(--accent); }
 
         /* HEADER & TABS */
-        header.top { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; flex-wrap: wrap; gap: 10px; }
-        .tabs-container { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0.5rem 1rem; overflow-x: auto; position: sticky; top: 70px; z-index: 90; }
-        .tabs { display: flex; gap: 8px; width: max-content; }
-        .tabs button { padding: 10px 16px; border: 1px solid transparent; background: transparent; color: var(--muted); font-weight: 600; font-size: 0.85rem; border-radius: 10px; cursor: pointer; white-space: nowrap; }
+        header.top { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0.8rem 1rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; flex-wrap: wrap; gap: 10px; }
+        .tabs-container { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0.5rem 1rem; overflow-x: auto; position: sticky; top: 65px; z-index: 90; }
+        .tabs { display: flex; gap: 6px; width: max-content; }
+        .tabs button { padding: 8px 14px; border: 1px solid transparent; background: transparent; color: var(--muted); font-weight: 600; font-size: 0.85rem; border-radius: 8px; cursor: pointer; white-space: nowrap; }
         .tabs button.active { background: var(--panel); color: var(--accent); border-color: var(--border); }
 
-        /* Estilos específicos para ocultar cosas según el rol */
         body.role-restricted .admin-only { display: none !important; }
         body.role-restricted .tabs button:not([data-tab="actividad"]) { display: none !important; }
         
-        .container { max-width: 1600px; margin: 0 auto; padding: 1.5rem; }
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; box-shadow: var(--shadow); margin-bottom: 1.5rem; overflow: hidden; }
-        .admin-tools-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; background: var(--panel); padding: 1.2rem; border-radius: var(--radius-md); margin-bottom: 1.5rem; }
+        .container { max-width: 1600px; margin: 0 auto; padding: 1rem; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.2rem; box-shadow: var(--shadow); margin-bottom: 1.5rem; overflow: hidden; }
+        
+        /* HERRAMIENTAS ADMIN */
+        .admin-tools-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.8rem; background: var(--panel); padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1rem; }
+        
         .tab { display: none; }
         .tab.active { display: block; animation: fadeIn 0.3s ease; }
         .table-container { overflow-x: auto; border-radius: var(--radius-md); border: 1px solid var(--border); }
         .table { width: 100%; border-spacing: 0; border-collapse: separate; background: var(--card); min-width: 600px; }
-        .table th { background: var(--panel); color: var(--muted); font-size: 0.75rem; font-weight: 800; padding: 12px; text-align: left; text-transform: uppercase; border-bottom: 1px solid var(--border); }
-        .table td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        .table th { background: var(--panel); color: var(--muted); font-size: 0.75rem; font-weight: 800; padding: 10px; text-align: left; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+        .table td { padding: 10px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
         
         /* BOTONES E INPUTS */
-        .btn { display: inline-flex; align-items: center; justify-content: center; padding: 10px 16px; border-radius: 10px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--fg); gap: 6px; font-size: 0.9rem; }
+        .btn { display: inline-flex; align-items: center; justify-content: center; padding: 8px 14px; border-radius: 8px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--fg); gap: 6px; font-size: 0.85rem; }
         .btn.primary { background: var(--accent); color: white; border: none; }
         .btn.success { background: var(--success); color: white; border: none; }
         .btn.danger { background: var(--danger); color: white; border: none; }
         .btn.warning { background: var(--warning); color: white; border: none; }
         .btn.cloud { background: #8b5cf6; color: white; border: none; }
         
-        input, select { background: var(--surface); border: 1px solid var(--border); padding: 10px; border-radius: 8px; color: var(--fg); font-size: 0.95rem; width: 100%; }
-        label { display: block; font-size: 0.75rem; font-weight: 800; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; }
+        input, select { background: var(--surface); border: 1px solid var(--border); padding: 8px; border-radius: 6px; color: var(--fg); font-size: 0.9rem; width: 100%; }
+        label { display: block; font-size: 0.7rem; font-weight: 800; color: var(--muted); margin-bottom: 3px; text-transform: uppercase; }
 
         /* Login Modal */
         #modalAuth { position: fixed; inset: 0; background: rgba(0,0,0,0.96); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
-        .badge-count { background: var(--accent); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; }
         
-        /* ASISTENCIA */
-        .asist-grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 20px; }
-        .asist-col h4 { color: var(--accent); margin-bottom: 10px; border-bottom: 2px solid var(--border); padding-bottom: 5px; }
+        /* --- ESTILOS RESUMEN "DASHBOARD COMPACTO" --- */
+        .stat-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
+            gap: 12px; 
+        }
+        .stat-block { 
+            background: var(--card); 
+            border: 1px solid var(--border); 
+            padding: 12px; 
+            border-radius: 10px; 
+            box-shadow: 0 2px 4px rgb(0 0 0 / 0.05); 
+            border-left: 4px solid var(--accent); /* Borde lateral en lugar de superior para look 'tarjeta' */
+        }
+        .stat-block:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgb(0 0 0 / 0.1); transition: 0.2s; }
+        .stat-block h4 { 
+            color: var(--muted); 
+            margin-bottom: 8px; 
+            font-size: 0.75rem; 
+            text-transform: uppercase; 
+            font-weight: 800; 
+            border-bottom: 1px solid var(--panel); 
+            padding-bottom: 4px;
+        }
+        .stat-row { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 4px; 
+            font-size: 0.85rem; 
+        }
+        .stat-value { 
+            font-weight: 700; 
+            font-size: 0.95rem; 
+            color: var(--fg); 
+            background: var(--panel);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
 
-        /* ESTILOS PREMIUM PARA RESUMEN (CAJAS) */
-        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
-        .stat-block { background: var(--card); border: 1px solid var(--border); padding: 1.5rem; border-radius: var(--radius-md); box-shadow: var(--shadow); border-top: 4px solid var(--accent); transition: transform 0.2s; }
-        .stat-block:hover { transform: translateY(-3px); }
-        .stat-block h4 { color: var(--accent); margin-bottom: 1rem; font-size: 1rem; text-transform: uppercase; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
-        .stat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; font-size: 0.95rem; border-bottom: 1px dashed var(--panel); padding-bottom: 4px; }
-        .stat-value { font-weight: 800; font-size: 1.1rem; color: var(--fg); }
+        /* ASISTENCIA */
+        .asist-grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 15px; }
+        .asist-col h4 { color: var(--accent); margin-bottom: 8px; border-bottom: 2px solid var(--border); padding-bottom: 4px; font-size: 0.9rem; }
 
         /* PDF CLEAN STYLE */
         #preview-viewport, #s88-preview-viewport { padding: 0; background: transparent; display:flex; flex-direction:column; align-items:center; margin-top: 20px; }
@@ -81,9 +114,10 @@
         .s21-header-box { border: 1px solid #000; padding: 10px; margin-bottom: 10px; font-size: 9pt; line-height: 1.5; }
         
         @media (max-width: 768px) {
-            header.top { flex-direction: column; align-items: stretch; gap: 15px; }
+            header.top { flex-direction: column; align-items: stretch; gap: 10px; }
             .admin-tools-grid { grid-template-columns: 1fr; } 
             .asist-grid-layout { grid-template-columns: 1fr; }
+            .stat-grid { grid-template-columns: 1fr 1fr; } /* 2 columnas en movil */
         }
     </style>
 </head>
@@ -267,7 +301,7 @@
     // --- CONFIGURACIÓN DE LA NUBE ---
     const CLOUD_URL = "https://script.google.com/macros/s/AKfycbz2h9AeXOftkTSim8in8PzJoWVGWJzzeEYtCVNswgeeIWEgqVNAvxzY-ZmqcHcnjmiQ/exec"; 
     
-    const DB_KEY = 'cong_pro_v107_master';
+    const DB_KEY = 'cong_pro_v108_master';
     const $ = s => document.querySelector(s);
     const ymKey = (y,m) => `${y}-${String(m).padStart(2,'0')}`;
     const MESES_NOM = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -625,7 +659,7 @@
     function previewS21() { const l=getTargetList(), sy=$('#s21Year').value; $('#preview-viewport').innerHTML=l.map(p=>getS21HTML(p,parseInt(sy))).join(''); }
     function downloadPDFS21() { const l=getTargetList(), sy=$('#s21Year').value; if(l.length===0)return alert("Sin datos"); const div=document.createElement('div'); div.innerHTML=l.map(p=>getS21HTML(p,parseInt(sy))).join(''); html2pdf().set({margin:0,filename:'S21_Reporte.pdf',image:{type:'jpeg',quality:0.98},html2canvas:{scale:1.5},jsPDF:{unit:'mm',format:'a4'}}).from(div).save(); }
     
-    // --- FUNCIÓN ASISTENCIA (CORREGIDA Y SIMPLIFICADA) ---
+    // --- FUNCIÓN ASISTENCIA (CORREGIDA) ---
     function renderAsistInputs() { 
         const k=ymKey(asistY,asistM); 
         if(!state.attendance[k]) state.attendance[k]={es:[0,0,0,0,0,0],fs:[0,0,0,0,0,0]}; 
