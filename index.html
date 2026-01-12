@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-    <title>Congregación Pro - Master v95</title>
+    <title>Congregación Pro - Master v100</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -12,102 +12,66 @@
         :root {
             --bg: #f8fafc; --surface: #ffffff; --card: #ffffff;
             --fg: #0f172a; --muted: #64748b; --border: #e2e8f0; --panel: #f1f5f9;
-            --accent: #2563eb; --accent-hover: #1d4ed8; --accent-contrast: #ffffff;
-            --success: #10b981; --danger: #ef4444; --warning: #f59e0b; --purple: #8b5cf6;
-            --radius-md: 12px; --radius-lg: 20px;
-            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --accent: #2563eb; --accent-hover: #1d4ed8; --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
+            --radius-md: 12px; --radius-lg: 20px; --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
         }
-
         [data-theme="blue"] {
-            --bg: #020617; --surface: #0f172a; --card: #1e293b;
-            --panel: #334155; --fg: #f1f5f9; --muted: #94a3b8;
-            --border: #334155; --accent: #38bdf8; --accent-hover: #7dd3fc;
+            --bg: #020617; --surface: #0f172a; --card: #1e293b; --panel: #334155; --fg: #f1f5f9; --muted: #94a3b8; --border: #334155; --accent: #38bdf8;
         }
-
         * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--fg); line-height: 1.5; font-size: 16px; -webkit-tap-highlight-color: transparent; }
         
         #app-content { display: none; }
-
         #toast { position: fixed; top: 20px; right: 20px; background: var(--fg); color: var(--surface); padding: 12px 24px; border-radius: 8px; font-weight: 600; box-shadow: var(--shadow); display: none; z-index: 2000; border-left: 5px solid var(--accent); }
 
-        /* HEADER */
+        /* HEADER & TABS */
         header.top { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; flex-wrap: wrap; gap: 10px; }
-        
-        .tabs-container { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0.5rem 1rem; overflow-x: auto; position: sticky; top: 70px; z-index: 90; -webkit-overflow-scrolling: touch; }
+        .tabs-container { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0.5rem 1rem; overflow-x: auto; position: sticky; top: 70px; z-index: 90; }
         .tabs { display: flex; gap: 8px; width: max-content; }
         .tabs button { padding: 10px 16px; border: 1px solid transparent; background: transparent; color: var(--muted); font-weight: 600; font-size: 0.85rem; border-radius: 10px; cursor: pointer; white-space: nowrap; }
         .tabs button.active { background: var(--panel); color: var(--accent); border-color: var(--border); }
 
+        /* Estilos específicos para ocultar cosas según el rol */
+        body.role-restricted .admin-only { display: none !important; }
+        body.role-restricted .tabs button:not([data-tab="actividad"]) { display: none !important; }
+        
         .container { max-width: 1600px; margin: 0 auto; padding: 1.5rem; }
         .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; box-shadow: var(--shadow); margin-bottom: 1.5rem; overflow: hidden; }
-        
         .admin-tools-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; background: var(--panel); padding: 1.2rem; border-radius: var(--radius-md); margin-bottom: 1.5rem; }
-
         .tab { display: none; }
         .tab.active { display: block; animation: fadeIn 0.3s ease; }
-        
-        .table-container { overflow-x: auto; border-radius: var(--radius-md); border: 1px solid var(--border); -webkit-overflow-scrolling: touch; }
+        .table-container { overflow-x: auto; border-radius: var(--radius-md); border: 1px solid var(--border); }
         .table { width: 100%; border-spacing: 0; border-collapse: separate; background: var(--card); min-width: 600px; }
         .table th { background: var(--panel); color: var(--muted); font-size: 0.75rem; font-weight: 800; padding: 12px; text-align: left; text-transform: uppercase; border-bottom: 1px solid var(--border); }
         .table td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
-        .row-sacado td:first-child { color: var(--danger) !important; font-weight: 800; text-decoration: line-through; }
-
-        /* IMPRESIÓN S-21 */
-        #preview-viewport, #s88-preview-viewport { padding: 0; background: transparent; display:flex; flex-direction:column; align-items:center; margin-top: 20px; }
         
-        /* ESTILO PDF CLEAN */
-        .print-canvas { 
-            width: 190mm; 
-            min-width: 190mm; 
-            background: #ffffff !important; 
-            color: #000; 
-            padding: 10mm; 
-            border: 2px solid #000; 
-            font-family: 'Inter', sans-serif; 
-            margin-bottom: 0; 
-            page-break-after: always; 
-            break-after: page;
-            box-shadow: none !important;
-        }
-        
-        .print-title { font-size: 13pt; font-weight: 900; text-align: center; margin-bottom: 10px; text-transform: uppercase; border-bottom: 2.5px solid #000; padding-bottom: 5px; }
-        .official-table { width: 100%; border-collapse: collapse !important; border: 1.5px solid #000 !important; margin-top: 5px; }
-        .official-table th, .official-table td { border: 1.2px solid #000 !important; padding: 4px; font-size: 8.5pt; text-align: center; color: #000; }
-        .official-table th { background: #f2f2f2 !important; font-weight: 800; }
-        .s21-header-box { border: 1.5px solid #000; padding: 10px; margin-bottom: 10px; font-size: 9pt; line-height: 1.6; }
-
-        .stat-block { background: var(--card); border: 1px solid var(--border); padding: 1.2rem; border-radius: var(--radius-md); border-top: 5px solid var(--accent); box-shadow: var(--shadow); }
-        .stat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
-        .stat-value { font-weight: 800; font-size: 1.3rem; color: var(--fg); }
-
-        .btn { display: inline-flex; align-items: center; justify-content: center; padding: 10px 16px; border-radius: 10px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--fg); gap: 6px; transition: 0.2s; font-size: 0.9rem; white-space: nowrap; }
+        /* BOTONES E INPUTS */
+        .btn { display: inline-flex; align-items: center; justify-content: center; padding: 10px 16px; border-radius: 10px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--fg); gap: 6px; font-size: 0.9rem; }
         .btn.primary { background: var(--accent); color: white; border: none; }
         .btn.success { background: var(--success); color: white; border: none; }
         .btn.danger { background: var(--danger); color: white; border: none; }
         .btn.warning { background: var(--warning); color: white; border: none; }
+        .btn.cloud { background: #8b5cf6; color: white; border: none; }
         
         input, select { background: var(--surface); border: 1px solid var(--border); padding: 10px; border-radius: 8px; color: var(--fg); font-size: 0.95rem; width: 100%; }
         label { display: block; font-size: 0.75rem; font-weight: 800; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; }
 
+        /* Login Modal */
         #modalAuth { position: fixed; inset: 0; background: rgba(0,0,0,0.96); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
         .badge-count { background: var(--accent); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; }
-
         .asist-grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; }
 
+        /* PDF CLEAN STYLE */
+        #preview-viewport, #s88-preview-viewport { padding: 0; background: transparent; display:flex; flex-direction:column; align-items:center; margin-top: 20px; }
+        .print-canvas { width: 190mm; min-width: 190mm; background: #ffffff !important; color: #000; padding: 10mm; border: 2px solid #000; font-family: 'Inter', sans-serif; margin-bottom: 0; page-break-after: always; break-after: page; box-shadow: none !important; }
+        .official-table { width: 100%; border-collapse: collapse !important; border: 1.5px solid #000 !important; margin-top: 5px; }
+        .official-table th, .official-table td { border: 1.2px solid #000 !important; padding: 4px; font-size: 8.5pt; text-align: center; color: #000; }
+        .official-table th { background: #f2f2f2 !important; font-weight: 800; }
+        
         @media (max-width: 768px) {
-            header.top, .tabs-container { position: relative !important; top: auto !important; z-index: 1; }
-            header.top { flex-direction: column; align-items: stretch; gap: 15px; padding: 1rem 1rem; }
-            header.top > div { justify-content: space-between; width: 100%; }
-            .tabs-container { padding: 0.5rem; overflow-x: auto; }
-            .container { padding: 1rem 0.5rem; }
-            .card { padding: 1rem; }
-            .admin-tools-grid { grid-template-columns: 1fr; gap: 1rem; } 
-            .asist-grid-layout { grid-template-columns: 1fr; gap: 2rem; }
-            .btn { width: 100%; margin-bottom: 5px; }
-            .table th, .table td { padding: 8px; font-size: 0.85rem; }
-            #resumenContent { grid-template-columns: 1fr !important; }
-            #modalAuth .card, #modalPwd .card { width: 100%; }
+            header.top { flex-direction: column; align-items: stretch; gap: 15px; }
+            .admin-tools-grid { grid-template-columns: 1fr; } 
+            .asist-grid-layout { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -115,44 +79,60 @@
 
 <div id="toast"></div>
 
+<div id="modalAuth">
+    <div class="card" style="width:360px; max-width:90%; text-align:center;">
+        <h2 style="font-weight:900; margin-bottom:12px;">Acceso Unificado</h2>
+        <p style="font-size:0.85rem; color:var(--muted); margin-bottom:20px;">Ingresa tu clave de Administrador o de Grupo</p>
+        <input type="password" id="mPwd" placeholder="••••" style="text-align:center; font-size:2.2rem; letter-spacing:12px; margin-bottom:25px;">
+        <button class="btn primary" id="mEnter" style="width:100%;">ENTRAR</button>
+    </div>
+</div>
+
 <div id="app-content">
     <header class="top">
         <div style="display:flex; align-items:center; gap:12px;">
             <div style="background:var(--accent); width:32px; height:32px; border-radius:8px;"></div>
-            <h1 style="font-size: 1.1rem; font-weight: 800;">Congregación Pro</h1>
+            <div>
+                <h1 style="font-size: 1.1rem; font-weight: 800;">Congregación Pro</h1>
+                <span id="roleBadge" style="font-size:0.75rem; background:var(--panel); padding:2px 6px; border-radius:4px;">Modo: --</span>
+            </div>
         </div>
         <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-            <button class="btn success" id="btnSyncCloud">☁️ Nube</button>
+            <button class="btn success admin-only" id="btnSyncCloud">☁️ Sincronizar Nube</button>
+            
+            <button class="btn warning" onclick="$('#fileInputSatelite').click()">📥 Importar Datos</button>
+            <input type="file" id="fileInputSatelite" style="display:none;" accept=".json" onchange="importSatelliteData(this)">
+            
+            <button class="btn cloud satellite-only" id="btnSendCloud" style="display:none;" onclick="sendToCloud()">☁️ Enviar Informe</button>
+            
             <div style="display:flex; gap:5px; align-items:center;">
                 <input type="number" id="headerYear" style="width:70px; padding:8px;">
                 <select id="headerMonth" style="width:110px; padding:8px;"></select>
             </div>
-            <button class="btn danger" onclick="location.reload()">🔒</button>
-            <select id="themeSelectorUI" style="width:80px;"><option value="light">Claro</option><option value="blue">Azul</option></select>
+            <button class="btn danger" onclick="location.reload()">🔒 Salir</button>
         </div>
     </header>
 
     <div class="tabs-container">
         <div class="tabs">
-            <button data-tab="personas" class="active">1. Miembros</button>
-            <button data-tab="actividad">2. Informes</button>
-            <button data-tab="asistencia">3. Asistencia</button>
-            <button data-tab="precursores">4. Precursores</button>
-            <button data-tab="tarjeta">5. S-21-S</button>
-            <button data-tab="s88">6. S-88-S</button>
-            <button data-tab="resumen">7. Resumen</button>
-            <button data-tab="sacados" style="color:var(--danger)">8. Sacados</button>
-            <button data-tab="inactivos" style="color:var(--warning)">9. Inactivos / Irreg.</button>
+            <button data-tab="personas" class="active admin-only">1. Miembros</button>
+            <button data-tab="actividad" id="tabActividad">2. Informes</button> <button data-tab="asistencia" class="admin-only">3. Asistencia</button>
+            <button data-tab="precursores" class="admin-only">4. Precursores</button>
+            <button data-tab="tarjeta" class="admin-only">5. S-21-S</button>
+            <button data-tab="s88" class="admin-only">6. S-88-S</button>
+            <button data-tab="resumen" class="admin-only">7. Resumen</button>
+            <button data-tab="sacados" class="admin-only" style="color:var(--danger)">8. Sacados</button>
+            <button data-tab="inactivos" class="admin-only" style="color:var(--warning)">9. Inactivos</button>
         </div>
     </div>
 
     <div class="container">
-        <section id="personas" class="tab active">
+        <section id="personas" class="tab active admin-only">
             <div class="card">
                 <h3>Gestión de Miembros</h3>
                 <div class="admin-tools-grid">
                     <input type="hidden" id="pId">
-                    <div><label>Nombre Completo</label><input type="text" id="pNombre" placeholder="Ej: Juan Pérez"></div>
+                    <div><label>Nombre</label><input type="text" id="pNombre"></div>
                     <div><label>Grupo</label><select id="pGrupo"><option value="1">G1</option><option value="2">G2</option><option value="3">G3</option><option value="4">G4</option><option value="5">G5</option></select></div>
                     <div><label>Sexo</label><select id="pSexo"><option value="Hombre">Hombre</option><option value="Mujer">Mujer</option></select></div>
                     <div><label>Esperanza</label><select id="pEsp"><option value="Otras ovejas">Otras ovejas</option><option value="Ungido">Ungido</option></select></div>
@@ -162,542 +142,273 @@
                     <div><label>Bautismo</label><input type="date" id="pBau"></div>
                     <div><label>Fecha Expulsión</label><input type="date" id="pFSac"></div>
                     <div style="display:flex; flex-direction:column; justify-content:flex-end; gap:5px;">
-                        <button class="btn primary" id="btnSaveP">💾 Guardar Miembro</button>
-                        <div style="display:flex; gap:5px;">
-                            <button class="btn" id="btnCancelEdit" style="display:none; flex:1;">Cancelar</button>
-                            <button class="btn danger" id="btnDeleteP" style="display:none; flex:1;">🗑️ Eliminar</button>
-                        </div>
+                        <button class="btn primary" id="btnSaveP">💾 Guardar</button>
+                        <button class="btn danger" id="btnDeleteP" style="display:none;">🗑️</button>
+                        <button class="btn" id="btnCancelEdit" style="display:none;">Cancelar</button>
                     </div>
                 </div>
                 <div class="admin-tools-grid" style="background:var(--panel);">
                     <div style="grid-column:1/-1; display:flex; gap:15px; flex-wrap:wrap;">
                         <label><input type="checkbox" id="pAnc"> Anciano</label>
-                        <label><input type="checkbox" id="pSM"> Siervo Min.</label>
-                        <label><input type="checkbox" id="pPR"> P. Regular</label>
-                        <label><input type="checkbox" id="pPE"> P. Especial</label>
-                        <label><input type="checkbox" id="pMis"> Misionero</label>
+                        <label><input type="checkbox" id="pSM"> SM</label>
+                        <label><input type="checkbox" id="pPR"> PR</label>
+                        <label><input type="checkbox" id="pPE"> PE</label>
+                        <label><input type="checkbox" id="pMis"> Mis.</label>
                     </div>
                 </div>
                 <div class="admin-tools-grid">
-                    <div style="grid-column: span 2;"><label>Buscar para editar</label><input type="search" id="qPersona" list="pList" placeholder="Escriba nombre..."></div>
-                    <div style="grid-column:1/-1; display:flex; gap:8px; flex-wrap:wrap;">
-                        <button class="btn primary" id="btnQEdit">✏️ Editar</button>
-                        <button class="btn" id="btnExport">💾 Backup</button>
-                        <button class="btn" onclick="$('#fileInputJSON').click()">📂 Restaurar</button>
+                    <div style="grid-column: span 2;"><input type="search" id="qPersona" list="pList" placeholder="Buscar para editar..."></div>
+                    <div style="grid-column:1/-1; display:flex; gap:8px;">
+                        <button class="btn primary" id="btnQEdit">✏️</button>
+                        <button class="btn" onclick="$('#fileInputJSON').click()">📂 Restaurar BD</button>
                         <input type="file" id="fileInputJSON" style="display:none;" accept=".json">
-                        <button class="btn warning" id="btnOpenPwd">🔑 Clave</button>
-                        <button class="btn danger" id="btnResetAll">⚠️ Reset</button>
-                        <input type="checkbox" id="chkResetConfirm">
+                        <button class="btn" onclick="exportBackup()">💾 Backup</button>
+                        <button class="btn warning" onclick="$('#modalPwd').style.display='flex'">🔑 Clave</button>
+                        <button class="btn danger" onclick="if(confirm('¿Borrar todo?')){localStorage.clear();location.reload();}">⚠️ Reset</button>
                     </div>
                 </div>
                 <datalist id="pList"></datalist>
-            </div>
-            <div class="card">
-                <h3 style="margin-bottom:10px;">Listado General</h3>
-                <div class="table-container">
-                    <table class="table" id="tblMiembros"><thead><tr><th>Nombre</th><th>G</th><th>Sexo</th><th>Bautismo</th><th>Privilegios</th><th>Acciones</th></tr></thead><tbody></tbody></table>
-                </div>
             </div>
         </section>
 
         <section id="actividad" class="tab">
             <div class="card">
-                <h3>Registro de Informes</h3>
+                <h3 id="reportTitle">Registro de Informes</h3>
                 <div class="admin-tools-grid">
                     <div><label>Mes</label><select id="actMonthSelect"></select></div>
                     <div><label>Año</label><input type="number" id="actYearInput"></div>
-                    <div><label>Grupo</label><select id="selGInforme"><option value="1">G1</option><option value="2">G2</option><option value="3">G3</option><option value="4">G4</option><option value="5">G5</option></select></div>
+                    <div>
+                        <label>Grupo</label>
+                        <select id="selGInforme">
+                            <option value="1">G1</option><option value="2">G2</option><option value="3">G3</option><option value="4">G4</option><option value="5">G5</option>
+                        </select>
+                    </div>
                     
                     <div style="display:flex; flex-direction:column; justify-content:flex-end; gap:5px;">
-                        <button class="btn success" id="btnSaveReports">💾 Guardar Todos</button>
-                        <button class="btn warning" onclick="$('#fileInputSatelite').click()">📥 Importar Satélite</button>
-                        <input type="file" id="fileInputSatelite" style="display:none;" accept=".json" onchange="importSatelliteData(this)">
+                        <button class="btn success admin-only" id="btnSaveReports">💾 Guardar Cambios</button>
+                        <div class="satellite-only" style="font-size:0.75rem; color:var(--muted);">* Los cambios se guardan en este dispositivo. Si la lista está vacía, usa el botón <b>"Importar Datos"</b> para cargar el archivo Backup que te dio el secretario.</div>
                     </div>
                 </div>
-                <div class="table-container"><table class="table" id="tblActividad"><thead><tr><th>Nombre</th><th>Part.</th><th>Horas</th><th>Cursos</th><th>P. Aux</th><th>Notas</th></tr></thead><tbody></tbody></table></div>
+                <div class="table-container">
+                    <table class="table" id="tblActividad">
+                        <thead><tr><th>Nombre</th><th>Part.</th><th>Horas</th><th>Cursos</th><th>P. Aux</th><th>Notas</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
             </div>
         </section>
 
-        <section id="asistencia" class="tab">
+        <section id="asistencia" class="tab admin-only">
             <div class="card">
-                <h3>Asistencia Mensual</h3>
-                <div class="admin-tools-grid" style="margin-bottom: 20px; border: 1px solid var(--accent);">
+                <h3>Asistencia</h3>
+                <div class="admin-tools-grid">
                     <div><label>Mes</label><select id="asistMonthSelect"></select></div>
                     <div><label>Año</label><input type="number" id="asistYearInput"></div>
-                    <div style="display:flex; align-items:flex-end; color:var(--muted); font-size:0.8rem;">* Datos para S-88-S y Resumen</div>
                 </div>
-
-                <div class="asist-grid-layout">
-                    <div>
-                        <h4 style="color:var(--accent); margin-bottom:15px; text-transform:uppercase; font-size:0.8rem; border-bottom:1px solid var(--border); padding-bottom:5px;">Reunión entre semana</h4>
-                        <div id="contES" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap:10px;"></div>
-                    </div>
-                    <div>
-                        <h4 style="color:var(--accent); margin-bottom:15px; text-transform:uppercase; font-size:0.8rem; border-bottom:1px solid var(--border); padding-bottom:5px;">Reunión fin de semana</h4>
-                        <div id="contFS" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap:10px;"></div>
-                    </div>
-                </div>
-                <button class="btn success" id="btnSaveAsist" style="margin-top:30px; width:100%;">💾 Guardar Asistencia</button>
+                <div class="asist-grid-layout"><div id="contES"></div><div id="contFS"></div></div>
+                <button class="btn success" id="btnSaveAsist" style="margin-top:20px; width:100%;">💾 Guardar Asistencia</button>
             </div>
         </section>
 
-        <section id="precursores" class="tab">
-            <div class="card">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                    <h3>P. Regulares</h3>
-                    <div class="badge-count">Total: <span id="totalPR">0</span></div>
-                </div>
-                <div class="table-container">
-                    <table class="table" id="tblPrecursores"><thead><tr><th>Nombre</th><th>Grupo</th><th>Bautismo</th><th>Estado</th></tr></thead><tbody></tbody></table>
-                </div>
-            </div>
-            <div class="card">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                    <h3 id="lblPAux">P. Auxiliares (Mes Actual)</h3>
-                </div>
-                <div class="table-container">
-                    <table class="table" id="tblAuxiliares"><thead><tr><th>Nombre</th><th>Grupo</th><th>Horas</th></tr></thead><tbody></tbody></table>
-                </div>
-            </div>
-        </section>
-
-        <section id="tarjeta" class="tab">
-            <div class="card">
-                <h3 style="margin-bottom:15px;">Generador de Tarjetas S-21-S</h3>
-                <div class="admin-tools-grid">
-                    <div>
-                        <label>Modo de Reporte</label>
-                        <select id="s21Mode" onchange="toggleS21Inputs()">
-                            <option value="individual">Individual (Un Publicador)</option>
-                            <option value="group">Por Grupo de Predicación</option>
-                            <option value="pr">Todos los Precursores Regulares</option>
-                            <option value="all">Todos (Congregación Completa)</option>
-                        </select>
-                    </div>
-                    
-                    <div id="s21InputIndiv">
-                        <label>Buscar Publicador</label>
-                        <input type="text" id="s21Search" list="pList" placeholder="Nombre...">
-                    </div>
-
-                    <div id="s21InputGroup" style="display:none;">
-                        <label>Seleccionar Grupo</label>
-                        <select id="s21GroupSel">
-                            <option value="1">Grupo 1</option>
-                            <option value="2">Grupo 2</option>
-                            <option value="3">Grupo 3</option>
-                            <option value="4">Grupo 4</option>
-                            <option value="5">Grupo 5</option>
-                        </select>
-                    </div>
-
-                    <div><label>Año Servicio</label><input type="number" id="s21Year" placeholder="Año"></div>
-                    
-                    <div style="display:flex; gap:8px; align-items:flex-end;">
-                        <button class="btn primary" onclick="previewS21()">👁️ Visualizar</button>
-                        <button class="btn success" onclick="downloadPDFS21()">📥 Descargar PDF</button>
-                    </div>
-                </div>
-                <div id="preview-viewport"></div>
-            </div>
-        </section>
-
-        <section id="s88" class="tab">
-            <div class="card">
-                <div class="admin-tools-grid">
-                    <div><label>Año Servicio</label><input type="number" id="s88Year"></div>
-                    <div style="display:flex; align-items:flex-end; gap:8px;">
-                        <button class="btn primary" id="btnPreviewS88">👁️ Ver</button>
-                        <button class="btn primary" onclick="generatePDF('s88')">📥 PDF</button>
-                    </div>
-                </div>
-                <div id="s88-preview-viewport"></div>
-            </div>
-        </section>
-
-        <section id="resumen" class="tab">
-            <div class="card">
-                <div class="admin-tools-grid">
-                    <div><label>Mes</label><select id="resMonth"></select></div>
-                    <div><label>Año</label><input type="number" id="resYear"></div>
-                    <div style="display:flex; align-items:flex-end;"><button class="btn primary" id="btnSearchRes">🔍 Buscar</button></div>
-                </div>
-            </div>
-            <div id="resumenContent" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:1.5rem;"></div>
-        </section>
-
-        <section id="sacados" class="tab">
-            <div class="card">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                    <h3>Registro de Sacados</h3>
-                    <div class="badge-count" style="background:var(--danger);">Total: <span id="totalSacados">0</span></div>
-                </div>
-                <div class="table-container">
-                    <table class="table" id="tblSacados">
-                        <thead><tr><th>Nombre</th><th>Bautismo</th><th>Fecha Salida</th></tr></thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <section id="inactivos" class="tab">
-            <div class="card" style="border-left: 5px solid var(--danger);">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                    <h3 style="color:var(--danger);">Inactivos (+6 Meses)</h3>
-                    <div class="badge-count" style="background:var(--danger);">Total: <span id="totalInactivos">0</span></div>
-                </div>
-                <div class="table-container">
-                    <table class="table" id="tblInactivos">
-                        <thead><tr><th>Nombre</th><th>G</th><th>Última Actividad</th><th>Tiempo Inactivo</th></tr></thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="card" style="border-left: 5px solid var(--warning); margin-top:20px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                    <h3 style="color:var(--warning); filter: brightness(0.7);">Irregulares (Año Servicio Actual)</h3>
-                    <div class="badge-count" style="background:var(--warning); color:black;">Total: <span id="totalIrregulares">0</span></div>
-                </div>
-                <div style="margin-bottom:15px; font-size:0.8rem; color:var(--muted);">
-                    * Publicadores que han fallado algún mes dentro del Año de Servicio actual (desde Septiembre).
-                </div>
-                <div class="table-container">
-                    <table class="table" id="tblIrregulares">
-                        <thead><tr><th>Nombre</th><th>G</th><th>Meses Fallados</th></tr></thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
+        <section id="precursores" class="tab admin-only"><div class="card"><h3>Precursores</h3><div class="table-container"><table class="table" id="tblPrecursores"><tbody></tbody></table></div></div><div class="card" style="margin-top:20px;"><h3>P. Auxiliares</h3><div class="table-container"><table class="table" id="tblAuxiliares"><tbody></tbody></table></div></div></section>
+        <section id="tarjeta" class="tab admin-only"><div class="card"><h3>Tarjetas S-21</h3><div class="admin-tools-grid"><select id="s21Mode" onchange="toggleS21Inputs()"><option value="individual">Individual</option><option value="group">Por Grupo</option><option value="pr">Precursores</option><option value="all">Todos</option></select><div id="s21InputIndiv"><input id="s21Search" list="pList" placeholder="Nombre..."></div><div id="s21InputGroup" style="display:none;"><select id="s21GroupSel"><option value="1">G1</option><option value="2">G2</option><option value="3">G3</option><option value="4">G4</option><option value="5">G5</option></select></div><input type="number" id="s21Year" placeholder="Año"><button class="btn primary" onclick="previewS21()">Ver</button><button class="btn success" onclick="downloadPDFS21()">Descargar</button></div><div id="preview-viewport"></div></div></section>
+        <section id="s88" class="tab admin-only"><div class="card"><h3>S-88</h3><div class="admin-tools-grid"><input type="number" id="s88Year"><button class="btn primary" onclick="renderS88Preview()">Ver</button><button class="btn primary" onclick="generatePDF('s88')">PDF</button></div><div id="s88-preview-viewport"></div></div></section>
+        <section id="resumen" class="tab admin-only"><div class="card"><h3>Resumen</h3><div class="admin-tools-grid"><select id="resMonth"></select><input type="number" id="resYear"><button class="btn primary" id="btnSearchRes">Buscar</button></div><div id="resumenContent"></div></div></section>
+        <section id="sacados" class="tab admin-only"><div class="card"><h3>Sacados</h3><div class="table-container"><table class="table" id="tblSacados"><thead><tr><th>Nombre</th><th>Bautismo</th><th>Fecha Salida</th></tr></thead><tbody></tbody></table></div></div></section>
+        <section id="inactivos" class="tab admin-only"><div class="card"><h3>Inactivos (+6 Meses)</h3><div class="table-container"><table class="table" id="tblInactivos"><thead><tr><th>Nombre</th><th>G</th><th>Última Actividad</th><th>Tiempo Inactivo</th></tr></thead><tbody></tbody></table></div></div><div class="card" style="margin-top:20px;"><h3>Irregulares (Año Servicio)</h3><div class="table-container"><table class="table" id="tblIrregulares"><thead><tr><th>Nombre</th><th>G</th><th>Meses Fallados</th></tr></thead><tbody></tbody></table></div></div></section>
     </div>
 </div>
 
-<div id="modalAuth">
-    <div class="card" style="width:360px; max-width:90%; text-align:center;">
-        <h2 style="font-weight:900; margin-bottom:12px;">Acceso</h2>
-        <input type="password" id="mPwd" placeholder="••••" style="text-align:center; font-size:2.2rem; letter-spacing:12px; margin-bottom:25px;">
-        <button class="btn primary" id="mEnter" style="width:100%;">ENTRAR</button>
-    </div>
-</div>
-
-<div id="modalPwd">
-    <div class="card" style="width:320px; max-width:90%; text-align:center;">
-        <h3>Cambiar Clave</h3>
-        <div><label>Anterior</label><input type="password" id="pOld" style="margin-bottom:10px;"></div>
-        <div><label>Nueva</label><input type="password" id="pNew" style="margin-bottom:20px;"></div>
-        <div style="display:flex; gap:10px; justify-content:center;"><button class="btn" onclick="$('#modalPwd').style.display='none'">Cancelar</button><button class="btn primary" id="btnUpdatePwd">Guardar</button></div>
+<div id="modalPwd" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:2000; align-items:center; justify-content:center;">
+    <div class="card" style="width:300px;">
+        <h3>Nueva Clave Admin</h3>
+        <input type="password" id="pNew">
+        <button class="btn primary" onclick="updatePassword()" style="margin-top:10px; width:100%;">Guardar</button>
+        <button class="btn" onclick="$('#modalPwd').style.display='none'" style="margin-top:5px; width:100%;">Cancelar</button>
     </div>
 </div>
 
 <script>
-    // URL DE GOOGLE
-    const CLOUD_URL = "https://script.google.com/macros/s/AKfycbx9bKJy3Tsgj2F2t7wlewk12WTK1SIFJqBhKBMJtD9rSSu-wUuUgdp_atey0KFU0ZSt/exec"; 
+    // --- CONFIGURACIÓN DE LA NUBE ---
+    // !!! PEGA TU URL DE GOOGLE APPS SCRIPT AQUÍ ABAJO !!!
+    const CLOUD_URL = "https://script.google.com/macros/s/AKfycbxb8kw0l-pW3kXpdR-PzR7f0d50XQ44noHnImEhv8FFecQpLsXat5hqJLPuZriGagEBaA/exec"; 
     
-    const DB_KEY = 'cong_pro_v95_master';
-    const $=s=>document.querySelector(s);
+    const DB_KEY = 'cong_pro_v100_final';
+    const $ = s => document.querySelector(s);
     const ymKey = (y,m) => `${y}-${String(m).padStart(2,'0')}`;
     const MESES_NOM = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
     const CICLO_S88 = [9,10,11,12,1,2,3,4,5,6,7,8];
-
-    let state = { personas:[], activity:{}, attendance:{}, config: { pwd: '12345' } };
-    window.onerror = function(msg, url, line) { alert("Error: " + msg); return false; };
-
-    try { const saved = localStorage.getItem(DB_KEY); if(saved) state = JSON.parse(saved); } catch(e) { console.error(e); }
-    if(!state.config) state.config = { pwd: '12345' };
-    if(!state.personas) state.personas = [];
-    if(!state.activity) state.activity = {};
-    if(!state.attendance) state.attendance = {};
+    
+    let state = { personas:[], activity:{}, attendance:{}, config: { pwd: '1728' } }; 
+    let CURRENT_ROLE = 'ADMIN'; 
+    const GROUP_PASSWORDS = { 'grupo1': '1', 'grupo2': '2', 'grupo3': '3', 'grupo4': '4', 'grupo5': '5' };
 
     let curY = new Date().getFullYear(), curM = new Date().getMonth()+1;
-    let actY = curY, actM = curM; let asistY = curY, asistM = curM;
+    let actY = curY, actM = curM, asistY = curY, asistM = curM;
 
     function init() {
-        const bind = (id, evt, fn) => { const el = $(id); if(el) el[evt] = fn; };
-        bind('#mEnter', 'onclick', login); bind('#mPwd', 'onkeydown', (e) => { if(e.key === 'Enter') login(); });
-        bind('#btnSaveP', 'onclick', savePersona); bind('#btnDeleteP', 'onclick', deletePersona);
-        bind('#btnQEdit', 'onclick', () => { const val = $('#qPersona').value.toLowerCase(); const p = state.personas.find(x => x.nombre.toLowerCase() === val); if(p) editP(p.id); });
-        bind('#btnExport', 'onclick', exportBackup); bind('#btnResetAll', 'onclick', resetDatabase); bind('#fileInputJSON', 'onchange', handleImport);
-        bind('#btnOpenPwd', 'onclick', () => $('#modalPwd').style.display='flex'); bind('#btnUpdatePwd', 'onclick', updatePassword); bind('#btnSyncCloud', 'onclick', loadFromCloud);
-        bind('#btnSaveReports', 'onclick', () => { save(); showToast("Informes guardados"); }); bind('#btnSaveAsist', 'onclick', () => { save(); showToast("Asistencia guardada"); renderS88Preview(); });
-        bind('#selGInforme', 'onchange', renderActividad); bind('#btnPreviewS88', 'onclick', renderS88Preview); bind('#btnSearchRes', 'onclick', () => renderResumenMensual(parseInt($('#resYear').value), parseInt($('#resMonth').value)));
-
+        // Eventos Login
+        $('#mEnter').onclick = attemptLogin;
+        $('#mPwd').onkeydown = (e) => { if(e.key==='Enter') attemptLogin(); };
+        
+        // Eventos Generales
         const mSels = [$('#headerMonth'), $('#actMonthSelect'), $('#resMonth'), $('#asistMonthSelect')];
-        mSels.forEach(sel => { if(sel) { sel.innerHTML = ''; MESES_NOM.forEach((m,i)=>{ const o = document.createElement('option'); o.value=i+1; o.textContent=m; if(i+1 === curM) o.selected=true; sel.appendChild(o); }); } });
-
-        const hM = $('#headerMonth'); if(hM) hM.onchange = (e) => { curM = parseInt(e.target.value); renderAll(); };
-        const hY = $('#headerYear'); if(hY) { hY.value = curY; hY.onchange = (e) => { curY = parseInt(e.target.value); renderAll(); }; }
-        const aM = $('#actMonthSelect'); if(aM) { aM.value = actM; aM.onchange = (e) => { actM = parseInt(e.target.value); renderActividad(); }; }
-        const aY = $('#actYearInput'); if(aY) { aY.value = actY; aY.onchange = (e) => { actY = parseInt(e.target.value); renderActividad(); }; }
-        const asM = $('#asistMonthSelect'); if(asM) { asM.value = asistM; asM.onchange = (e) => { asistM = parseInt(e.target.value); renderAsistInputs(); }; }
-        const asY = $('#asistYearInput'); if(asY) { asY.value = asistY; asY.onchange = (e) => { asistY = parseInt(e.target.value); renderAsistInputs(); }; }
-        const rY = $('#resYear'); if(rY) rY.value = curY; const s21Y = $('#s21Year'); if(s21Y) s21Y.value = (curM>=9)?curY:curY-1; const s88Y = $('#s88Year'); if(s88Y) s88Y.value = (curM>=9)?curY:curY-1;
-        const themeSel = $('#themeSelectorUI'); if(themeSel) themeSel.onchange = (e) => document.body.setAttribute('data-theme', e.target.value);
-
+        mSels.forEach(sel => { if(sel){ sel.innerHTML=''; MESES_NOM.forEach((m,i)=>{const o=document.createElement('option'); o.value=i+1; o.text=m; if(i+1===curM)o.selected=true; sel.appendChild(o);}); } });
+        
+        if($('#headerYear')) $('#headerYear').value = curY;
+        if($('#actYearInput')) $('#actYearInput').value = curY;
+        if($('#asistYearInput')) $('#asistYearInput').value = curY;
+        if($('#resYear')) $('#resYear').value = curY;
+        if($('#s21Year')) $('#s21Year').value = (curM>=9)?curY:curY-1;
+        if($('#s88Year')) $('#s88Year').value = (curM>=9)?curY:curY-1;
+        
+        // Listeners básicos
+        if($('#headerMonth')) $('#headerMonth').onchange = (e) => { curM=parseInt(e.target.value); renderAll(); };
+        if($('#headerYear')) $('#headerYear').onchange = (e) => { curY=parseInt(e.target.value); renderAll(); };
+        if($('#selGInforme')) $('#selGInforme').onchange = renderActividad;
+        if($('#actMonthSelect')) $('#actMonthSelect').onchange = (e) => { actM=parseInt(e.target.value); renderActividad(); };
+        if($('#actYearInput')) $('#actYearInput').onchange = (e) => { actY=parseInt(e.target.value); renderActividad(); };
+        if($('#asistMonthSelect')) $('#asistMonthSelect').onchange = (e) => { asistM=parseInt(e.target.value); renderAsistInputs(); };
+        if($('#asistYearInput')) $('#asistYearInput').onchange = (e) => { asistY=parseInt(e.target.value); renderAsistInputs(); };
+        if($('#btnSearchRes')) $('#btnSearchRes').onclick = () => renderResumenMensual(parseInt($('#resYear').value), parseInt($('#resMonth').value));
+        
+        if($('#btnSaveP')) $('#btnSaveP').onclick = savePersona;
+        if($('#btnDeleteP')) $('#btnDeleteP').onclick = deletePersona;
+        if($('#btnQEdit')) $('#btnQEdit').onclick = () => { const n=$('#qPersona').value; const p=state.personas.find(x=>x.nombre===n); if(p) editP(p.id); };
+        if($('#fileInputJSON')) $('#fileInputJSON').onchange = handleImport;
+        if($('#btnSyncCloud')) $('#btnSyncCloud').onclick = cloudSyncAdmin;
+        if($('#btnSaveReports')) $('#btnSaveReports').onclick = () => { save(); showToast("Guardado"); };
+        if($('#btnSaveAsist')) $('#btnSaveAsist').onclick = () => { save(); showToast("Asistencia Guardada"); renderS88Preview(); };
+        
         document.querySelectorAll('.tabs button').forEach(b => {
             b.onclick = () => {
-                document.querySelectorAll('.tabs button, .tab').forEach(el=>el.classList.remove('active')); b.classList.add('active'); 
-                const targetId = b.dataset.tab; $(`#${targetId}`).classList.add('active');
-                if(targetId === 'asistencia') renderAsistInputs(); if(targetId === 'precursores') { renderPrecursores(); renderAuxiliares(); }
-                if(targetId === 'resumen') renderResumenMensual(parseInt($('#resYear').value), parseInt($('#resMonth').value));
-                if(targetId === 'sacados') renderSacados(); 
-                if(targetId === 'inactivos') renderEstadoEspiritual(); 
-                if(targetId === 'tarjeta') updateDatalist(); renderTab(targetId);
+                document.querySelectorAll('.tabs button, .tab').forEach(el=>el.classList.remove('active'));
+                b.classList.add('active');
+                if($(`#${b.dataset.tab}`)) $(`#${b.dataset.tab}`).classList.add('active');
+                if(b.dataset.tab === 'actividad') renderActividad();
+                if(b.dataset.tab === 'asistencia') renderAsistInputs();
+                if(b.dataset.tab === 'precursores') { renderPrecursores(); renderAuxiliares(); }
+                if(b.dataset.tab === 'resumen') renderResumenMensual(parseInt($('#resYear').value), parseInt($('#resMonth').value));
+                if(b.dataset.tab === 'sacados') renderSacados();
+                if(b.dataset.tab === 'inactivos') renderEstadoEspiritual();
+                if(b.dataset.tab === 'tarjeta') updateDatalist();
             };
         });
     }
 
-    function login() { 
-        if(!state.config || !state.config.pwd) state.config = { pwd: '12345' };
-        if($('#mPwd').value === state.config.pwd) { $('#modalAuth').style.display='none'; $('#app-content').style.display='block'; try { renderAll(); } catch(e) { console.error(e); } } 
-        else alert("Clave Incorrecta"); 
+    function attemptLogin() {
+        const pwd = $('#mPwd').value;
+        const adminPwd = (state.config && state.config.pwd) ? state.config.pwd : '1728';
+        if (pwd === adminPwd) { CURRENT_ROLE = 'ADMIN'; enterApp(); } 
+        else if (GROUP_PASSWORDS[pwd]) { CURRENT_ROLE = 'G' + GROUP_PASSWORDS[pwd]; enterApp(); } 
+        else { alert("Clave incorrecta"); }
     }
 
-    function importSatelliteData(input) {
-        const file = input.files[0];
-        if(!file) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            try {
-                const data = JSON.parse(e.target.result);
-                if(data.type === 'satelite_data' && data.activity) {
-                    Object.keys(data.activity).forEach(monthKey => {
-                        if(!state.activity[monthKey]) state.activity[monthKey] = {};
-                        Object.keys(data.activity[monthKey]).forEach(personId => {
-                            state.activity[monthKey][personId] = data.activity[monthKey][personId];
+    function enterApp() {
+        $('#modalAuth').style.display = 'none';
+        $('#app-content').style.display = 'block';
+        document.body.className = (CURRENT_ROLE === 'ADMIN') ? 'role-admin' : 'role-restricted';
+        $('#roleBadge').innerText = (CURRENT_ROLE === 'ADMIN') ? 'Modo: Administrador' : `Modo: Grupo ${CURRENT_ROLE.replace('G','')}`;
+        if (CURRENT_ROLE !== 'ADMIN') {
+            const grpNum = CURRENT_ROLE.replace('G', '');
+            $('#selGInforme').value = grpNum;
+            $('#selGInforme').disabled = true;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            $('#actividad').classList.add('active');
+            $('.satellite-only').style.display = 'inline-flex';
+        }
+        renderAll();
+    }
+
+    try { const saved = localStorage.getItem(DB_KEY); if(saved) state = JSON.parse(saved); } catch(e) { console.error(e); }
+    if(!state.personas) state.personas = [];
+    if(!state.config) state.config = { pwd: '1728' }; 
+    if(!state.activity) state.activity = {};
+    if(!state.attendance) state.attendance = {};
+
+    async function save() { localStorage.setItem(DB_KEY, JSON.stringify(state)); updateDatalist(); }
+
+    async function sendToCloud() {
+        if(CLOUD_URL.includes("PEGAR")) return alert("URL no configurada");
+        if(!confirm("¿Enviar informe a la nube?")) return;
+        const grp = $('#selGInforme').value;
+        const btn = $('#btnSendCloud');
+        btn.textContent = "⏳ Enviando...";
+        const exportObj = { type: 'satelite_data', generated: new Date().toISOString(), group: grp, month: actM, year: actY, activity: state.activity };
+        try { await fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(exportObj) }); alert("✅ Informe enviado al secretario."); } 
+        catch(e) { alert("Error de conexión"); } finally { btn.textContent = "☁️ Enviar Informe"; }
+    }
+
+    async function cloudSyncAdmin() {
+        if(CLOUD_URL.includes("PEGAR")) return alert("URL no configurada");
+        const btn = $('#btnSyncCloud');
+        btn.textContent = "⏳ Buscando...";
+        try {
+            const r = await fetch(CLOUD_URL);
+            const data = await r.json();
+            if(Array.isArray(data) && data.length > 0) {
+                let count = 0;
+                data.forEach(report => {
+                    if(report.activity) {
+                        Object.keys(report.activity).forEach(mKey => {
+                            if(!state.activity[mKey]) state.activity[mKey] = {};
+                            Object.assign(state.activity[mKey], report.activity[mKey]);
                         });
-                    });
-                    save(); renderActividad(); alert("✅ Datos del grupo importados y fusionados con éxito.");
-                } else { alert("El archivo no parece ser un reporte de grupo válido (formato incorrecto)."); }
-            } catch(ex) { alert("Error al leer el archivo del grupo: " + ex.message); } finally { input.value = ''; }
-        };
-        reader.readAsText(file);
+                        count++;
+                    }
+                });
+                save(); renderActividad();
+                await fetch(CLOUD_URL + "?action=clear");
+                alert(`✅ Se importaron ${count} informes de grupos.`);
+            } else { alert("No hay informes nuevos en la nube."); }
+        } catch(e) { alert("Error al sincronizar: " + e.message); } finally { btn.textContent = "☁️ Sincronizar"; }
     }
 
-    function toggleS21Inputs() {
-        const mode = $('#s21Mode').value;
-        $('#s21InputIndiv').style.display = (mode === 'individual') ? 'block' : 'none';
-        $('#s21InputGroup').style.display = (mode === 'group') ? 'block' : 'none';
-        $('#preview-viewport').innerHTML = ''; 
+    function renderAll() {
+        if(CURRENT_ROLE === 'ADMIN') { renderMiembros(); renderSacados(); renderEstadoEspiritual(); renderPrecursores(); renderAuxiliares(); }
+        renderActividad();
+        updateDatalist();
     }
 
-    function getS21HTML(p, sy) {
-        let rows = '', tHor = 0;
-        CICLO_S88.forEach(m => {
-            const y = (m >= 9) ? sy : sy + 1; const r = state.activity[ymKey(y,m)]?.[p.id] || {horas:0, est:0, pa:false, part:false}; tHor += (r.horas||0);
-            const partX = (r.horas > 0 || r.part) ? 'X' : ' '; const paX = r.pa ? 'X' : ' ';
-            rows += `<tr><td>${MESES_NOM[m-1]}</td><td>[${partX}]</td><td>${r.est||''}</td><td>[${paX}]</td><td>${r.horas||''}</td><td></td></tr>`;
+    function renderActividad() {
+        const g = $('#selGInforme').value;
+        const tb = $('#tblActividad tbody');
+        const k = ymKey(actY, actM);
+        tb.innerHTML = '';
+        state.personas.filter(p => p.grupo == g && !p.sacado).sort((a,b)=>a.nombre.localeCompare(b.nombre)).forEach(p => {
+            const r = state.activity[k]?.[p.id] || {part:false, horas:0, est:0, pa:false, nota:''};
+            tb.innerHTML += `<tr><td>${p.nombre}</td><td><input type="checkbox" ${r.part?'checked':''} onchange="updAct('${p.id}','part',this.checked)"></td><td><input type="number" value="${r.horas}" onchange="updAct('${p.id}','horas',this.value)" style="width:50px"></td><td><input type="number" value="${r.est}" onchange="updAct('${p.id}','est',this.value)" style="width:50px"></td><td><input type="checkbox" ${r.pa?'checked':''} onchange="updAct('${p.id}','pa',this.checked)"></td><td><input type="text" value="${r.nota||''}" onchange="updAct('${p.id}','nota',this.value)" style="width:100px"></td></tr>`;
         });
-        return `<div class="print-canvas"><div class="print-title">REGISTRO DE PUBLICADOR</div><div class="s21-header-box"><div><b>Nombre:</b> ${p.nombre} | <b>F. Nac.:</b> ${p.nac||'-'} | <b>Grupo:</b> ${p.grupo}</div><div style="display:flex; gap:15px; margin-top:5px;"><span>[${p.sexo==='Hombre'?'X':' '}] Hombre</span><span>[${p.sexo==='Mujer'?'X':' '}] Mujer</span><span style="margin-left:20px"><b>Bautismo:</b> ${p.bau||'-'}</span></div><div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:5px;"><span>[${p.esp==='Ungido'?'X':' '}] Ungido</span><span>Anc [${p.anciano?'X':' '}]</span><span>SM [${p.sm?'X':' '}]</span><span>PR [${p.pr?'X':' '}]</span><span>PE [${p.pe?'X':' '}]</span></div></div><table class="official-table"><thead><tr><th>Año ${sy}-${sy+1}</th><th>Part.</th><th>Est.</th><th>P. Aux</th><th>Horas</th><th>Notas</th></tr></thead><tbody>${rows}</tbody><tfoot><tr style="font-weight:bold; background:#eee;"><td colspan="4" style="text-align:right;">Total</td><td>${tHor}</td><td></td></tr></tfoot></table><div style="font-size:7pt; margin-top:10px; font-weight:700;">S-21-S 11/23</div></div>`;
+        if(tb.innerHTML === '') tb.innerHTML = `<tr><td colspan="6" style="padding:20px; color:var(--muted);">No hay miembros en el Grupo ${g} o faltan cargar los datos.</td></tr>`;
     }
 
-    function getTargetList() {
-        const mode = $('#s21Mode').value;
-        if(mode === 'individual') { 
-            const n = $('#s21Search').value; 
-            const p = state.personas.find(x => x.nombre === n); 
-            return p ? [p] : []; 
-        } else if(mode === 'group') { 
-            const g = $('#s21GroupSel').value; 
-            return state.personas.filter(p => p.grupo == g && !p.sacado).sort((a,b)=>a.nombre.localeCompare(b.nombre)); 
-        } else if (mode === 'pr') {
-            return state.personas.filter(p => p.pr && !p.sacado).sort((a,b)=>a.nombre.localeCompare(b.nombre));
-        } else { 
-            return state.personas.filter(p => !p.sacado).sort((a,b)=>a.nombre.localeCompare(b.nombre)); 
-        }
-    }
-
-    function previewS21() {
-        const sy = parseInt($('#s21Year').value); const list = getTargetList();
-        if(list.length === 0) return alert("No se encontraron publicadores.");
-        const previewLimit = 5; let html = '';
-        list.slice(0, previewLimit).forEach(p => html += getS21HTML(p, sy));
-        if(list.length > previewLimit) html += `<div style="text-align:center; padding:20px; font-weight:bold; color:var(--muted);">... y ${list.length - previewLimit} tarjetas más (Ver en PDF)</div>`;
-        $('#preview-viewport').innerHTML = html;
-        showToast(`Mostrando ${list.length > previewLimit ? previewLimit : list.length} de ${list.length} tarjetas`);
-    }
-
-    function downloadPDFS21() {
-        const sy = parseInt($('#s21Year').value); const list = getTargetList();
-        if(list.length === 0) return alert("No hay datos para generar.");
-        
-        const mode = $('#s21Mode').value;
-        let fName = 'S21_Reporte.pdf';
-
-        if(mode === 'individual' && list.length > 0) {
-            fName = `S21_${list[0].nombre}.pdf`;
-        } else if (mode === 'group') {
-            fName = `S21_Grupo_${$('#s21GroupSel').value}.pdf`;
-        } else if (mode === 'pr') {
-            fName = `S21_Precursores_Regulares.pdf`;
-        } else {
-            fName = `S21_Congregacion_Completa.pdf`;
-        }
-
-        showToast(`Generando PDF...`);
-        
-        const container = document.getElementById('preview-viewport');
-        let htmlContent = '';
-        list.forEach(p => htmlContent += getS21HTML(p, sy));
-        container.innerHTML = htmlContent;
-        
-        const opt = { 
-            margin: 0, 
-            filename: fName, 
-            image: { type: 'jpeg', quality: 0.98 }, 
-            html2canvas: { scale: 1.5, useCORS: true }, 
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } 
-        };
-        
-        html2pdf().set(opt).from(container).save().then(() => {
-            showToast("PDF Descargado ✅");
-        });
-    }
-
-    function generatePDF(type) {
-        if(type === 's88') {
-            const el = document.getElementById('s88-preview-viewport');
-            const opt = { margin: 5, filename: 'S88_Registro.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
-            html2pdf().set(opt).from(el).save();
-        }
-    }
-
-    function renderAll() { 
-        renderMiembros(); 
-        updateDatalist(); 
-        renderPrecursores(); 
-        renderAuxiliares();
-        renderSacados();
-        renderEstadoEspiritual();
-    }
-    
     function updateDatalist() { const l=$('#pList'); if(l){ l.innerHTML = ''; state.personas.forEach(p => l.innerHTML += `<option value="${p.nombre}">`); } }
     function showToast(m) { const t=$('#toast'); t.textContent="✔ "+m; t.style.display='block'; setTimeout(()=>t.style.display='none',3000); }
+    window.updAct = (pid, f, v) => { const k = ymKey(actY, actM); if(!state.activity[k]) state.activity[k] = {}; if(!state.activity[k][pid]) state.activity[k][pid] = {part:false, horas:0, est:0, pa:false}; state.activity[k][pid][f] = (f==='pa'||f==='part'||f==='nota') ? v : parseFloat(v||0); save(); }
+    function savePersona() { const id=$('#pId').value, n=$('#pNombre').value.trim(); if(!n) return alert("Nombre obligatorio"); const data={ id:id||'p'+Date.now(), nombre:n, grupo:$('#pGrupo').value, sexo:$('#pSexo').value, esp:$('#pEsp').value, nac:$('#pNac').value, bau:$('#pBau').value, fsac:$('#pFSac').value, pr:$('#pPR').checked, anciano:$('#pAnc').checked, sm:$('#pSM').checked, pe:$('#pPE').checked, mis:$('#pMis').checked, sacado:!!$('#pFSac').value }; if(id) state.personas[state.personas.findIndex(x=>x.id===id)]=data; else state.personas.push(data); save(); renderMiembros(); resetPForm(); }
+    function deletePersona() { const id=$('#pId').value; if(!id)return; if(confirm("¿Eliminar?")) { state.personas=state.personas.filter(p=>p.id!==id); save(); renderMiembros(); resetPForm(); } }
     function resetPForm() { $('#pId').value=''; $('#pNombre').value=''; ['pNac','pBau','pFSac','pSexo','pEsp'].forEach(id=>$('#'+id).value=''); ['pAnc','pSM','pPE','pMis','pPR'].forEach(id=>$('#'+id).checked=false); $('#btnCancelEdit').style.display='none'; $('#btnDeleteP').style.display='none'; }
-    function renderTab(t) { if(t==='personas') renderMiembros(); if(t==='actividad') renderActividad(); }
-    function deletePersona() { const id=$('#pId').value; if(!id)return; if(confirm("¿Eliminar miembro definitivamente?")) { state.personas=state.personas.filter(p=>p.id!==id); save(); renderMiembros(); resetPForm(); showToast("Eliminado"); } }
+    function renderMiembros() { const tb=$('#tblMiembros tbody'); if(!tb)return; tb.innerHTML=''; state.personas.sort((a,b)=>a.nombre.localeCompare(b.nombre)).forEach(p=>{ const tr=document.createElement('tr'); if(p.sacado) tr.className='row-sacado'; tr.innerHTML=`<td><b>${p.nombre}</b></td><td>G${p.grupo}</td><td>${p.sexo}</td><td>${p.bau||'-'}</td><td>${[p.anciano?'Anc':'',p.sm?'SM':'',p.pr?'PR':''].filter(x=>x).join(', ')}</td><td><button class="btn primary" onclick="editP('${p.id}')">✏️</button></td>`; tb.appendChild(tr); }); }
+    window.editP = (id) => { const p = state.personas.find(x=>x.id===id); if(!p) return; $('#pId').value = p.id; $('#pNombre').value = p.nombre; $('#pSexo').value = p.sexo; $('#pEsp').value = p.esp; $('#pNac').value = p.nac; $('#pBau').value = p.bau; $('#pFSac').value = p.fsac || ''; $('#pPR').checked = !!p.pr; $('#pAnc').checked = !!p.anciano; $('#pSM').checked = !!p.sm; $('#pPE').checked = !!p.pe; $('#pMis').checked = !!p.mis; $('#btnCancelEdit').style.display='inline-flex'; $('#btnDeleteP').style.display='inline-flex'; window.scrollTo(0,0); }
+    function handleImport(e) { const f=e.target.files[0]; if(!f||!confirm("¿Reemplazar datos?")){e.target.value='';return;} const r=new FileReader(); r.onload=(ev)=>{ try{ state=JSON.parse(ev.target.result); save(); renderAll(); alert("Importado"); }catch(e){alert("Error JSON");} }; r.readAsText(f); }
     function exportBackup() { const blob=new Blob([JSON.stringify(state)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`Backup_${new Date().toISOString().slice(0,10)}.json`; a.click(); }
-    function resetDatabase() { if($('#chkResetConfirm').checked) { if(confirm("¿Borrar todo?")) { localStorage.clear(); location.reload(); } } else alert("Confirme casilla."); }
-    async function save() { localStorage.setItem(DB_KEY, JSON.stringify(state)); updateDatalist(); if(CLOUD_URL.includes("PEGAR_AQUI")) return; const btn=$('#btnSaveReports')||$('#btnSaveAsist')||$('#btnSaveP'); const old=btn?btn.textContent:''; if(btn)btn.textContent="☁️..."; try{ await fetch(CLOUD_URL,{method:'POST',body:JSON.stringify(state)}); if(btn)btn.textContent=old; }catch(e){if(btn)btn.textContent="⚠️ Error";} }
-    async function loadFromCloud() { if(CLOUD_URL.includes("PEGAR_AQUI")) return alert("Configure URL"); if(!confirm("¿Sobrescribir local?")) return; const btn=$('#btnSyncCloud'); btn.textContent="⏳"; try{ const r=await fetch(CLOUD_URL); const d=await r.json(); if(d&&(d.personas||d.activity)){ state=d; localStorage.setItem(DB_KEY,JSON.stringify(state)); renderAll(); showToast("Sincronizado"); } }catch(e){alert("Error red");}finally{btn.textContent="☁️ Nube";} }
-    function updatePassword() { if($('#pOld').value!=state.config.pwd) return alert("Error clave"); state.config.pwd=$('#pNew').value; save(); $('#modalPwd').style.display='none'; showToast("Clave OK"); }
-    function handleImport(e) { const f=e.target.files[0]; if(!f||!confirm("¿Reemplazar datos?")){e.target.value='';return;} showToast("Cargando..."); const r=new FileReader(); r.onload=(ev)=>{ try{ const j=JSON.parse(ev.target.result.trim().replace(/;$/,"")); if(j.meses){ /*migracion*/ } state=j; save(); renderAll(); showToast("Importado"); }catch(e){alert("Error JSON");}finally{e.target.value='';} }; r.readAsText(f); }
+    function updatePassword() { if(!state.config) state.config={}; state.config.pwd=$('#pNew').value; save(); $('#modalPwd').style.display='none'; alert("Clave admin actualizada"); }
+    function renderSacados() { const tb=$('#tblSacados tbody'); const c=$('#totalSacados'); if(!tb)return; tb.innerHTML=''; const l=state.personas.filter(p=>p.sacado).sort((a,b)=>a.nombre.localeCompare(b.nombre)); if(c)c.innerText=l.length; l.forEach(p=>{ tb.innerHTML+=`<tr><td>${p.nombre}</td><td>${p.bau||'-'}</td><td style="color:var(--danger)">${p.fsac||'-'}</td></tr>`; }); }
+    function renderEstadoEspiritual() { const tbIn=$('#tblInactivos tbody'), cIn=$('#totalInactivos'), tbIrr=$('#tblIrregulares tbody'), cIrr=$('#totalIrregulares'); if(!tbIn)return; tbIn.innerHTML=''; tbIrr.innerHTML=''; let nIn=0, nIrr=0; const syStart = (curM>=9)?curY:curY-1; state.personas.filter(p=>!p.sacado).sort((a,b)=>a.nombre.localeCompare(b.nombre)).forEach(p=>{ let zeros=0, last='-'; for(let i=0;i<36;i++){ let ty=curY, tm=curM-i; while(tm<=0){tm+=12;ty--;} const act=state.activity[ymKey(ty,tm)]?.[p.id]; if(act&&(act.horas>0||act.part)){ last=`${MESES_NOM[tm-1]} ${ty}`; break; } else if(i<6) zeros++; } if(zeros>=6){ nIn++; tbIn.innerHTML+=`<tr><td>${p.nombre}</td><td>G${p.grupo}</td><td>${last}</td><td style="color:var(--danger)">+${zeros} meses</td></tr>`; } else { let fail=[]; for(let i=1;i<=12;i++){ let ty=curY, tm=curM-i; while(tm<=0){tm+=12;ty--;} if(ty<syStart || (ty===syStart && tm<9)) break; const act=state.activity[ymKey(ty,tm)]?.[p.id]; if(!act||(!act.horas && !act.part)) fail.push(MESES_NOM[tm-1]); } if(fail.length>0){ nIrr++; tbIrr.innerHTML+=`<tr><td>${p.nombre}</td><td>G${p.grupo}</td><td style="color:var(--warning)">${fail.join(', ')}</td></tr>`; } } }); if(cIn)cIn.innerText=nIn; if(cIrr)cIrr.innerText=nIrr; }
+    function toggleS21Inputs() { const m=$('#s21Mode').value; $('#s21InputIndiv').style.display=(m==='individual')?'block':'none'; $('#s21InputGroup').style.display=(m==='group')?'block':'none'; $('#preview-viewport').innerHTML=''; }
+    function getS21HTML(p,sy) { let rows='',tH=0; CICLO_S88.forEach(m=>{ const y=(m>=9)?sy:sy+1, r=state.activity[ymKey(y,m)]?.[p.id]||{horas:0,est:0,pa:false,part:false}; tH+=(r.horas||0); rows+=`<tr><td>${MESES_NOM[m-1]}</td><td>${(r.horas||r.part)?'[X]':''}</td><td>${r.est||''}</td><td>${r.pa?'[X]':''}</td><td>${r.horas||''}</td><td></td></tr>`; }); return `<div class="print-canvas"><div class="print-title">REGISTRO DE PUBLICADOR</div><div class="s21-header-box"><div><b>${p.nombre}</b> | Nac: ${p.nac||'-'} | G${p.grupo}</div><div>${p.sexo} | Bau: ${p.bau||'-'} | ${p.esp}</div><div>${[p.anciano?'Anc':'',p.pr?'PR':''].join(' ')}</div></div><table class="official-table"><thead><tr><th>Año ${sy}-${sy+1}</th><th>Part</th><th>Est</th><th>PAux</th><th>Horas</th><th>Notas</th></tr></thead><tbody>${rows}</tbody><tfoot><tr><td colspan="4">Total</td><td>${tH}</td><td></td></tr></tfoot></table></div>`; }
+    function getTargetList() { const m=$('#s21Mode').value; if(m==='individual'){const n=$('#s21Search').value; const p=state.personas.find(x=>x.nombre===n); return p?[p]:[];} if(m==='group'){return state.personas.filter(p=>p.grupo==$('#s21GroupSel').value && !p.sacado).sort((a,b)=>a.nombre.localeCompare(b.nombre));} if(m==='pr'){return state.personas.filter(p=>p.pr&&!p.sacado).sort((a,b)=>a.nombre.localeCompare(b.nombre));} return state.personas.filter(p=>!p.sacado).sort((a,b)=>a.nombre.localeCompare(b.nombre)); }
+    function previewS21() { const l=getTargetList(), sy=$('#s21Year').value; $('#preview-viewport').innerHTML=l.map(p=>getS21HTML(p,parseInt(sy))).join(''); }
+    function downloadPDFS21() { const l=getTargetList(), sy=$('#s21Year').value; if(l.length===0)return alert("Sin datos"); const div=document.createElement('div'); div.innerHTML=l.map(p=>getS21HTML(p,parseInt(sy))).join(''); html2pdf().set({margin:0,filename:'S21_Reporte.pdf',image:{type:'jpeg',quality:0.98},html2canvas:{scale:1.5},jsPDF:{unit:'mm',format:'a4'}}).from(div).save(); }
     function renderAsistInputs() { const k=ymKey(asistY,asistM); if(!state.attendance[k]) state.attendance[k]={es:[0,0,0,0,0,0],fs:[0,0,0,0,0,0]}; const cES=$('#contES'), cFS=$('#contFS'); cES.innerHTML=''; cFS.innerHTML=''; for(let i=0;i<6;i++){ cES.innerHTML+=`<div><label>Sem ${i+1}</label><input type="number" value="${state.attendance[k].es[i]||0}" oninput="updAsist('es',${i},this.value)"></div>`; cFS.innerHTML+=`<div><label>Sem ${i+1}</label><input type="number" value="${state.attendance[k].fs[i]||0}" oninput="updAsist('fs',${i},this.value)"></div>`; } }
     window.updAsist=(t,i,v)=>{ const k=ymKey(asistY,asistM); state.attendance[k][t][i]=parseInt(v||0); save(); };
     function buildS88TableContent(sy, t) { let rows='',tA=0,tR=0; CICLO_S88.forEach(m=>{ const y=(m>=9)?sy:sy+1; const d=state.attendance[ymKey(y,m)]?.[t]||[0,0,0,0,0,0]; const re=d.filter(v=>v>0).length; const as=d.reduce((a,b)=>a+b,0); const pr=re>0?Math.round(as/re):''; tA+=as; tR+=re; rows+=`<tr><td style="text-align:left">${MESES_NOM[m-1]}</td><td>${re||''}</td><td>${as||''}</td><td>${pr}</td></tr>`; }); const avg=tR>0?Math.round(tA/tR):''; return {h:rows,avg:avg}; }
     function renderS88Preview() { const sy=parseInt($('#s88Year').value); const es=buildS88TableContent(sy,'es'); const fs=buildS88TableContent(sy,'fs'); $('#s88-preview-viewport').innerHTML=`<div class="print-canvas"><div class="print-title">REGISTRO DE ASISTENCIA</div><div style="font-weight:800; margin:10px 0;">Entre semana</div><table class="official-table"><thead><tr><th>Año ${sy}-${sy+1}</th><th>Reuniones</th><th>Asistencia</th><th>Promedio</th></tr></thead><tbody>${es.h}</tbody><tfoot><tr style="font-weight:bold;"><td style="text-align:right">Promedio</td><td colspan="2"></td><td>${es.avg}</td></tr></tfoot></table><div style="font-weight:800; margin:20px 0 10px;">Fin de semana</div><table class="official-table"><thead><tr><th>Año ${sy}-${sy+1}</th><th>Reuniones</th><th>Asistencia</th><th>Promedio</th></tr></thead><tbody>${fs.h}</tbody><tfoot><tr style="font-weight:bold;"><td style="text-align:right">Promedio</td><td colspan="2"></td><td>${fs.avg}</td></tr></tfoot></table></div>`; }
-    function savePersona() { const id=$('#pId').value, n=$('#pNombre').value.trim(); if(!n) return alert("Nombre obligatorio"); const data={ id:id||'p'+Date.now(), nombre:n, grupo:$('#pGrupo').value, sexo:$('#pSexo').value, esp:$('#pEsp').value, nac:$('#pNac').value, bau:$('#pBau').value, fsac:$('#pFSac').value, pr:$('#pPR').checked, anciano:$('#pAnc').checked, sm:$('#pSM').checked, pe:$('#pPE').checked, mis:$('#pMis').checked, sacado:!!$('#pFSac').value }; if(id) state.personas[state.personas.findIndex(x=>x.id===id)]=data; else state.personas.push(data); save(); renderMiembros(); resetPForm(); }
-    function renderMiembros() { const tb=$('#tblMiembros tbody'); if(!tb)return; tb.innerHTML=''; state.personas.sort((a,b)=>a.nombre.localeCompare(b.nombre)).forEach(p=>{ const tr=document.createElement('tr'); if(p.sacado) tr.className='row-sacado'; tr.innerHTML=`<td><b>${p.nombre}</b></td><td>G${p.grupo}</td><td>${p.sexo}</td><td>${p.bau||'-'}</td><td>${[p.anciano?'Anc':'',p.sm?'SM':'',p.pr?'PR':''].filter(x=>x).join(', ')}</td><td><button class="btn primary" onclick="editP('${p.id}')">✏️</button></td>`; tb.appendChild(tr); }); }
-    function renderActividad() { const g=$('#selGInforme').value, tb=$('#tblActividad tbody'), k=ymKey(actY,actM); if(!tb)return; tb.innerHTML=''; state.personas.filter(p=>p.grupo==g && !p.sacado).forEach(p=>{ const r=state.activity[k]?.[p.id]||{part:false,horas:0,est:0,pa:false}; tb.innerHTML+=`<tr><td>${p.nombre}</td><td><input type="checkbox" ${r.part?'checked':''} onchange="updAct('${p.id}','part',this.checked)"></td><td><input type="number" value="${r.horas}" onchange="updAct('${p.id}','horas',this.value)" style="width:50px"></td><td><input type="number" value="${r.est}" onchange="updAct('${p.id}','est',this.value)" style="width:50px"></td><td><input type="checkbox" ${r.pa?'checked':''} onchange="updAct('${p.id}','pa',this.checked)"></td><td><input type="text" value="${r.nota||''}" onchange="updAct('${p.id}','nota',this.value)" style="width:100px"></td></tr>`; }); }
     function renderResumenMensual(y, m) { const k=ymKey(y,m), act=state.activity[k]||{}, att=state.attendance[k]||{es:[],fs:[]}; let tM=0,activos=0,pubC=0,pubE=0,prC=0,prH=0,prE=0,paC=0,paH=0,paE=0; const last6=[]; for(let i=0;i<6;i++){let tm=m-i,ty=y; if(tm<=0){tm+=12;ty-=1;} last6.push(ymKey(ty,tm));} state.personas.forEach(p=>{ if(p.sacado)return; tM++; let haInf=false; for(const lk of last6){ if(state.activity[lk]?.[p.id]?.horas>0 || state.activity[lk]?.[p.id]?.part){ haInf=true; break; } } if(haInf) activos++; const r=act[p.id]||{}; if(r.horas>0||r.part){ const h=parseFloat(r.horas||0), e=parseInt(r.est||0); if(p.pr){prC++;prH+=h;prE+=e;} else if(r.pa){paC++;paH+=h;paE+=e;} else{pubC++;pubE+=e;} } }); const avgES=att.es.filter(n=>n>0).length?Math.round(att.es.reduce((a,b)=>a+b,0)/att.es.filter(n=>n>0).length):0; const avgFS=att.fs.filter(n=>n>0).length?Math.round(att.fs.reduce((a,b)=>a+b,0)/att.fs.filter(n=>n>0).length):0; $('#resumenContent').innerHTML=`<div class="stat-block"><h4>Totales</h4><div class="stat-row"><label>Miembros</label><span class="stat-value">${tM}</span></div><div class="stat-row"><label>Activos</label><span class="stat-value">${activos}</span></div></div><div class="stat-block"><h4>Publicadores</h4><div class="stat-row"><label>Cant</label><span class="stat-value">${pubC}</span></div><div class="stat-row"><label>Est</label><span class="stat-value">${pubE}</span></div></div><div class="stat-block"><h4>P. Regulares</h4><div class="stat-row"><label>Cant</label><span class="stat-value">${prC}</span></div><div class="stat-row"><label>Horas</label><span class="stat-value">${prH}</span></div><div class="stat-row"><label>Est</label><span class="stat-value">${prE}</span></div></div><div class="stat-block"><h4>P. Auxiliares</h4><div class="stat-row"><label>Cant</label><span class="stat-value">${paC}</span></div><div class="stat-row"><label>Horas</label><span class="stat-value">${paH}</span></div><div class="stat-row"><label>Est</label><span class="stat-value">${paE}</span></div></div><div class="stat-block"><h4>Asistencia</h4><div class="stat-row"><label>Vida y Min</label><span class="stat-value">${avgES}</span></div><div class="stat-row"><label>Pública</label><span class="stat-value">${avgFS}</span></div></div>`; }
-    function renderPrecursores() { 
-        const tb=$('#tblPrecursores tbody'); 
-        const counter=$('#totalPR'); 
-        if(!tb)return; 
-        tb.innerHTML=''; 
-        const list = state.personas.filter(p=>p.pr&&!p.sacado).sort((a,b)=>a.nombre.localeCompare(b.nombre));
-        if(counter) counter.innerText = list.length; 
-        list.forEach(p=>{ tb.innerHTML+=`<tr><td><b>${p.nombre}</b></td><td>G${p.grupo}</td><td>${p.bau||'-'}</td><td style="color:var(--success)">Activo</td></tr>`; }); 
-    }
-    function renderAuxiliares() { 
-        const tb=$('#tblAuxiliares tbody'), k=ymKey(curY,curM); 
-        if(!tb)return; 
-        tb.innerHTML=''; 
-        const lbl = $('#lblPAux');
-        if(lbl) lbl.innerText = `P. Auxiliares (${MESES_NOM[curM-1]})`;
-        state.personas.filter(p=>!p.sacado&&state.activity[k]?.[p.id]?.pa).forEach(p=>{ 
-            tb.innerHTML+=`<tr><td><b>${p.nombre}</b></td><td>G${p.grupo}</td><td>${state.activity[k][p.id].horas}</td></tr>`; 
-        }); 
-    }
-    function renderSacados() {
-        const tb = $('#tblSacados tbody'); const counter = $('#totalSacados'); if (!tb) return;
-        tb.innerHTML = '';
-        const list = state.personas.filter(p => p.sacado).sort((a,b) => a.nombre.localeCompare(b.nombre));
-        if (counter) counter.innerText = list.length;
-        list.forEach(p => { tb.innerHTML += `<tr><td><b>${p.nombre}</b></td><td>${p.bau || '-'}</td><td style="color:var(--danger); font-weight:bold;">${p.fsac || 'No registrada'}</td></tr>`; });
-    }
-
-    // --- NUEVA LÓGICA DE INACTIVOS E IRREGULARES ---
-    function renderEstadoEspiritual() {
-        const tbInactivos = $('#tblInactivos tbody');
-        const cInactivos = $('#totalInactivos');
-        const tbIrregulares = $('#tblIrregulares tbody');
-        const cIrregulares = $('#totalIrregulares');
-        
-        if (!tbInactivos || !tbIrregulares) return;
-        tbInactivos.innerHTML = '';
-        tbIrregulares.innerHTML = '';
-        
-        let countInactivos = 0;
-        let countIrregulares = 0;
-        
-        // Determinar inicio del Año de Servicio (Si curM >= 9, inicia en Sept de curY, si no, Sept de curY-1)
-        const syYear = (curM >= 9) ? curY : curY - 1;
-        
-        state.personas.filter(p => !p.sacado).sort((a,b) => a.nombre.localeCompare(b.nombre)).forEach(p => {
-            
-            // --- CHECK INACTIVO (6 Meses Absolutos) ---
-            let consecutiveZero = 0;
-            let lastActive = 'Sin registro';
-            
-            // Mirar hacia atrás para encontrar la última actividad y contar ceros consecutivos
-            for (let i = 0; i < 36; i++) {
-                let tY = curY, tM = curM - i;
-                while (tM <= 0) { tM += 12; tY--; }
-                
-                const k = ymKey(tY, tM);
-                const act = state.activity[k]?.[p.id];
-                if (act && (act.horas > 0 || act.part)) {
-                    lastActive = `${MESES_NOM[tM-1]} ${tY}`;
-                    break;
-                } else {
-                    if (i < 6) consecutiveZero++; // Solo importan los primeros 6 para el estado crítico
-                }
-            }
-
-            const esInactivo = consecutiveZero >= 6;
-
-            if (esInactivo) {
-                countInactivos++;
-                tbInactivos.innerHTML += `<tr><td><b>${p.nombre}</b></td><td>G${p.grupo}</td><td>${lastActive}</td><td style="color:var(--danger); font-weight:bold;">+${consecutiveZero} meses</td></tr>`;
-            }
-
-            // --- CHECK IRREGULAR (Dentro del Año de Servicio Actual) ---
-            // Solo si NO es inactivo (para no duplicar en listas)
-            if (!esInactivo) {
-                let mesesFallados = [];
-                // Revisamos desde el mes actual hacia atrás hasta llegar a Septiembre del SY
-                for (let i = 1; i <= 12; i++) {
-                    let tY = curY, tM = curM - i; // Mes vencido (anterior al actual)
-                    while (tM <= 0) { tM += 12; tY--; }
-                    
-                    // Si nos pasamos de Septiembre del año de servicio, paramos
-                    if (tY < syYear || (tY === syYear && tM < 9)) break;
-                    
-                    const k = ymKey(tY, tM);
-                    const act = state.activity[k]?.[p.id];
-                    const tuvoActividad = act && (act.horas > 0 || act.part);
-                    
-                    if (!tuvoActividad) {
-                        mesesFallados.push(MESES_NOM[tM-1]);
-                    }
-                }
-
-                if (mesesFallados.length > 0) {
-                    countIrregulares++;
-                    tbIrregulares.innerHTML += `<tr><td><b>${p.nombre}</b></td><td>G${p.grupo}</td><td style="color:var(--warning); font-size:0.85rem;">${mesesFallados.join(', ')}</td></tr>`;
-                }
-            }
-        });
-        
-        if (cInactivos) cInactivos.innerText = countInactivos;
-        if (cIrregulares) cIrregulares.innerText = countIrregulares;
-    }
+    function renderPrecursores() { const tb=$('#tblPrecursores tbody'); if(!tb)return; tb.innerHTML=''; state.personas.filter(p=>p.pr&&!p.sacado).sort((a,b)=>a.nombre.localeCompare(b.nombre)).forEach(p=>{ tb.innerHTML+=`<tr><td><b>${p.nombre}</b></td><td>G${p.grupo}</td><td>${p.bau||'-'}</td><td style="color:var(--success)">Activo</td></tr>`; }); }
+    function renderAuxiliares() { const tb=$('#tblAuxiliares tbody'), k=ymKey(curY,curM); if(!tb)return; tb.innerHTML=''; state.personas.filter(p=>!p.sacado&&state.activity[k]?.[p.id]?.pa).forEach(p=>{ tb.innerHTML+=`<tr><td><b>${p.nombre}</b></td><td>G${p.grupo}</td><td>${state.activity[k][p.id].horas}</td></tr>`; }); }
 
     window.addEventListener("DOMContentLoaded", () => { try { init(); } catch(e) { alert("Error: " + e.message); } });
-    window.editP = (id) => { const p = state.personas.find(x=>x.id===id); if(!p) return; $('#pId').value = p.id; $('#pNombre').value = p.nombre; $('#pSexo').value = p.sexo; $('#pEsp').value = p.esp; $('#pNac').value = p.nac; $('#pBau').value = p.bau; $('#pFSac').value = p.fsac || ''; $('#pPR').checked = !!p.pr; $('#pAnc').checked = !!p.anciano; $('#pSM').checked = !!p.sm; $('#pPE').checked = !!p.pe; $('#pMis').checked = !!p.mis; $('#btnCancelEdit').style.display='inline-flex'; $('#btnDeleteP').style.display='inline-flex'; window.scrollTo(0,0); }
-    window.updAct = (pid, f, v) => { const k = ymKey(actY, actM); if(!state.activity[k]) state.activity[k] = {}; if(!state.activity[k][pid]) state.activity[k][pid] = {part:false, horas:0, est:0, pa:false}; state.activity[k][pid][f] = (f==='pa'||f==='part'||f==='nota') ? v : parseFloat(v||0); save(); }
 </script>
 </body>
 </html>
