@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-    <title>Congregación Pro - Master v106</title>
+    <title>Congregación Pro - Master v107</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -59,10 +59,12 @@
         /* Login Modal */
         #modalAuth { position: fixed; inset: 0; background: rgba(0,0,0,0.96); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
         .badge-count { background: var(--accent); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; }
+        
+        /* ASISTENCIA */
         .asist-grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 20px; }
         .asist-col h4 { color: var(--accent); margin-bottom: 10px; border-bottom: 2px solid var(--border); padding-bottom: 5px; }
 
-        /* --- NUEVOS ESTILOS PARA CAJAS DE RESUMEN --- */
+        /* ESTILOS PREMIUM PARA RESUMEN (CAJAS) */
         .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
         .stat-block { background: var(--card); border: 1px solid var(--border); padding: 1.5rem; border-radius: var(--radius-md); box-shadow: var(--shadow); border-top: 4px solid var(--accent); transition: transform 0.2s; }
         .stat-block:hover { transform: translateY(-3px); }
@@ -265,7 +267,7 @@
     // --- CONFIGURACIÓN DE LA NUBE ---
     const CLOUD_URL = "https://script.google.com/macros/s/AKfycbz2h9AeXOftkTSim8in8PzJoWVGWJzzeEYtCVNswgeeIWEgqVNAvxzY-ZmqcHcnjmiQ/exec"; 
     
-    const DB_KEY = 'cong_pro_v106_master';
+    const DB_KEY = 'cong_pro_v107_master';
     const $ = s => document.querySelector(s);
     const ymKey = (y,m) => `${y}-${String(m).padStart(2,'0')}`;
     const MESES_NOM = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -531,9 +533,94 @@
     function exportBackup() { const blob=new Blob([JSON.stringify(state)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`Backup_${new Date().toISOString().slice(0,10)}.json`; a.click(); }
     function updatePassword() { if(!state.config) state.config={}; state.config.pwd=$('#pNew').value; save(); $('#modalPwd').style.display='none'; alert("Clave admin actualizada"); }
     function renderSacados() { const tb=$('#tblSacados tbody'); const c=$('#totalSacados'); if(!tb)return; tb.innerHTML=''; const l=state.personas.filter(p=>p.sacado).sort((a,b)=>a.nombre.localeCompare(b.nombre)); if(c)c.innerText=l.length; l.forEach(p=>{ tb.innerHTML+=`<tr><td>${p.nombre}</td><td>${p.bau||'-'}</td><td style="color:var(--danger)">${p.fsac||'-'}</td></tr>`; }); }
-    function renderEstadoEspiritual() { const tbIn=$('#tblInactivos tbody'), cIn=$('#totalInactivos'), tbIrr=$('#tblIrregulares tbody'), cIrr=$('#totalIrregulares'); if(!tbIn)return; tbIn.innerHTML=''; tbIrr.innerHTML=''; let nIn=0, nIrr=0; const syStart = (curM>=9)?curY:curY-1; state.personas.filter(p=>!p.sacado).sort((a,b)=>a.nombre.localeCompare(b.nombre)).forEach(p=>{ let zeros=0, last='-'; for(let i=0;i<36;i++){ let ty=curY, tm=curM-i; while(tm<=0){tm+=12;ty--;} const act=state.activity[ymKey(ty,tm)]?.[p.id]; if(act&&(act.horas>0||act.part)){ last=`${MESES_NOM[tm-1]} ${ty}`; break; } else if(i<6) zeros++; } if(zeros>=6){ nIn++; tbIn.innerHTML+=`<tr><td>${p.nombre}</td><td>G${p.grupo}</td><td>${last}</td><td style="color:var(--danger)">+${zeros} meses</td></tr>`; } else { let fail=[]; for(let i=1;i<=12;i++){ let ty=curY, tm=curM-i; while(tm<=0){tm+=12;ty--;} if(ty<syStart || (ty===syStart && tm<9)) break; const act=state.activity[ymKey(ty,tm)]?.[p.id]; if(!act||(!act.horas && !act.part)) fail.push(MESES_NOM[tm-1]); } if(fail.length>0){ nIrr++; tbIrr.innerHTML+=`<tr><td>${p.nombre}</td><td>G${p.grupo}</td><td style="color:var(--warning)">${fail.join(', ')}</td></tr>`; } } }); if(cIn)cIn.innerText=nIn; if(cIrr)cIrr.innerText=nIrr; }
+    
+    function renderEstadoEspiritual() { 
+        const tbIn=$('#tblInactivos tbody'), cIn=$('#totalInactivos'), tbIrr=$('#tblIrregulares tbody'), cIrr=$('#totalIrregulares'); 
+        if(!tbIn)return; 
+        tbIn.innerHTML=''; tbIrr.innerHTML=''; 
+        let nIn=0, nIrr=0; 
+        const syStart = (curM>=9)?curY:curY-1; 
+        
+        state.personas.filter(p=>!p.sacado).sort((a,b)=>a.nombre.localeCompare(b.nombre)).forEach(p=>{ 
+            let zeros=0, last='-'; 
+            for(let i=0;i<36;i++){ 
+                let ty=curY, tm=curM-i; 
+                while(tm<=0){tm+=12;ty--;} 
+                const act=state.activity[ymKey(ty,tm)]?.[p.id]; 
+                if(act&&(act.horas>0||act.part)){ last=`${MESES_NOM[tm-1]} ${ty}`; break; } 
+                else if(i<6) zeros++; 
+            } 
+            if(zeros>=6){ 
+                nIn++; 
+                tbIn.innerHTML+=`<tr><td>${p.nombre}</td><td>G${p.grupo}</td><td>${last}</td><td style="color:var(--danger)">+${zeros} meses</td></tr>`; 
+            } else { 
+                let fail=[]; 
+                for(let i=1;i<=12;i++){ 
+                    let ty=curY, tm=curM-i; 
+                    while(tm<=0){tm+=12;ty--;} 
+                    if(ty<syStart || (ty===syStart && tm<9)) break; 
+                    const act=state.activity[ymKey(ty,tm)]?.[p.id]; 
+                    if(!act||(!act.horas && !act.part)) fail.push(MESES_NOM[tm-1]); 
+                } 
+                if(fail.length>0){ 
+                    nIrr++; 
+                    tbIrr.innerHTML+=`<tr><td>${p.nombre}</td><td>G${p.grupo}</td><td style="color:var(--warning)">${fail.join(', ')}</td></tr>`; 
+                } 
+            } 
+        }); 
+        if(cIn)cIn.innerText=nIn; if(cIrr)cIrr.innerText=nIrr; 
+    }
+
+    function renderResumenMensual(y, m) { 
+        const k=ymKey(y,m), act=state.activity[k]||{}, att=state.attendance[k]||{es:[],fs:[]}; 
+        let tM=0,activos=0,pubC=0,pubE=0,prC=0,prH=0,prE=0,paC=0,paH=0,paE=0; 
+        const last6=[]; for(let i=0;i<6;i++){let tm=m-i,ty=y; if(tm<=0){tm+=12;ty-=1;} last6.push(ymKey(ty,tm));} 
+        
+        state.personas.forEach(p=>{ 
+            if(p.sacado)return; tM++; 
+            let haInf=false; 
+            for(const lk of last6){ if(state.activity[lk]?.[p.id]?.horas>0 || state.activity[lk]?.[p.id]?.part){ haInf=true; break; } } 
+            if(haInf) activos++; 
+            const r=act[p.id]||{}; 
+            if(r.horas>0||r.part){ 
+                const h=parseFloat(r.horas||0), e=parseInt(r.est||0); 
+                if(p.pr){prC++;prH+=h;prE+=e;} else if(r.pa){paC++;paH+=h;paE+=e;} else{pubC++;pubE+=e;} 
+            } 
+        }); 
+        const avgES=att.es.filter(n=>n>0).length?Math.round(att.es.reduce((a,b)=>a+b,0)/att.es.filter(n=>n>0).length):0; 
+        const avgFS=att.fs.filter(n=>n>0).length?Math.round(att.fs.reduce((a,b)=>a+b,0)/att.fs.filter(n=>n>0).length):0; 
+        
+        $('#resumenContent').innerHTML=`
+            <div class="stat-grid">
+                <div class="stat-block"><h4>Totales</h4><div class="stat-row"><label>Miembros</label><span class="stat-value">${tM}</span></div><div class="stat-row"><label>Activos</label><span class="stat-value">${activos}</span></div></div>
+                <div class="stat-block"><h4>Publicadores</h4><div class="stat-row"><label>Cant</label><span class="stat-value">${pubC}</span></div><div class="stat-row"><label>Est</label><span class="stat-value">${pubE}</span></div></div>
+                <div class="stat-block"><h4>P. Regulares</h4><div class="stat-row"><label>Cant</label><span class="stat-value">${prC}</span></div><div class="stat-row"><label>Horas</label><span class="stat-value">${prH}</span></div><div class="stat-row"><label>Est</label><span class="stat-value">${prE}</span></div></div>
+                <div class="stat-block"><h4>P. Auxiliares</h4><div class="stat-row"><label>Cant</label><span class="stat-value">${paC}</span></div><div class="stat-row"><label>Horas</label><span class="stat-value">${paH}</span></div><div class="stat-row"><label>Est</label><span class="stat-value">${paE}</span></div></div>
+                <div class="stat-block"><h4>Asistencia Prom.</h4><div class="stat-row"><label>Vida y Min</label><span class="stat-value">${avgES}</span></div><div class="stat-row"><label>Pública</label><span class="stat-value">${avgFS}</span></div></div>
+            </div>`; 
+    }
+
     function toggleS21Inputs() { const m=$('#s21Mode').value; $('#s21InputIndiv').style.display=(m==='individual')?'block':'none'; $('#s21InputGroup').style.display=(m==='group')?'block':'none'; $('#preview-viewport').innerHTML=''; }
-    function getS21HTML(p,sy) { let rows='',tH=0; CICLO_S88.forEach(m=>{ const y=(m>=9)?sy:sy+1, r=state.activity[ymKey(y,m)]?.[p.id]||{horas:0,est:0,pa:false,part:false}; tH+=(r.horas||0); rows+=`<tr><td>${MESES_NOM[m-1]}</td><td>${(r.horas||r.part)?'[X]':''}</td><td>${r.est||''}</td><td>${r.pa?'[X]':''}</td><td>${r.horas||''}</td><td></td></tr>`; }); return `<div class="print-canvas"><div class="print-title">REGISTRO DE PUBLICADOR</div><div class="s21-header-box"><div><b>${p.nombre}</b> | Nac: ${p.nac||'-'} | G${p.grupo}</div><div>${p.sexo} | Bau: ${p.bau||'-'} | ${p.esp}</div><div>${[p.anciano?'Anc':'',p.pr?'PR':''].join(' ')}</div></div><table class="official-table"><thead><tr><th>Año ${sy}-${sy+1}</th><th>Part</th><th>Est</th><th>PAux</th><th>Horas</th><th>Notas</th></tr></thead><tbody>${rows}</tbody><tfoot><tr><td colspan="4">Total</td><td>${tH}</td><td></td></tr></tfoot></table></div>`; }
+    
+    function getS21HTML(p,sy) { 
+        let rows='',tH=0; 
+        CICLO_S88.forEach(m=>{ 
+            const y=(m>=9)?sy:sy+1, r=state.activity[ymKey(y,m)]?.[p.id]||{horas:0,est:0,pa:false,part:false}; 
+            tH+=(r.horas||0); 
+            rows+=`<tr><td>${MESES_NOM[m-1]}</td><td>${(r.horas||r.part)?'[X]':''}</td><td>${r.est||''}</td><td>${r.pa?'[X]':''}</td><td>${r.horas||''}</td><td></td></tr>`; 
+        }); 
+        
+        // FULL INFO HEADER
+        const privs = [p.anciano?'Anciano':'', p.sm?'Siervo Ministerial':'', p.pr?'Precursor Regular':'', p.pe?'Precursor Especial':'', p.mis?'Misionero':''].filter(Boolean).join(', ');
+        
+        return `<div class="print-canvas"><div class="print-title">REGISTRO DE PUBLICADOR DE LA CONGREGACIÓN</div><div class="s21-header-box">
+            <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span><b>Nombre:</b> ${p.nombre}</span><span><b>Grupo:</b> ${p.grupo}</span></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span><b>Fecha Nacimiento:</b> ${p.nac||'-'}</span><span><b>Fecha Bautismo:</b> ${p.bau||'-'}</span></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span><b>Sexo:</b> ${p.sexo}</span><span><b>Esperanza:</b> ${p.esp}</span></div>
+            <div style="margin-top:5px; border-top:1px dashed #ccc; padding-top:5px;"><b>Privilegios:</b> ${privs || 'Publicador'}</div>
+        </div><table class="official-table"><thead><tr><th>Año ${sy}-${sy+1}</th><th>Partic.</th><th>Estudios</th><th>P. Aux</th><th>Horas</th><th>Notas</th></tr></thead><tbody>${rows}</tbody><tfoot><tr><td colspan="4" style="text-align:right; font-weight:bold;">Total Horas:</td><td>${tH}</td><td></td></tr></tfoot></table><div style="margin-top:10px; font-size:0.7rem; text-align:right;">S-21-S</div></div>`; 
+    }
+
     function getTargetList() { const m=$('#s21Mode').value; if(m==='individual'){const n=$('#s21Search').value; const p=state.personas.find(x=>x.nombre===n); return p?[p]:[];} if(m==='group'){return state.personas.filter(p=>p.grupo==$('#s21GroupSel').value && !p.sacado).sort((a,b)=>a.nombre.localeCompare(b.nombre));} if(m==='pr'){return state.personas.filter(p=>p.pr&&!p.sacado).sort((a,b)=>a.nombre.localeCompare(b.nombre));} return state.personas.filter(p=>!p.sacado).sort((a,b)=>a.nombre.localeCompare(b.nombre)); }
     function previewS21() { const l=getTargetList(), sy=$('#s21Year').value; $('#preview-viewport').innerHTML=l.map(p=>getS21HTML(p,parseInt(sy))).join(''); }
     function downloadPDFS21() { const l=getTargetList(), sy=$('#s21Year').value; if(l.length===0)return alert("Sin datos"); const div=document.createElement('div'); div.innerHTML=l.map(p=>getS21HTML(p,parseInt(sy))).join(''); html2pdf().set({margin:0,filename:'S21_Reporte.pdf',image:{type:'jpeg',quality:0.98},html2canvas:{scale:1.5},jsPDF:{unit:'mm',format:'a4'}}).from(div).save(); }
@@ -555,7 +642,6 @@
     window.updAsist=(t,i,v)=>{ const k=ymKey(asistY,asistM); state.attendance[k][t][i]=parseInt(v||0); save(); };
     function buildS88TableContent(sy, t) { let rows='',tA=0,tR=0; CICLO_S88.forEach(m=>{ const y=(m>=9)?sy:sy+1; const d=state.attendance[ymKey(y,m)]?.[t]||[0,0,0,0,0,0]; const re=d.filter(v=>v>0).length; const as=d.reduce((a,b)=>a+b,0); const pr=re>0?Math.round(as/re):''; tA+=as; tR+=re; rows+=`<tr><td style="text-align:left">${MESES_NOM[m-1]}</td><td>${re||''}</td><td>${as||''}</td><td>${pr}</td></tr>`; }); const avg=tR>0?Math.round(tA/tR):''; return {h:rows,avg:avg}; }
     function renderS88Preview() { const sy=parseInt($('#s88Year').value); const es=buildS88TableContent(sy,'es'); const fs=buildS88TableContent(sy,'fs'); $('#s88-preview-viewport').innerHTML=`<div class="print-canvas"><div class="print-title">REGISTRO DE ASISTENCIA</div><div style="font-weight:800; margin:10px 0;">Entre semana</div><table class="official-table"><thead><tr><th>Año ${sy}-${sy+1}</th><th>Reuniones</th><th>Asistencia</th><th>Promedio</th></tr></thead><tbody>${es.h}</tbody><tfoot><tr style="font-weight:bold;"><td style="text-align:right">Promedio</td><td colspan="2"></td><td>${es.avg}</td></tr></tfoot></table><div style="font-weight:800; margin:20px 0 10px;">Fin de semana</div><table class="official-table"><thead><tr><th>Año ${sy}-${sy+1}</th><th>Reuniones</th><th>Asistencia</th><th>Promedio</th></tr></thead><tbody>${fs.h}</tbody><tfoot><tr style="font-weight:bold;"><td style="text-align:right">Promedio</td><td colspan="2"></td><td>${fs.avg}</td></tr></tfoot></table></div>`; }
-    function renderResumenMensual(y, m) { const k=ymKey(y,m), act=state.activity[k]||{}, att=state.attendance[k]||{es:[],fs:[]}; let tM=0,activos=0,pubC=0,pubE=0,prC=0,prH=0,prE=0,paC=0,paH=0,paE=0; const last6=[]; for(let i=0;i<6;i++){let tm=m-i,ty=y; if(tm<=0){tm+=12;ty-=1;} last6.push(ymKey(ty,tm));} state.personas.forEach(p=>{ if(p.sacado)return; tM++; let haInf=false; for(const lk of last6){ if(state.activity[lk]?.[p.id]?.horas>0 || state.activity[lk]?.[p.id]?.part){ haInf=true; break; } } if(haInf) activos++; const r=act[p.id]||{}; if(r.horas>0||r.part){ const h=parseFloat(r.horas||0), e=parseInt(r.est||0); if(p.pr){prC++;prH+=h;prE+=e;} else if(r.pa){paC++;paH+=h;paE+=e;} else{pubC++;pubE+=e;} } }); const avgES=att.es.filter(n=>n>0).length?Math.round(att.es.reduce((a,b)=>a+b,0)/att.es.filter(n=>n>0).length):0; const avgFS=att.fs.filter(n=>n>0).length?Math.round(att.fs.reduce((a,b)=>a+b,0)/att.fs.filter(n=>n>0).length):0; $('#resumenContent').innerHTML=`<div class="stat-block"><h4>Totales</h4><div class="stat-row"><label>Miembros</label><span class="stat-value">${tM}</span></div><div class="stat-row"><label>Activos</label><span class="stat-value">${activos}</span></div></div><div class="stat-block"><h4>Publicadores</h4><div class="stat-row"><label>Cant</label><span class="stat-value">${pubC}</span></div><div class="stat-row"><label>Est</label><span class="stat-value">${pubE}</span></div></div><div class="stat-block"><h4>P. Regulares</h4><div class="stat-row"><label>Cant</label><span class="stat-value">${prC}</span></div><div class="stat-row"><label>Horas</label><span class="stat-value">${prH}</span></div><div class="stat-row"><label>Est</label><span class="stat-value">${prE}</span></div></div><div class="stat-block"><h4>P. Auxiliares</h4><div class="stat-row"><label>Cant</label><span class="stat-value">${paC}</span></div><div class="stat-row"><label>Horas</label><span class="stat-value">${paH}</span></div><div class="stat-row"><label>Est</label><span class="stat-value">${paE}</span></div></div><div class="stat-block"><h4>Asistencia</h4><div class="stat-row"><label>Vida y Min</label><span class="stat-value">${avgES}</span></div><div class="stat-row"><label>Pública</label><span class="stat-value">${avgFS}</span></div></div>`; }
     function renderPrecursores() { const tb=$('#tblPrecursores tbody'); if(!tb)return; tb.innerHTML=''; state.personas.filter(p=>p.pr&&!p.sacado).sort((a,b)=>a.nombre.localeCompare(b.nombre)).forEach(p=>{ tb.innerHTML+=`<tr><td><b>${p.nombre}</b></td><td>G${p.grupo}</td><td>${p.bau||'-'}</td><td style="color:var(--success)">Activo</td></tr>`; }); }
     function renderAuxiliares() { const tb=$('#tblAuxiliares tbody'), k=ymKey(curY,curM); if(!tb)return; tb.innerHTML=''; state.personas.filter(p=>!p.sacado&&state.activity[k]?.[p.id]?.pa).forEach(p=>{ tb.innerHTML+=`<tr><td><b>${p.nombre}</b></td><td>G${p.grupo}</td><td>${state.activity[k][p.id].horas}</td></tr>`; }); }
 
