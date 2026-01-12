@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-    <title>Congregación Pro - Master v100</title>
+    <title>Congregación Pro - Master v103</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -98,9 +98,9 @@
             </div>
         </div>
         <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-            <button class="btn success admin-only" id="btnSyncCloud">☁️ Sincronizar Nube</button>
+            <button class="btn success admin-only" id="btnSyncCloud">☁️ Recibir Informes</button>
             
-            <button class="btn warning" onclick="$('#fileInputSatelite').click()">📥 Importar Datos</button>
+            <button class="btn warning" onclick="$('#fileInputSatelite').click()">📥 Cargar Archivo</button>
             <input type="file" id="fileInputSatelite" style="display:none;" accept=".json" onchange="importSatelliteData(this)">
             
             <button class="btn cloud satellite-only" id="btnSendCloud" style="display:none;" onclick="sendToCloud()">☁️ Enviar Informe</button>
@@ -116,7 +116,8 @@
     <div class="tabs-container">
         <div class="tabs">
             <button data-tab="personas" class="active admin-only">1. Miembros</button>
-            <button data-tab="actividad" id="tabActividad">2. Informes</button> <button data-tab="asistencia" class="admin-only">3. Asistencia</button>
+            <button data-tab="actividad" id="tabActividad">2. Informes</button>
+            <button data-tab="asistencia" class="admin-only">3. Asistencia</button>
             <button data-tab="precursores" class="admin-only">4. Precursores</button>
             <button data-tab="tarjeta" class="admin-only">5. S-21-S</button>
             <button data-tab="s88" class="admin-only">6. S-88-S</button>
@@ -142,9 +143,11 @@
                     <div><label>Bautismo</label><input type="date" id="pBau"></div>
                     <div><label>Fecha Expulsión</label><input type="date" id="pFSac"></div>
                     <div style="display:flex; flex-direction:column; justify-content:flex-end; gap:5px;">
-                        <button class="btn primary" id="btnSaveP">💾 Guardar</button>
-                        <button class="btn danger" id="btnDeleteP" style="display:none;">🗑️</button>
-                        <button class="btn" id="btnCancelEdit" style="display:none;">Cancelar</button>
+                        <button class="btn primary" id="btnSaveP">💾 Guardar Miembro</button>
+                        <div style="display:flex; gap:5px; width:100%;">
+                            <button class="btn danger" id="btnDeleteP" style="display:none; flex:1;">🗑️ Eliminar</button>
+                            <button class="btn" id="btnCancelEdit" onclick="resetPForm()" style="display:none; flex:1;">Cancelar</button>
+                        </div>
                     </div>
                 </div>
                 <div class="admin-tools-grid" style="background:var(--panel);">
@@ -158,16 +161,27 @@
                 </div>
                 <div class="admin-tools-grid">
                     <div style="grid-column: span 2;"><input type="search" id="qPersona" list="pList" placeholder="Buscar para editar..."></div>
-                    <div style="grid-column:1/-1; display:flex; gap:8px;">
-                        <button class="btn primary" id="btnQEdit">✏️</button>
-                        <button class="btn" onclick="$('#fileInputJSON').click()">📂 Restaurar BD</button>
-                        <input type="file" id="fileInputJSON" style="display:none;" accept=".json">
-                        <button class="btn" onclick="exportBackup()">💾 Backup</button>
+                    <div style="grid-column:1/-1; display:flex; gap:8px; flex-wrap:wrap;">
+                        <button class="btn primary" id="btnQEdit">✏️ Editar</button>
+                        <button class="btn cloud" onclick="cloudFullBackupUpload()">☁️ Subir Copia a Nube</button>
+                        <button class="btn cloud" onclick="cloudFullBackupDownload()">☁️ Restaurar desde Nube</button>
+                        
+                        <button class="btn" onclick="exportBackup()">💾 Backup Local</button>
                         <button class="btn warning" onclick="$('#modalPwd').style.display='flex'">🔑 Clave</button>
                         <button class="btn danger" onclick="if(confirm('¿Borrar todo?')){localStorage.clear();location.reload();}">⚠️ Reset</button>
                     </div>
                 </div>
                 <datalist id="pList"></datalist>
+            </div>
+            
+            <div class="card">
+                <h3>Lista de Miembros</h3>
+                <div class="table-container">
+                    <table class="table" id="tblMiembros">
+                        <thead><tr><th>Nombre</th><th>Grupo</th><th>Acciones</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
             </div>
         </section>
 
@@ -230,10 +244,9 @@
 
 <script>
     // --- CONFIGURACIÓN DE LA NUBE ---
-    // !!! PEGA TU URL DE GOOGLE APPS SCRIPT AQUÍ ABAJO !!!
     const CLOUD_URL = "https://script.google.com/macros/s/AKfycbxb8kw0l-pW3kXpdR-PzR7f0d50XQ44noHnImEhv8FFecQpLsXat5hqJLPuZriGagEBaA/exec"; 
     
-    const DB_KEY = 'cong_pro_v100_final';
+    const DB_KEY = 'cong_pro_v103_master';
     const $ = s => document.querySelector(s);
     const ymKey = (y,m) => `${y}-${String(m).padStart(2,'0')}`;
     const MESES_NOM = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -247,11 +260,9 @@
     let actY = curY, actM = curM, asistY = curY, asistM = curM;
 
     function init() {
-        // Eventos Login
         $('#mEnter').onclick = attemptLogin;
         $('#mPwd').onkeydown = (e) => { if(e.key==='Enter') attemptLogin(); };
         
-        // Eventos Generales
         const mSels = [$('#headerMonth'), $('#actMonthSelect'), $('#resMonth'), $('#asistMonthSelect')];
         mSels.forEach(sel => { if(sel){ sel.innerHTML=''; MESES_NOM.forEach((m,i)=>{const o=document.createElement('option'); o.value=i+1; o.text=m; if(i+1===curM)o.selected=true; sel.appendChild(o);}); } });
         
@@ -262,7 +273,6 @@
         if($('#s21Year')) $('#s21Year').value = (curM>=9)?curY:curY-1;
         if($('#s88Year')) $('#s88Year').value = (curM>=9)?curY:curY-1;
         
-        // Listeners básicos
         if($('#headerMonth')) $('#headerMonth').onchange = (e) => { curM=parseInt(e.target.value); renderAll(); };
         if($('#headerYear')) $('#headerYear').onchange = (e) => { curY=parseInt(e.target.value); renderAll(); };
         if($('#selGInforme')) $('#selGInforme').onchange = renderActividad;
@@ -364,6 +374,34 @@
         } catch(e) { alert("Error al sincronizar: " + e.message); } finally { btn.textContent = "☁️ Sincronizar"; }
     }
 
+    // --- NUEVAS FUNCIONES DE RESPALDO EN LA NUBE ---
+    async function cloudFullBackupUpload() {
+        if(!confirm("¿Subir copia de seguridad completa a la nube? (Sobrescribirá la anterior)")) return;
+        const btn = event.target; btn.textContent = "⏳ Subiendo...";
+        try {
+            const payload = { type: 'full_backup', generated: new Date().toISOString(), payload: state };
+            await fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+            alert("✅ Copia de seguridad subida a la nube.");
+        } catch(e) { alert("Error: " + e.message); } finally { btn.textContent = "☁️ Subir Copia a Nube"; }
+    }
+
+    async function cloudFullBackupDownload() {
+        if(!confirm("⚠️ ¿Restaurar base de datos desde la nube? ESTO BORRARÁ LOS DATOS LOCALES ACTUALES.")) return;
+        const btn = event.target; btn.textContent = "⏳ Descargando...";
+        try {
+            const r = await fetch(CLOUD_URL + "?action=get_db");
+            const data = await r.json();
+            if(data && data.personas) {
+                state = data;
+                save();
+                renderAll();
+                alert("✅ Base de datos restaurada correctamente.");
+            } else {
+                alert("❌ No se encontró una copia válida en la nube.");
+            }
+        } catch(e) { alert("Error: " + e.message); } finally { btn.textContent = "☁️ Restaurar desde Nube"; }
+    }
+
     function renderAll() {
         if(CURRENT_ROLE === 'ADMIN') { renderMiembros(); renderSacados(); renderEstadoEspiritual(); renderPrecursores(); renderAuxiliares(); }
         renderActividad();
@@ -385,11 +423,61 @@
     function updateDatalist() { const l=$('#pList'); if(l){ l.innerHTML = ''; state.personas.forEach(p => l.innerHTML += `<option value="${p.nombre}">`); } }
     function showToast(m) { const t=$('#toast'); t.textContent="✔ "+m; t.style.display='block'; setTimeout(()=>t.style.display='none',3000); }
     window.updAct = (pid, f, v) => { const k = ymKey(actY, actM); if(!state.activity[k]) state.activity[k] = {}; if(!state.activity[k][pid]) state.activity[k][pid] = {part:false, horas:0, est:0, pa:false}; state.activity[k][pid][f] = (f==='pa'||f==='part'||f==='nota') ? v : parseFloat(v||0); save(); }
-    function savePersona() { const id=$('#pId').value, n=$('#pNombre').value.trim(); if(!n) return alert("Nombre obligatorio"); const data={ id:id||'p'+Date.now(), nombre:n, grupo:$('#pGrupo').value, sexo:$('#pSexo').value, esp:$('#pEsp').value, nac:$('#pNac').value, bau:$('#pBau').value, fsac:$('#pFSac').value, pr:$('#pPR').checked, anciano:$('#pAnc').checked, sm:$('#pSM').checked, pe:$('#pPE').checked, mis:$('#pMis').checked, sacado:!!$('#pFSac').value }; if(id) state.personas[state.personas.findIndex(x=>x.id===id)]=data; else state.personas.push(data); save(); renderMiembros(); resetPForm(); }
-    function deletePersona() { const id=$('#pId').value; if(!id)return; if(confirm("¿Eliminar?")) { state.personas=state.personas.filter(p=>p.id!==id); save(); renderMiembros(); resetPForm(); } }
-    function resetPForm() { $('#pId').value=''; $('#pNombre').value=''; ['pNac','pBau','pFSac','pSexo','pEsp'].forEach(id=>$('#'+id).value=''); ['pAnc','pSM','pPE','pMis','pPR'].forEach(id=>$('#'+id).checked=false); $('#btnCancelEdit').style.display='none'; $('#btnDeleteP').style.display='none'; }
-    function renderMiembros() { const tb=$('#tblMiembros tbody'); if(!tb)return; tb.innerHTML=''; state.personas.sort((a,b)=>a.nombre.localeCompare(b.nombre)).forEach(p=>{ const tr=document.createElement('tr'); if(p.sacado) tr.className='row-sacado'; tr.innerHTML=`<td><b>${p.nombre}</b></td><td>G${p.grupo}</td><td>${p.sexo}</td><td>${p.bau||'-'}</td><td>${[p.anciano?'Anc':'',p.sm?'SM':'',p.pr?'PR':''].filter(x=>x).join(', ')}</td><td><button class="btn primary" onclick="editP('${p.id}')">✏️</button></td>`; tb.appendChild(tr); }); }
-    window.editP = (id) => { const p = state.personas.find(x=>x.id===id); if(!p) return; $('#pId').value = p.id; $('#pNombre').value = p.nombre; $('#pSexo').value = p.sexo; $('#pEsp').value = p.esp; $('#pNac').value = p.nac; $('#pBau').value = p.bau; $('#pFSac').value = p.fsac || ''; $('#pPR').checked = !!p.pr; $('#pAnc').checked = !!p.anciano; $('#pSM').checked = !!p.sm; $('#pPE').checked = !!p.pe; $('#pMis').checked = !!p.mis; $('#btnCancelEdit').style.display='inline-flex'; $('#btnDeleteP').style.display='inline-flex'; window.scrollTo(0,0); }
+    
+    // --- FUNCIONES ADMIN ---
+    function savePersona() { 
+        const id=$('#pId').value, n=$('#pNombre').value.trim(); 
+        if(!n) return alert("Nombre obligatorio"); 
+        const data={ id:id||'p'+Date.now(), nombre:n, grupo:$('#pGrupo').value, sexo:$('#pSexo').value, esp:$('#pEsp').value, nac:$('#pNac').value, bau:$('#pBau').value, fsac:$('#pFSac').value, pr:$('#pPR').checked, anciano:$('#pAnc').checked, sm:$('#pSM').checked, pe:$('#pPE').checked, mis:$('#pMis').checked, sacado:!!$('#pFSac').value }; 
+        if(id) state.personas[state.personas.findIndex(x=>x.id===id)]=data; else state.personas.push(data); 
+        save(); renderMiembros(); resetPForm(); 
+    }
+    
+    function deletePersona() { 
+        const id=$('#pId').value; 
+        if(!id)return; 
+        if(confirm("¿Eliminar?")) { state.personas=state.personas.filter(p=>p.id!==id); save(); renderMiembros(); resetPForm(); } 
+    }
+    
+    function resetPForm() { 
+        $('#pId').value=''; $('#pNombre').value=''; 
+        ['pNac','pBau','pFSac','pSexo','pEsp'].forEach(id=>$('#'+id).value=''); 
+        ['pAnc','pSM','pPE','pMis','pPR'].forEach(id=>$('#'+id).checked=false); 
+        $('#btnCancelEdit').style.display='none'; $('#btnDeleteP').style.display='none'; 
+        $('#btnSaveP').textContent = '💾 Guardar Miembro';
+    }
+    
+    function renderMiembros() { 
+        const tb=$('#tblMiembros tbody'); if(!tb)return; tb.innerHTML=''; 
+        state.personas.sort((a,b)=>a.nombre.localeCompare(b.nombre)).forEach(p=>{ 
+            const tr=document.createElement('tr'); 
+            if(p.sacado) tr.className='row-sacado'; 
+            tr.innerHTML=`<td><b>${p.nombre}</b></td><td>G${p.grupo}</td><td><button class="btn primary" onclick="editP('${p.id}')">✏️</button></td>`; 
+            tb.appendChild(tr); 
+        }); 
+    }
+    
+    window.editP = (id) => { 
+        const p = state.personas.find(x=>x.id===id); 
+        if(!p) return; 
+        $('#pId').value = p.id; 
+        $('#pNombre').value = p.nombre; 
+        $('#pSexo').value = p.sexo; 
+        $('#pEsp').value = p.esp; 
+        $('#pNac').value = p.nac || ''; 
+        $('#pBau').value = p.bau || ''; 
+        $('#pFSac').value = p.fsac || ''; 
+        $('#pPR').checked = !!p.pr; 
+        $('#pAnc').checked = !!p.anciano; 
+        $('#pSM').checked = !!p.sm; 
+        $('#pPE').checked = !!p.pe; 
+        $('#pMis').checked = !!p.mis; 
+        $('#btnCancelEdit').style.display='inline-flex'; 
+        $('#btnDeleteP').style.display='inline-flex'; 
+        $('#btnSaveP').textContent = '💾 Actualizar Miembro';
+        window.scrollTo(0,0); 
+    }
+    
     function handleImport(e) { const f=e.target.files[0]; if(!f||!confirm("¿Reemplazar datos?")){e.target.value='';return;} const r=new FileReader(); r.onload=(ev)=>{ try{ state=JSON.parse(ev.target.result); save(); renderAll(); alert("Importado"); }catch(e){alert("Error JSON");} }; r.readAsText(f); }
     function exportBackup() { const blob=new Blob([JSON.stringify(state)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`Backup_${new Date().toISOString().slice(0,10)}.json`; a.click(); }
     function updatePassword() { if(!state.config) state.config={}; state.config.pwd=$('#pNew').value; save(); $('#modalPwd').style.display='none'; alert("Clave admin actualizada"); }
