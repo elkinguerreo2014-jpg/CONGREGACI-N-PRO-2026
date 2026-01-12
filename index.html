@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-    <title>Congregación Pro - Master v104</title>
+    <title>Congregación Pro - Master v106</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -59,7 +59,16 @@
         /* Login Modal */
         #modalAuth { position: fixed; inset: 0; background: rgba(0,0,0,0.96); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
         .badge-count { background: var(--accent); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; }
-        .asist-grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; }
+        .asist-grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 20px; }
+        .asist-col h4 { color: var(--accent); margin-bottom: 10px; border-bottom: 2px solid var(--border); padding-bottom: 5px; }
+
+        /* --- NUEVOS ESTILOS PARA CAJAS DE RESUMEN --- */
+        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+        .stat-block { background: var(--card); border: 1px solid var(--border); padding: 1.5rem; border-radius: var(--radius-md); box-shadow: var(--shadow); border-top: 4px solid var(--accent); transition: transform 0.2s; }
+        .stat-block:hover { transform: translateY(-3px); }
+        .stat-block h4 { color: var(--accent); margin-bottom: 1rem; font-size: 1rem; text-transform: uppercase; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+        .stat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; font-size: 0.95rem; border-bottom: 1px dashed var(--panel); padding-bottom: 4px; }
+        .stat-value { font-weight: 800; font-size: 1.1rem; color: var(--fg); }
 
         /* PDF CLEAN STYLE */
         #preview-viewport, #s88-preview-viewport { padding: 0; background: transparent; display:flex; flex-direction:column; align-items:center; margin-top: 20px; }
@@ -67,6 +76,7 @@
         .official-table { width: 100%; border-collapse: collapse !important; border: 1.5px solid #000 !important; margin-top: 5px; }
         .official-table th, .official-table td { border: 1.2px solid #000 !important; padding: 4px; font-size: 8.5pt; text-align: center; color: #000; }
         .official-table th { background: #f2f2f2 !important; font-weight: 800; }
+        .s21-header-box { border: 1px solid #000; padding: 10px; margin-bottom: 10px; font-size: 9pt; line-height: 1.5; }
         
         @media (max-width: 768px) {
             header.top { flex-direction: column; align-items: stretch; gap: 15px; }
@@ -133,7 +143,7 @@
                 <h3>Gestión de Miembros</h3>
                 <div class="admin-tools-grid">
                     <input type="hidden" id="pId">
-                    <div><label>Nombre</label><input type="text" id="pNombre"></div>
+                    <div><label>Nombre</label><input type="text" id="pNombre" placeholder="Ej: Juan Pérez"></div>
                     <div><label>Grupo</label><select id="pGrupo"><option value="1">G1</option><option value="2">G2</option><option value="3">G3</option><option value="4">G4</option><option value="5">G5</option></select></div>
                     <div><label>Sexo</label><select id="pSexo"><option value="Hombre">Hombre</option><option value="Mujer">Mujer</option></select></div>
                     <div><label>Esperanza</label><select id="pEsp"><option value="Otras ovejas">Otras ovejas</option><option value="Ungido">Ungido</option></select></div>
@@ -219,7 +229,16 @@
                     <div><label>Mes</label><select id="asistMonthSelect"></select></div>
                     <div><label>Año</label><input type="number" id="asistYearInput"></div>
                 </div>
-                <div class="asist-grid-layout"><div id="contES"></div><div id="contFS"></div></div>
+                <div class="asist-grid-layout">
+                    <div class="asist-col">
+                        <h4>Vida y Ministerio</h4>
+                        <div id="contES"></div>
+                    </div>
+                    <div class="asist-col">
+                        <h4>Reunión Pública</h4>
+                        <div id="contFS"></div>
+                    </div>
+                </div>
                 <button class="btn success" id="btnSaveAsist" style="margin-top:20px; width:100%;">💾 Guardar Asistencia</button>
             </div>
         </section>
@@ -246,7 +265,7 @@
     // --- CONFIGURACIÓN DE LA NUBE ---
     const CLOUD_URL = "https://script.google.com/macros/s/AKfycbz2h9AeXOftkTSim8in8PzJoWVGWJzzeEYtCVNswgeeIWEgqVNAvxzY-ZmqcHcnjmiQ/exec"; 
     
-    const DB_KEY = 'cong_pro_v104_master';
+    const DB_KEY = 'cong_pro_v106_master';
     const $ = s => document.querySelector(s);
     const ymKey = (y,m) => `${y}-${String(m).padStart(2,'0')}`;
     const MESES_NOM = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -403,7 +422,7 @@
     }
 
     function renderAll() {
-        if(CURRENT_ROLE === 'ADMIN') { renderMiembros(); renderSacados(); renderEstadoEspiritual(); renderPrecursores(); renderAuxiliares(); }
+        if(CURRENT_ROLE === 'ADMIN') { renderMiembros(); renderSacados(); renderEstadoEspiritual(); renderPrecursores(); renderAuxiliares(); renderAsistInputs(); }
         renderActividad();
         updateDatalist();
     }
@@ -479,13 +498,12 @@
     }
     
     function handleImport(e) { 
-        // CORRECCIÓN PARA EL BOTÓN DE CARGA
         const input = e.target;
         const f = input.files[0]; 
         if(!f) return;
         
         if(!confirm("⚠️ ¿Cargar este archivo y reemplazar la base de datos actual?")) {
-            input.value = ''; // Limpiar input si cancela
+            input.value = ''; 
             return;
         } 
         
@@ -493,7 +511,6 @@
         r.onload = (ev) => { 
             try { 
                 const newData = JSON.parse(ev.target.result); 
-                // Validación básica
                 if(newData && newData.personas) {
                     state = newData; 
                     save(); 
@@ -505,7 +522,7 @@
             } catch(ex) { 
                 alert("❌ Error al leer el archivo JSON: " + ex.message); 
             } finally {
-                input.value = ''; // Limpiar input para permitir recargar el mismo archivo
+                input.value = ''; 
             }
         }; 
         r.readAsText(f); 
@@ -520,7 +537,21 @@
     function getTargetList() { const m=$('#s21Mode').value; if(m==='individual'){const n=$('#s21Search').value; const p=state.personas.find(x=>x.nombre===n); return p?[p]:[];} if(m==='group'){return state.personas.filter(p=>p.grupo==$('#s21GroupSel').value && !p.sacado).sort((a,b)=>a.nombre.localeCompare(b.nombre));} if(m==='pr'){return state.personas.filter(p=>p.pr&&!p.sacado).sort((a,b)=>a.nombre.localeCompare(b.nombre));} return state.personas.filter(p=>!p.sacado).sort((a,b)=>a.nombre.localeCompare(b.nombre)); }
     function previewS21() { const l=getTargetList(), sy=$('#s21Year').value; $('#preview-viewport').innerHTML=l.map(p=>getS21HTML(p,parseInt(sy))).join(''); }
     function downloadPDFS21() { const l=getTargetList(), sy=$('#s21Year').value; if(l.length===0)return alert("Sin datos"); const div=document.createElement('div'); div.innerHTML=l.map(p=>getS21HTML(p,parseInt(sy))).join(''); html2pdf().set({margin:0,filename:'S21_Reporte.pdf',image:{type:'jpeg',quality:0.98},html2canvas:{scale:1.5},jsPDF:{unit:'mm',format:'a4'}}).from(div).save(); }
-    function renderAsistInputs() { const k=ymKey(asistY,asistM); if(!state.attendance[k]) state.attendance[k]={es:[0,0,0,0,0,0],fs:[0,0,0,0,0,0]}; const cES=$('#contES'), cFS=$('#contFS'); cES.innerHTML=''; cFS.innerHTML=''; for(let i=0;i<6;i++){ cES.innerHTML+=`<div><label>Sem ${i+1}</label><input type="number" value="${state.attendance[k].es[i]||0}" oninput="updAsist('es',${i},this.value)"></div>`; cFS.innerHTML+=`<div><label>Sem ${i+1}</label><input type="number" value="${state.attendance[k].fs[i]||0}" oninput="updAsist('fs',${i},this.value)"></div>`; } }
+    
+    // --- FUNCIÓN ASISTENCIA (CORREGIDA Y SIMPLIFICADA) ---
+    function renderAsistInputs() { 
+        const k=ymKey(asistY,asistM); 
+        if(!state.attendance[k]) state.attendance[k]={es:[0,0,0,0,0,0],fs:[0,0,0,0,0,0]}; 
+        
+        const cES=$('#contES'), cFS=$('#contFS'); 
+        cES.innerHTML=''; cFS.innerHTML=''; 
+        
+        for(let i=0;i<6;i++){ 
+            cES.innerHTML+=`<div style="margin-bottom:8px;"><label>Sem ${i+1}</label><input type="number" value="${state.attendance[k].es[i]||0}" oninput="updAsist('es',${i},this.value)"></div>`; 
+            cFS.innerHTML+=`<div style="margin-bottom:8px;"><label>Sem ${i+1}</label><input type="number" value="${state.attendance[k].fs[i]||0}" oninput="updAsist('fs',${i},this.value)"></div>`; 
+        } 
+    }
+    
     window.updAsist=(t,i,v)=>{ const k=ymKey(asistY,asistM); state.attendance[k][t][i]=parseInt(v||0); save(); };
     function buildS88TableContent(sy, t) { let rows='',tA=0,tR=0; CICLO_S88.forEach(m=>{ const y=(m>=9)?sy:sy+1; const d=state.attendance[ymKey(y,m)]?.[t]||[0,0,0,0,0,0]; const re=d.filter(v=>v>0).length; const as=d.reduce((a,b)=>a+b,0); const pr=re>0?Math.round(as/re):''; tA+=as; tR+=re; rows+=`<tr><td style="text-align:left">${MESES_NOM[m-1]}</td><td>${re||''}</td><td>${as||''}</td><td>${pr}</td></tr>`; }); const avg=tR>0?Math.round(tA/tR):''; return {h:rows,avg:avg}; }
     function renderS88Preview() { const sy=parseInt($('#s88Year').value); const es=buildS88TableContent(sy,'es'); const fs=buildS88TableContent(sy,'fs'); $('#s88-preview-viewport').innerHTML=`<div class="print-canvas"><div class="print-title">REGISTRO DE ASISTENCIA</div><div style="font-weight:800; margin:10px 0;">Entre semana</div><table class="official-table"><thead><tr><th>Año ${sy}-${sy+1}</th><th>Reuniones</th><th>Asistencia</th><th>Promedio</th></tr></thead><tbody>${es.h}</tbody><tfoot><tr style="font-weight:bold;"><td style="text-align:right">Promedio</td><td colspan="2"></td><td>${es.avg}</td></tr></tfoot></table><div style="font-weight:800; margin:20px 0 10px;">Fin de semana</div><table class="official-table"><thead><tr><th>Año ${sy}-${sy+1}</th><th>Reuniones</th><th>Asistencia</th><th>Promedio</th></tr></thead><tbody>${fs.h}</tbody><tfoot><tr style="font-weight:bold;"><td style="text-align:right">Promedio</td><td colspan="2"></td><td>${fs.avg}</td></tr></tfoot></table></div>`; }
