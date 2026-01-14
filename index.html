@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-    <title>Congregación Pro - v55 Smart Connect</title>
+    <title>Congregación Pro - v59 Final Fix</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -45,6 +45,7 @@
         .btn.success { background: var(--success); color: white; }
         .btn.danger { background: var(--danger); color: white; }
         .btn.warning { background: var(--warning); color: white; }
+        .btn.info { background: var(--info); color: white; }
         .btn.ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border-light); }
         .btn.ghost:hover { background: var(--bg-body); color: var(--text-main); }
         .admin-tools-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; background: #f9fafb; padding: 1.2rem; border-radius: var(--radius-md); margin-bottom: 1.5rem; border: 1px solid var(--border-light); }
@@ -74,7 +75,9 @@
         #toast { position: fixed; top: 20px; right: 20px; background: #1f2937; color: white; padding: 12px 24px; border-radius: 10px; font-weight: 500; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); display: none; z-index: 2000; border-left: 4px solid #10b981; }
         
         /* SETTINGS MODAL */
-        #modalAuth, #modalPwd, #modalSettings { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 9999; padding: 20px; }
+        #modalAuth, #modalPwd, #modalSettings, #modalSupport { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 9999; padding: 20px; }
+        #modalSupport { z-index: 10000; } 
+
         .settings-card { width: 420px; max-width: 100%; background: var(--surface); border-radius: 20px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); max-height: 85vh; overflow-y: auto; display: flex; flex-direction: column; }
         .settings-header { padding: 20px; border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: white; z-index: 10; }
         .settings-body { padding: 20px; display: flex; flex-direction: column; gap: 20px; }
@@ -137,19 +140,19 @@
                         <div class="status-text"><h4 id="cloudTitle">Modo Local</h4><p id="cloudDesc">Sin sincronización.</p></div>
                     </div>
 
-                    <div id="smartConnectBox" style="margin-top:15px;">
-                        <label>🔑 Conexión Rápida (Smart Connect)</label>
+                    <div id="smartConnectBox" class="restricted-only" style="margin-top:15px;">
+                        <label>🔑 Conexión Rápida</label>
                         <div style="display:flex; gap:10px;">
                             <input type="text" id="smartTokenInput" placeholder="Pega aquí la Llave de Acceso..." style="margin-bottom:0;">
                             <button class="btn primary" onclick="applySmartToken()">Conectar</button>
                         </div>
                         <p style="font-size:0.75rem; color:var(--text-muted); margin-top:5px;">
-                            Si eres encargado, pídele esta llave al administrador.
+                            Pídele esta llave al administrador.
                         </p>
                     </div>
 
-                    <details style="margin-top:15px;">
-                        <summary style="font-size:0.8rem; color:var(--primary);">⚙️ Configuración Manual (Avanzado)</summary>
+                    <details id="manualConfigDetails" style="margin-top:15px;">
+                        <summary style="font-size:0.8rem; color:var(--primary);">⚙️ Configuración Manual (Admin)</summary>
                         <div class="settings-content" style="border:none; padding-top:10px;">
                             <input type="text" id="fbApiKey" placeholder="API Key" style="margin-bottom:10px;">
                             <input type="text" id="fbProjectId" placeholder="Project ID" style="margin-bottom:10px;">
@@ -157,8 +160,13 @@
                             
                             <div class="admin-only" style="margin-top:15px; padding-top:15px; border-top:1px dashed var(--border-light);">
                                 <label>Compartir con Encargados</label>
-                                <button class="btn success" onclick="copySmartToken()" style="width:100%;">📤 Copiar Llave de Acceso Rápido</button>
-                                <p style="font-size:0.7rem; color:var(--text-muted); margin-top:5px;">Envía esto por WhatsApp a los encargados para que se conecten en 1 clic.</p>
+                                <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:10px;">
+                                    ⚠️ Para facilitar el copiado en WhatsApp, envía primero las instrucciones y luego <b>solo la llave</b> en un segundo mensaje.
+                                </p>
+                                <div style="display: flex; flex-direction: column; gap: 8px;">
+                                    <button class="btn info" onclick="copyInstructions()" style="width:100%;">1️⃣ Copiar Instrucciones</button>
+                                    <button class="btn warning" onclick="copyRawToken()" style="width:100%; font-weight:800;">2️⃣ Copiar SOLO LA LLAVE</button>
+                                </div>
                             </div>
                         </div>
                     </details>
@@ -180,7 +188,7 @@
                 <summary>🔐 Gestión de Accesos</summary>
                 <div class="settings-content">
                     <label>Cambiar Clave Administrador</label>
-                    <button class="btn warning" style="width:100%; margin-bottom:20px;" onclick="$('#modalPwd').style.display='flex'">🔑 Cambiar Clave Principal</button>
+                    <button class="btn warning" style="width:100%; margin-bottom:20px;" onclick="document.getElementById('modalPwd').style.display='flex'">🔑 Cambiar Clave Principal</button>
                     
                     <div style="border-top:1px solid var(--border-light); padding-top:15px; margin-top:10px;">
                         <label>Cantidad de Grupos</label>
@@ -200,27 +208,40 @@
                 </div>
             </details>
 
-            <div class="settings-group admin-only">
-                <div style="background:#fffbeb; padding:15px;">
-                    <div style="text-align:center;">
-                        <p style="margin:0 0 10px 0; font-size:0.9rem; color:#92400e; font-weight:600;">🤝 Apoyo Voluntario</p>
-                        <button onclick="window.open('TU_LINK_MERCADOPAGO', '_blank')" style="background:#f59e0b; color:white; border:none; padding:12px 20px; border-radius:50px; font-weight:700; cursor:pointer; box-shadow:0 4px 6px rgba(245, 158, 11, 0.3); display:flex; align-items:center; gap:10px; width:100%; justify-content:center;">
-                            <span style="font-size:1.2rem;">☕</span> Invítame un Café
-                        </button>
-                    </div>
-                </div>
-                <div style="padding:10px; text-align:center; font-size:0.7rem; color:var(--text-muted); background:#f9fafb;">v1.0.55 • Smart Connect</div>
+            <div class="admin-only" style="padding:15px; text-align:center; font-size:0.75rem; color:var(--text-muted); background:#f9fafb; border-radius: 12px; display:flex; flex-direction:column; gap:10px; align-items:center;">
+                <span>v1.0.59 • Desarrollo Independiente</span>
+                <button class="btn ghost" style="font-size:0.75rem; padding: 4px 10px; border-color: var(--border-light);" onclick="document.getElementById('modalSupport').style.display='flex'">
+                    ☕ Acerca de & Apoyo
+                </button>
             </div>
         </div>
     </div>
 </div>
+
+<div id="modalSupport">
+    <div class="card" style="width: 380px; max-width: 90%; margin: 0;">
+        <h3 style="display:flex; justify-content:space-between; align-items:center; border:none; padding-bottom:0; margin-bottom:15px;">
+            <span>ℹ️ Acerca de la App</span>
+            <button class="btn ghost" onclick="document.getElementById('modalSupport').style.display='none'" style="border:none; font-size:1.2rem; padding:4px; color:var(--text-muted);">✕</button>
+        </h3>
+        <div style="font-size: 0.9rem; color: var(--text-main); line-height: 1.6; margin-bottom: 25px;">
+            <p style="margin-bottom: 15px;">Esta aplicación fue creada con el objetivo de facilitar el trabajo de quienes están encargados de llevar los registros de la congregación.</p>
+            <p style="margin-bottom: 15px; font-weight:600;">Es una herramienta totalmente gratuita.</p>
+            <p>Si deseas, puedes apoyar voluntariamente para cubrir los gastos técnicos de creación y desarrollo continuo.</p>
+        </div>
+        <button onclick="window.open('TU_LINK_MERCADOPAGO', '_blank')" style="background:#f59e0b; color:white; border:none; padding:12px 20px; border-radius:50px; font-weight:700; cursor:pointer; box-shadow:0 4px 6px rgba(245, 158, 11, 0.3); display:flex; align-items:center; gap:10px; width:100%; justify-content:center; transition:0.2s;">
+            <span style="font-size:1.2rem;">☕</span> Invítame un Café
+        </button>
+    </div>
+</div>
+
 
 <div id="modalPwd" style="display:none;">
     <div class="card" style="width:300px; margin-bottom:0; text-align: center;">
         <h3>Cambiar Clave Admin</h3>
         <input type="password" id="pNew" placeholder="Nueva clave" style="margin-bottom:15px; text-align: center;">
         <button class="btn primary" onclick="updatePassword()" style="width:100%; margin-bottom:10px;">Guardar</button>
-        <button class="btn ghost" onclick="$('#modalPwd').style.display='none'" style="width:100%;">Cancelar</button>
+        <button class="btn ghost" onclick="document.getElementById('modalPwd').style.display='none'" style="width:100%;">Cancelar</button>
     </div>
 </div>
 
@@ -405,20 +426,22 @@
     let curY = new Date().getFullYear(), curM = new Date().getMonth()+1;
     let actY = curY, actM = curM, asistY = curY, asistM = curM;
 
-    // --- FUNCIÓN INTELIGENTE DE TOKEN ---
-    window.copySmartToken = function() {
+    // --- NUEVAS FUNCIONES DE COPIADO SEPARADO ---
+    window.copyInstructions = function() {
+        const url = window.location.href;
+        const msg = `Hola hermano, aquí tienes los datos para conectar la App.\n\n` +
+                    `1. Entra a este enlace:\n${url}\n\n` +
+                    `2. Ve a Ajustes (⚙️) y busca donde dice "🔑 Conexión Rápida".\n\n` +
+                    `3. Te enviaré la LLAVE en el siguiente mensaje. Cópiala y pégala ahí.`;
+        navigator.clipboard.writeText(msg).then(() => showToast("📋 Instrucciones copiadas"));
+    }
+
+    window.copyRawToken = function() {
         const k = $('#fbApiKey').value;
         const p = $('#fbProjectId').value;
         if(!k || !p) return alert("Primero debes conectar tu propia nube.");
-        
-        // Crea el token codificado en Base64
         const token = btoa(JSON.stringify({ k: k, p: p }));
-        const msg = `Hola hermano, aquí tienes los datos para conectar la App:\n\n` +
-                    `1. Copia esta Llave de Acceso:\n${token}\n\n` +
-                    `2. Abre la App > Ajustes > Pégala donde dice 'Llave de Acceso Rápido' y dale a Conectar.\n\n` +
-                    `3. Luego ingresa con tu clave de grupo.`;
-        
-        navigator.clipboard.writeText(msg).then(() => showToast("📋 ¡Mensaje copiado! Pégalo en WhatsApp"));
+        navigator.clipboard.writeText(token).then(() => showToast("🔑 Llave copiada al portapapeles"));
     }
 
     window.applySmartToken = function() {
@@ -434,7 +457,7 @@
             } else { alert("Llave inválida."); }
         } catch(e) { alert("Error: La llave no es válida."); }
     }
-    // ------------------------------------
+    // ---------------------------------------------
 
     window.openSettings = function() {
         $('#modalSettings').style.display = 'flex';
@@ -612,6 +635,9 @@
         const badge = $('#roleBadge');
         if(CURRENT_ROLE === 'ADMIN') {
             badge.innerText = 'Administrador'; badge.style.background = '#e0e7ff'; badge.style.color = '#4338ca';
+            // Abrir configuración manual automáticamente para admin
+            const details = document.getElementById('manualConfigDetails');
+            if(details) details.open = true;
         } else {
             const g = CURRENT_ROLE.replace('G','');
             badge.innerText = `Encargado Grupo ${g}`; badge.style.background = '#d1fae5'; badge.style.color = '#065f46';
