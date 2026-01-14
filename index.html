@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-    <title>Congregación Pro - v52 Dinámica</title>
+    <title>Congregación Pro - v55 Smart Connect</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -13,20 +13,16 @@
             --primary: #4f46e5; --primary-hover: #4338ca; --bg-body: #f3f4f6;
             --surface: #ffffff; --text-main: #1f2937; --text-muted: #6b7280;
             --border-light: #e5e7eb; --success: #10b981; --danger: #ef4444;
-            --warning: #f59e0b; --info: #3b82f6; --cloud: #8b5cf6;
-            --radius-md: 16px; --radius-sm: 10px;
+            --warning: #f59e0b; --info: #3b82f6; --radius-md: 16px; --radius-sm: 10px;
             --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1);
-            --shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.1);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); line-height: 1.5; font-size: 14px; margin: 0; }
 
-        /* HEADER */
+        /* HEADER & TABS */
         header.top { background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-light); padding: 0.8rem 1.5rem; position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-sm); flex-wrap: wrap; gap: 10px; }
         h1 { font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0; letter-spacing: -0.5px; }
-        
-        /* TABS */
         .tabs-container { background: var(--surface); border-bottom: 1px solid var(--border-light); padding: 0 1.5rem; position: sticky; top: 60px; z-index: 90; overflow-x: auto; white-space: nowrap; }
         .tabs-container::-webkit-scrollbar { height: 0px; background: transparent; }
         .tabs { display: flex; gap: 20px; }
@@ -37,16 +33,12 @@
         /* UI ELEMENTS */
         .container { max-width: 1200px; margin: 0 auto; padding: 20px; animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
         .card { background: var(--surface); border-radius: var(--radius-md); padding: 1.5rem; box-shadow: var(--shadow-sm); border: 1px solid var(--border-light); margin-bottom: 1.5rem; }
         .card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 1.2rem; color: var(--text-main); border-bottom: 1px solid var(--border-light); padding-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
-
         .count-badge { background: #f3f4f6; color: var(--text-muted); padding: 2px 10px; border-radius: 99px; font-size: 0.8rem; font-weight: 700; margin-left: 8px; }
-
         label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; }
-        input:not([type="checkbox"]), select { width: 100%; padding: 10px 12px; border: 1px solid var(--border-light); border-radius: var(--radius-sm); font-size: 0.95rem; transition: 0.2s; background: #fff; color: var(--text-main); }
-        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
-        
+        input:not([type="checkbox"]), select, textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border-light); border-radius: var(--radius-sm); font-size: 0.95rem; transition: 0.2s; background: #fff; color: var(--text-main); font-family: inherit; }
+        input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
         .btn { display: inline-flex; align-items: center; justify-content: center; padding: 10px 16px; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; border: none; gap: 8px; font-size: 0.9rem; transition: 0.2s; }
         .btn:active { transform: scale(0.97); }
         .btn.primary { background: var(--primary); color: white; box-shadow: 0 2px 5px rgba(79, 70, 229, 0.3); }
@@ -55,9 +47,7 @@
         .btn.warning { background: var(--warning); color: white; }
         .btn.ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border-light); }
         .btn.ghost:hover { background: var(--bg-body); color: var(--text-main); }
-
         .admin-tools-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; background: #f9fafb; padding: 1.2rem; border-radius: var(--radius-md); margin-bottom: 1.5rem; border: 1px solid var(--border-light); }
-        
         .table-container { border-radius: var(--radius-md); border: 1px solid var(--border-light); overflow-x: auto; -webkit-overflow-scrolling: touch; background: white; }
         .table { width: 100%; border-collapse: collapse; min-width: 600px; }
         .table th { background: #f9fafb; color: var(--text-muted); font-size: 0.75rem; font-weight: 700; padding: 12px 16px; text-align: left; text-transform: uppercase; border-bottom: 1px solid var(--border-light); white-space: nowrap; }
@@ -65,29 +55,27 @@
         .table tbody tr:hover { background-color: #f8fafc; }
         .row-sacado td { color: var(--text-muted); text-decoration: line-through; background: #fef2f2; }
 
-        /* DASHBOARD GRID */
+        /* DASHBOARD */
         .dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
         .dash-card { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid var(--border-light); transition: 0.2s; display: flex; flex-direction: column; }
-        .dash-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+        .dash-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
         .dash-header { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; border-bottom: 1px solid #f3f4f6; padding-bottom: 10px; }
         .dash-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); gap: 10px; flex: 1; }
         .dash-stat { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .dash-num { font-size: 1.8rem; font-weight: 800; line-height: 1.2; margin-bottom: 4px; color: var(--text-main); }
         .dash-label { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); }
         .num-blue { color: var(--primary); } .num-green { color: var(--success); } .num-orange { color: var(--warning); } .num-purple { color: #8b5cf6; }
-
         .asist-grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 15px; }
         
         #roleBadge { background: #e0e7ff; color: #4338ca; font-weight: 700; padding: 4px 10px; border-radius: 99px; font-size: 0.7rem; text-transform: uppercase; }
-        #statusIndicator { font-size: 0.75rem; font-weight: bold; padding: 4px 10px; border-radius: 20px; transition: 0.3s; }
-        .status-sync { background: #dcfce7; color: #166534; }
-        .status-offline { background: #fee2e2; color: #991b1b; }
-
+        .status-badge { font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; transition: 0.3s; display: inline-flex; align-items: center; gap: 4px; }
+        .status-badge.sync { background: #dcfce7; color: #166534; }
+        .status-badge.offline { background: #fee2e2; color: #991b1b; }
         #toast { position: fixed; top: 20px; right: 20px; background: #1f2937; color: white; padding: 12px 24px; border-radius: 10px; font-weight: 500; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); display: none; z-index: 2000; border-left: 4px solid #10b981; }
         
         /* SETTINGS MODAL */
         #modalAuth, #modalPwd, #modalSettings { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 9999; padding: 20px; }
-        .settings-card { width: 420px; max-width: 100%; background: var(--surface); border-radius: 20px; box-shadow: var(--shadow-md); max-height: 85vh; overflow-y: auto; display: flex; flex-direction: column; }
+        .settings-card { width: 420px; max-width: 100%; background: var(--surface); border-radius: 20px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); max-height: 85vh; overflow-y: auto; display: flex; flex-direction: column; }
         .settings-header { padding: 20px; border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: white; z-index: 10; }
         .settings-body { padding: 20px; display: flex; flex-direction: column; gap: 20px; }
         .settings-group { border: 1px solid var(--border-light); border-radius: 12px; overflow: hidden; }
@@ -109,11 +97,7 @@
         .tab.active { display: block; animation: fadeIn 0.3s ease; }
         body.role-restricted .admin-only { display: none !important; }
         body.role-restricted .tabs button:not([data-tab="actividad"]) { display: none !important; }
-        
         body.role-admin .restricted-only { display: none !important; }
-        .guide-step { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed var(--border-light); }
-        .guide-step:last-child { border: none; }
-        .guide-step b { color: var(--primary); }
 
         @media (max-width: 768px) {
             header.top { flex-direction: column; align-items: stretch; gap: 12px; }
@@ -124,7 +108,7 @@
 </head>
 <body>
 
-<div id="toast" style="position: fixed; top: 20px; right: 20px; background: #1f2937; color: white; padding: 12px 24px; border-radius: 10px; font-weight: 500; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); display: none; z-index: 2000; border-left: 4px solid #10b981;"></div>
+<div id="toast"></div>
 
 <div id="modalAuth" style="display: flex;">
     <div class="card" style="width:360px; max-width:90%; text-align:center; margin-bottom:0; padding: 40px 20px;">
@@ -144,87 +128,54 @@
         </div>
         <div class="settings-body">
             
-            <details class="settings-group">
-                <summary>📚 Ayuda y Tutoriales</summary>
-                <div class="settings-content" style="font-size: 0.9rem; color: var(--text-main);">
-                    <div class="admin-only" style="background: #eef2ff; border: 1px solid #c7d2fe; padding: 12px; border-radius: 8px; margin-bottom: 15px;">
-                        <h4 style="margin: 0 0 10px 0; color: var(--primary);">👑 Guía: Cómo activar Encargados</h4>
-                        <div class="guide-step">
-                            <b>Paso 1:</b> En "Gestión de Accesos" (abajo), define la cantidad total de grupos y sus claves.
-                        </div>
-                        <div class="guide-step">
-                            <b>Paso 2:</b> Asegúrate de que tu Nube esté conectada (luz verde arriba).
-                        </div>
-                        <div class="guide-step">
-                            <b>Paso 3:</b> Envía este mensaje al encargado por WhatsApp:
-                            <p style="font-size: 0.8rem; background: white; padding: 8px; border-radius: 4px; margin-top: 5px; border: 1px solid #e5e7eb;">
-                                "Hno, entra a: [TU_LINK]<br>
-                                En Ajustes > Nube pega esto:<br>
-                                API Key: [TU_API_KEY]<br>
-                                Project ID: [TU_PROJECT_ID]<br>
-                                Dale 'Conectar'. Luego entra con clave: [CLAVE_GRUPO]"
-                            </p>
-                        </div>
-                    </div>
-
-                    <h4 style="margin: 0 0 10px 0; font-size: 0.9rem;">🚀 Guía de Uso Rápido</h4>
-                    <ul style="padding-left: 20px; margin: 0; font-size: 0.85rem; color: var(--text-muted);">
-                        <li style="margin-bottom: 5px;">Selecciona el <b>Mes y Año</b> arriba.</li>
-                        <li style="margin-bottom: 5px;">En la pestaña <b>Informes</b>, marca casillas y anota horas.</li>
-                        <li style="margin-bottom: 5px;">Dale al botón <b>💾 Guardar Cambios</b> antes de salir.</li>
-                        <li>Si no tienes internet, los datos se guardan en tu celular y se suben cuando conectes.</li>
-                    </ul>
-                </div>
-            </details>
-
             <div class="settings-group">
                 <div style="padding:15px;">
-                    <div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:10px;">☁️ Estado de Sincronización</div>
+                    <div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:10px;">☁️ Conexión y Datos</div>
+                    
                     <div id="cloudStatusCard" class="status-card offline">
                         <div class="status-icon" id="cloudIcon">⚡</div>
-                        <div class="status-text"><h4 id="cloudTitle">Modo Local</h4><p id="cloudDesc">Datos solo en este dispositivo.</p></div>
+                        <div class="status-text"><h4 id="cloudTitle">Modo Local</h4><p id="cloudDesc">Sin sincronización.</p></div>
                     </div>
-                    <details>
-                        <summary style="padding:0; background:none; color:var(--primary); font-size:0.85rem;">🔧 Configurar conexión...</summary>
-                        <div class="settings-content" style="border:none; padding:15px 0 0 0;">
-                            <div style="background:#f8fafc; padding:15px; border-radius:10px; border:1px solid var(--border-light); font-size:0.85rem;">
-                                <p style="margin:0 0 10px 0;">Ingresa tus credenciales de Firebase para sincronizar:</p>
-                                <input type="text" id="fbApiKey" placeholder="API Key" value="" style="margin-bottom:10px;">
-                                <input type="text" id="fbProjectId" placeholder="Project ID" value="" style="margin-bottom:10px;">
-                                <button class="btn primary" onclick="saveCloudCredentials()" style="width:100%;">Conectar</button>
-                                <details style="margin-top:10px;">
-                                    <summary style="font-size:0.8rem; color:var(--text-muted);">❓ ¿Cómo obtengo estos datos?</summary>
-                                    
-                                    <div class="admin-only">
-                                        <ol style="padding-left:20px; color:var(--text-muted); margin:5px 0;">
-                                            <li>Crea proyecto en <a href="https://console.firebase.google.com" target="_blank">Firebase Console</a>.</li>
-                                            <li>Crea Database en <b>Modo Prueba</b>.</li>
-                                            <li>Crea App Web y copia <b>apiKey</b> y <b>projectId</b>.</li>
-                                        </ol>
-                                    </div>
 
-                                    <div class="restricted-only">
-                                        <p style="padding:10px; background:#fff7ed; border-left:3px solid var(--warning); color:var(--text-muted); margin:5px 0; font-size:0.85rem;">
-                                            ⚠️ <b>No crees una cuenta nueva.</b><br>
-                                            Pídele al Secretario/Administrador las claves (API Key y Project ID) para conectarte a la base de datos de tu congregación.
-                                        </p>
-                                    </div>
+                    <div id="smartConnectBox" style="margin-top:15px;">
+                        <label>🔑 Conexión Rápida (Smart Connect)</label>
+                        <div style="display:flex; gap:10px;">
+                            <input type="text" id="smartTokenInput" placeholder="Pega aquí la Llave de Acceso..." style="margin-bottom:0;">
+                            <button class="btn primary" onclick="applySmartToken()">Conectar</button>
+                        </div>
+                        <p style="font-size:0.75rem; color:var(--text-muted); margin-top:5px;">
+                            Si eres encargado, pídele esta llave al administrador.
+                        </p>
+                    </div>
 
-                                </details>
+                    <details style="margin-top:15px;">
+                        <summary style="font-size:0.8rem; color:var(--primary);">⚙️ Configuración Manual (Avanzado)</summary>
+                        <div class="settings-content" style="border:none; padding-top:10px;">
+                            <input type="text" id="fbApiKey" placeholder="API Key" style="margin-bottom:10px;">
+                            <input type="text" id="fbProjectId" placeholder="Project ID" style="margin-bottom:10px;">
+                            <button class="btn ghost" onclick="saveCloudCredentials()" style="width:100%;">Guardar Manualmente</button>
+                            
+                            <div class="admin-only" style="margin-top:15px; padding-top:15px; border-top:1px dashed var(--border-light);">
+                                <label>Compartir con Encargados</label>
+                                <button class="btn success" onclick="copySmartToken()" style="width:100%;">📤 Copiar Llave de Acceso Rápido</button>
+                                <p style="font-size:0.7rem; color:var(--text-muted); margin-top:5px;">Envía esto por WhatsApp a los encargados para que se conecten en 1 clic.</p>
                             </div>
                         </div>
                     </details>
+
                 </div>
             </div>
+
             <div class="settings-group">
                 <div style="padding:15px;">
-                    <div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:10px;">💾 Copias de Seguridad</div>
+                    <div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:10px;">💾 Respaldo Local</div>
                     <div class="action-row">
                         <div class="icon-btn" onclick="exportBackup()"><span>📥</span><small>Descargar</small></div>
                         <div class="icon-btn" style="position:relative;"><span>📤</span><small>Restaurar</small><input type="file" accept=".json,application/json" onchange="window.importData(this)" style="position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%;"></div>
                     </div>
                 </div>
             </div>
+
             <details class="settings-group admin-only">
                 <summary>🔐 Gestión de Accesos</summary>
                 <div class="settings-content">
@@ -235,32 +186,30 @@
                         <label>Cantidad de Grupos</label>
                         <div style="display:flex; gap:10px; margin-bottom:15px;">
                             <input type="number" id="totalGroupsInput" min="1" max="50" placeholder="Ej: 5" style="width:80px; text-align:center;">
-                            <button class="btn primary" onclick="updateTotalGroups()" style="flex:1;">Actualizar Cantidad</button>
+                            <button class="btn primary" onclick="updateTotalGroups()" style="flex:1;">Actualizar</button>
                         </div>
-
-                        <label>Gestionar Claves de Grupos</label>
+                        <label>Claves de Grupos</label>
                         <div style="display:flex; gap:10px;">
-                            <select id="groupSelector" onchange="loadGroupPassword()" style="flex:1;">
-                                </select>
+                            <select id="groupSelector" onchange="loadGroupPassword()" style="flex:1;"></select>
                         </div>
                         <div style="display:flex; gap:10px; margin-top:10px;">
                             <input type="text" id="groupPwdInput" placeholder="Clave..." style="flex:1; text-align:center; font-weight:bold;">
-                            <button class="btn success" onclick="saveSingleGroupPassword()">Guardar Clave</button>
+                            <button class="btn success" onclick="saveSingleGroupPassword()">Guardar</button>
                         </div>
                     </div>
                 </div>
             </details>
+
             <div class="settings-group admin-only">
                 <div style="background:#fffbeb; padding:15px;">
                     <div style="text-align:center;">
                         <p style="margin:0 0 10px 0; font-size:0.9rem; color:#92400e; font-weight:600;">🤝 Apoyo Voluntario</p>
-                        <p style="font-size:0.8rem; color:#b45309; margin-bottom:15px;">Esta app es gratuita. Si deseas apoyar los <b>gastos técnicos y de desarrollo</b> para mantenerla funcionando:</p>
-                        <button onclick="window.open('TU_LINK_MERCADOPAGO', '_blank')" style="background:#f59e0b; color:white; border:none; padding:12px 20px; border-radius:50px; font-weight:700; cursor:pointer; box-shadow:0 4px 6px rgba(245, 158, 11, 0.3); display:flex; align-items:center; gap:10px; width:100%; justify-content:center; transition:0.2s;">
+                        <button onclick="window.open('TU_LINK_MERCADOPAGO', '_blank')" style="background:#f59e0b; color:white; border:none; padding:12px 20px; border-radius:50px; font-weight:700; cursor:pointer; box-shadow:0 4px 6px rgba(245, 158, 11, 0.3); display:flex; align-items:center; gap:10px; width:100%; justify-content:center;">
                             <span style="font-size:1.2rem;">☕</span> Invítame un Café
                         </button>
                     </div>
                 </div>
-                <div style="padding:10px; text-align:center; font-size:0.7rem; color:var(--text-muted); background:#f9fafb;">v1.0.52 • Desarrollo Independiente</div>
+                <div style="padding:10px; text-align:center; font-size:0.7rem; color:var(--text-muted); background:#f9fafb;">v1.0.55 • Smart Connect</div>
             </div>
         </div>
     </div>
@@ -283,6 +232,7 @@
                 <h1 style="font-size: 1.1rem; font-weight: 800; margin:0;">Congregación Pro</h1>
                 <div style="display:flex; gap:10px; align-items:center;">
                     <span id="roleBadge">...</span>
+                    <span id="headerStatus" class="status-badge offline">⚪ Offline</span>
                 </div>
             </div>
         </div>
@@ -325,23 +275,23 @@
                 <div class="admin-tools-grid">
                     <div><label>Fecha Nacimiento</label><input type="date" id="pNac"></div>
                     <div><label>Fecha Bautismo</label><input type="date" id="pBau"></div>
-                    <div><label>Fecha Expulsión (Si aplica)</label><input type="date" id="pFSac"></div>
+                    <div><label>Fecha Expulsión</label><input type="date" id="pFSac"></div>
                     <div style="display:flex; flex-direction:column; justify-content:flex-end; gap:8px;">
                         <button class="btn primary" id="btnSaveP">💾 Guardar Miembro</button>
                         <div style="display:flex; gap:8px; width:100%;">
-                            <button class="btn danger" id="btnDeleteP" style="display:none; flex:1;">🗑️ Eliminar</button>
-                            <button class="btn ghost" id="btnCancelEdit" onclick="resetPForm()" style="display:none; flex:1;">Cancelar</button>
+                            <button class="btn danger" id="btnDeleteP" style="display:none; flex:1;">🗑️</button>
+                            <button class="btn ghost" id="btnCancelEdit" onclick="resetPForm()" style="display:none; flex:1;">✕</button>
                         </div>
                     </div>
                 </div>
                 <div class="admin-tools-grid" style="background:var(--bg-body);">
                     <div style="grid-column:1/-1; display:flex; gap:20px; flex-wrap:wrap; align-items:center;">
                         <span style="font-weight:700; color:var(--text-muted); font-size:0.75rem; text-transform:uppercase;">Privilegios:</span>
-                        <label style="display:flex; align-items:center; gap:6px; cursor:pointer; margin:0;"><input type="checkbox" id="pAnc"> Anciano</label>
-                        <label style="display:flex; align-items:center; gap:6px; cursor:pointer; margin:0;"><input type="checkbox" id="pSM"> Siervo Min.</label>
-                        <label style="display:flex; align-items:center; gap:6px; cursor:pointer; margin:0;"><input type="checkbox" id="pPR"> Prec. Regular</label>
-                        <label style="display:flex; align-items:center; gap:6px; cursor:pointer; margin:0;"><input type="checkbox" id="pPE"> Prec. Especial</label>
-                        <label style="display:flex; align-items:center; gap:6px; cursor:pointer; margin:0;"><input type="checkbox" id="pMis"> Misionero</label>
+                        <label style="display:flex; align-items:center; gap:6px;"><input type="checkbox" id="pAnc"> Anciano</label>
+                        <label style="display:flex; align-items:center; gap:6px;"><input type="checkbox" id="pSM"> Siervo Min.</label>
+                        <label style="display:flex; align-items:center; gap:6px;"><input type="checkbox" id="pPR"> Prec. Regular</label>
+                        <label style="display:flex; align-items:center; gap:6px;"><input type="checkbox" id="pPE"> Prec. Especial</label>
+                        <label style="display:flex; align-items:center; gap:6px;"><input type="checkbox" id="pMis"> Misionero</label>
                     </div>
                 </div>
                 <div class="admin-tools-grid" style="border-top:2px dashed var(--border-light); margin-top:20px;">
@@ -450,17 +400,44 @@
     const MESES_NOM = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
     const CICLO_S88 = [9,10,11,12,1,2,3,4,5,6,7,8];
     
-    let state = { 
-        personas: [], activity: {}, attendance: {}, 
-        config: { pwd: '12345', totalGroups: 5, groups: { '1': 'grupo1', '2': 'grupo2', '3': 'grupo3', '4': 'grupo4', '5': 'grupo5' } } 
-    }; 
-    
+    let state = { personas: [], activity: {}, attendance: {}, config: { pwd: '12345', totalGroups: 5, groups: {} } };
     let CURRENT_ROLE = 'ADMIN'; 
     let curY = new Date().getFullYear(), curM = new Date().getMonth()+1;
     let actY = curY, actM = curM, asistY = curY, asistM = curM;
 
+    // --- FUNCIÓN INTELIGENTE DE TOKEN ---
+    window.copySmartToken = function() {
+        const k = $('#fbApiKey').value;
+        const p = $('#fbProjectId').value;
+        if(!k || !p) return alert("Primero debes conectar tu propia nube.");
+        
+        // Crea el token codificado en Base64
+        const token = btoa(JSON.stringify({ k: k, p: p }));
+        const msg = `Hola hermano, aquí tienes los datos para conectar la App:\n\n` +
+                    `1. Copia esta Llave de Acceso:\n${token}\n\n` +
+                    `2. Abre la App > Ajustes > Pégala donde dice 'Llave de Acceso Rápido' y dale a Conectar.\n\n` +
+                    `3. Luego ingresa con tu clave de grupo.`;
+        
+        navigator.clipboard.writeText(msg).then(() => showToast("📋 ¡Mensaje copiado! Pégalo en WhatsApp"));
+    }
+
+    window.applySmartToken = function() {
+        const token = $('#smartTokenInput').value.trim();
+        if(!token) return alert("Pega la llave primero.");
+        try {
+            const data = JSON.parse(atob(token));
+            if(data.k && data.p) {
+                $('#fbApiKey').value = data.k;
+                $('#fbProjectId').value = data.p;
+                saveCloudCredentials();
+                $('#smartTokenInput').value = '';
+            } else { alert("Llave inválida."); }
+        } catch(e) { alert("Error: La llave no es válida."); }
+    }
+    // ------------------------------------
+
     window.openSettings = function() {
-        const modal = $('#modalSettings'); modal.style.display = 'flex';
+        $('#modalSettings').style.display = 'flex';
         const stored = localStorage.getItem(CRED_KEY);
         if(stored) {
             const c = JSON.parse(stored);
@@ -473,53 +450,36 @@
 
     function updateCloudUI(connected, pid) {
         const card = $('#cloudStatusCard'); const title = $('#cloudTitle'); const desc = $('#cloudDesc'); const icon = $('#cloudIcon');
-        if(connected) { card.className = 'status-card'; icon.innerText = '🟢'; title.innerText = 'Conectado a Nube'; desc.innerText = 'ID: ' + pid; } 
-        else { card.className = 'status-card offline'; icon.innerText = '⚡'; title.innerText = 'Modo Local'; desc.innerText = 'Datos solo en este dispositivo.'; }
+        const badge = $('#headerStatus');
+        
+        if(connected) { 
+            card.className = 'status-card'; icon.innerText = '🟢'; title.innerText = 'Conectado a Nube'; desc.innerText = 'ID: ' + pid; 
+            badge.className = 'status-badge sync'; badge.innerText = '🟢 Online';
+        } else { 
+            card.className = 'status-card offline'; icon.innerText = '⚡'; title.innerText = 'Modo Local'; desc.innerText = 'Datos solo en este dispositivo.'; 
+            badge.className = 'status-badge offline'; badge.innerText = '⚪ Offline';
+        }
     }
 
     window.closeSettings = function() { $('#modalSettings').style.display = 'none'; };
 
-    // --- LÓGICA DE GRUPOS DINÁMICOS ---
     window.renderGroupOptions = function() {
         const total = state.config.totalGroups || 5;
-        const selects = document.querySelectorAll('.dynamic-group-select'); // Clases: pGrupo, selGInforme, s21GroupSel
+        const selects = document.querySelectorAll('.dynamic-group-select'); 
         const pwdSelect = $('#groupSelector');
-
-        // Generar HTML de opciones
-        let opts = '';
-        for(let i=1; i<=total; i++) { opts += `<option value="${i}">Grupo ${i}</option>`; }
-
-        // Actualizar selects normales
-        selects.forEach(sel => {
-            const currentVal = sel.value; // Guardar valor seleccionado si existe
-            sel.innerHTML = opts;
-            if(currentVal && currentVal <= total) sel.value = currentVal;
-        });
-
-        // Actualizar select de contraseñas
-        if(pwdSelect) {
-            const currentPwdVal = pwdSelect.value;
-            pwdSelect.innerHTML = opts;
-            if(currentPwdVal && currentPwdVal <= total) pwdSelect.value = currentPwdVal;
-        }
+        let opts = ''; for(let i=1; i<=total; i++) { opts += `<option value="${i}">Grupo ${i}</option>`; }
+        selects.forEach(sel => { const v = sel.value; sel.innerHTML = opts; if(v && v <= total) sel.value = v; });
+        if(pwdSelect) { const v = pwdSelect.value; pwdSelect.innerHTML = opts; if(v && v <= total) pwdSelect.value = v; }
     }
 
     window.updateTotalGroups = function() {
         const val = parseInt($('#totalGroupsInput').value);
-        if(!val || val < 1 || val > 50) return alert("Por favor, ingresa entre 1 y 50 grupos.");
-        
+        if(!val || val < 1 || val > 50) return alert("Entre 1 y 50.");
         state.config.totalGroups = val;
-        // Asegurar que existan claves para los nuevos grupos si se añaden
         if(!state.config.groups) state.config.groups = {};
-        for(let i=1; i<=val; i++) {
-            if(!state.config.groups[i]) state.config.groups[i] = 'grupo' + i;
-        }
-        
-        save();
-        renderGroupOptions();
-        alert(`✅ Configuración actualizada a ${val} grupos.`);
+        for(let i=1; i<=val; i++) { if(!state.config.groups[i]) state.config.groups[i] = 'grupo' + i; }
+        save(); renderGroupOptions(); showToast(`Grupos actualizados: ${val}`);
     }
-    // ----------------------------------
 
     window.loadGroupPassword = function() {
         if(!state.config.groups) state.config.groups = {};
@@ -562,8 +522,8 @@
         if($('#btnSaveP')) $('#btnSaveP').onclick = savePersona;
         if($('#btnDeleteP')) $('#btnDeleteP').onclick = deletePersona;
         if($('#btnQEdit')) $('#btnQEdit').onclick = () => { const n=$('#qPersona').value; const p=state.personas.find(x=>x.nombre===n); if(p) { editP(p.id); document.querySelector('[data-tab="personas"]').click(); } };
-        if($('#btnSaveReports')) $('#btnSaveReports').onclick = () => { save(); showToast("Guardado y Sincronizado ☁️"); };
-        if($('#btnSaveAsist')) $('#btnSaveAsist').onclick = () => { save(); showToast("Asistencia Guardada ☁️"); renderS88Preview(); };
+        if($('#btnSaveReports')) $('#btnSaveReports').onclick = () => { save(); showToast("Guardado ☁️"); };
+        if($('#btnSaveAsist')) $('#btnSaveAsist').onclick = () => { save(); showToast("Asistencia Guardada"); renderS88Preview(); };
         
         document.querySelectorAll('.tabs button').forEach(b => {
             b.onclick = () => {
@@ -591,55 +551,48 @@
     window.saveCloudCredentials = function() {
         const apiKey = $('#fbApiKey').value.trim();
         const projectId = $('#fbProjectId').value.trim();
-        if(!apiKey || !projectId) return alert("Por favor ingresa ambos datos");
+        if(!apiKey || !projectId) return alert("Ingresa ambos datos");
         localStorage.setItem(CRED_KEY, JSON.stringify({ apiKey, projectId }));
         connectFirebase(apiKey, projectId);
     }
 
     function connectFirebase(apiKey, projectId) {
         const statusSpan = $('#statusIndicator');
-        statusSpan.innerHTML = '🟡 Conectando...';
+        statusSpan.innerHTML = '🟡...';
         try {
             const firebaseConfig = { apiKey: apiKey, authDomain: `${projectId}.firebaseapp.com`, projectId: projectId, storageBucket: `${projectId}.firebasestorage.app` };
             app = initializeApp(firebaseConfig);
             db = getFirestore(app);
             startRealtimeSync();
-            statusSpan.className = 'status-sync'; statusSpan.innerHTML = '🟢 Conectado';
             updateCloudUI(true, projectId);
-            if($('#modalSettings').style.display === 'flex') showToast("Conexión Exitosa");
+            if($('#modalSettings').style.display === 'flex') showToast("Conectado");
         } catch(e) {
-            console.error(e); statusSpan.className = 'status-offline'; statusSpan.innerHTML = '🔴 Error API';
-            alert("Error conectando a Firebase. Revisa la consola o las claves.");
+            console.error(e);
+            alert("Error conectando.");
             updateCloudUI(false);
         }
     }
 
     function startRealtimeSync() {
-        const statusSpan = $('#statusIndicator');
         if(!db) return;
         onSnapshot(doc(db, "congregacion", "datos_generales"), (doc) => {
             if(doc.exists()) {
                 const cloudData = doc.data(); state = cloudData;
-                // Init Defaults
                 if(!state.personas) state.personas = [];
                 if(!state.activity) state.activity = {};
                 if(!state.attendance) state.attendance = {};
                 if(!state.config) state.config = { pwd: '12345', totalGroups: 5, groups: {} };
-                
                 localStorage.setItem(DB_KEY, JSON.stringify(state));
                 renderAll();
-                statusSpan.className = 'status-sync'; statusSpan.innerHTML = '🟢 Conectado';
+                // updateCloudUI(true, "");
             } else { save(); }
-        }, (error) => { console.error("Error sync:", error); statusSpan.className = 'status-offline'; statusSpan.innerHTML = '🔴 Sin conexión'; updateCloudUI(false); });
+        }, (error) => { console.error("Sync error:", error); updateCloudUI(false); });
     }
 
     window.save = async function() {
         localStorage.setItem(DB_KEY, JSON.stringify(state));
         updateDatalist();
-        if(db) {
-            const statusSpan = $('#statusIndicator'); statusSpan.innerHTML = '🔄 Guardando...';
-            try { await setDoc(doc(db, "congregacion", "datos_generales"), state); statusSpan.innerHTML = '🟢 Conectado'; } catch(e) { statusSpan.className = 'status-offline'; statusSpan.innerHTML = '⚠️ Error Guardado'; }
-        }
+        if(db) { try { await setDoc(doc(db, "congregacion", "datos_generales"), state); } catch(e) {} }
     }
 
     window.attemptLogin = function() {
@@ -674,7 +627,7 @@
     if(!state.config) state.config = { pwd: '12345', totalGroups: 5, groups: {} };
 
     function renderAll() {
-        renderGroupOptions(); // RENDERIZAR GRUPOS DINÁMICAMENTE
+        renderGroupOptions();
         if(CURRENT_ROLE === 'ADMIN') { renderMiembros(); renderSacados(); renderEstadoEspiritual(); renderPrecursores(); renderAuxiliares(); renderAsistInputs(); }
         renderActividad();
         updateDatalist();
