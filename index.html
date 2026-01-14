@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-    <title>Congregación Pro - v61 Blindada</title>
+    <title>Congregación Pro - v62 Diagnóstico</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -210,7 +210,7 @@
             </details>
 
             <div class="admin-only" style="padding:15px; text-align:center; font-size:0.75rem; color:var(--text-muted); background:#f9fafb; border-radius: 12px; display:flex; flex-direction:column; gap:10px; align-items:center;">
-                <span>v1.0.61 • Blindada</span>
+                <span>v1.0.62 • Diagnóstico</span>
                 <button class="btn ghost" style="font-size:0.75rem; padding: 4px 10px; border-color: var(--border-light);" onclick="document.getElementById('modalSupport').style.display='flex'">
                     ☕ Acerca de & Apoyo
                 </button>
@@ -620,10 +620,19 @@
         }, (error) => { console.error("Sync error:", error); updateCloudUI(false); });
     }
 
+    // 🚨🚨🚨 AQUÍ ESTÁ EL CAMBIO IMPORTANTE 🚨🚨🚨
+    // AHORA EL SISTEMA GRITARÁ SI ALGO FALLA AL GUARDAR
     window.save = async function() {
         localStorage.setItem(DB_KEY, JSON.stringify(state));
         updateDatalist();
-        if(db) { try { await setDoc(doc(db, "congregacion", "datos_generales"), state); } catch(e) {} }
+        if(db) { 
+            try { 
+                await setDoc(doc(db, "congregacion", "datos_generales"), state); 
+            } catch(e) { 
+                // AQUÍ SALDRÁ LA ALERTA ROJA CON EL ERROR
+                alert("❌ ERROR AL SUBIR A LA NUBE:\n\n" + e.message); 
+            } 
+        }
     }
 
     window.attemptLogin = function() {
