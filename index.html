@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-    <title>Congregación Pro - v62 Diagnóstico</title>
+    <title>Congregación Pro - v63 CAJA NEGRA</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -18,7 +18,7 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); line-height: 1.5; font-size: 14px; margin: 0; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); line-height: 1.5; font-size: 14px; margin: 0; padding-bottom: 200px; }
 
         /* HEADER & TABS */
         header.top { background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-light); padding: 0.8rem 1.5rem; position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-sm); flex-wrap: wrap; gap: 10px; }
@@ -96,6 +96,14 @@
         .official-table { width: 100%; border-collapse: collapse !important; border: 1.5px solid #000 !important; margin-top: 5px; }
         .official-table th, .official-table td { border: 1.2px solid #000 !important; padding: 4px; font-size: 8.5pt; text-align: center; color: #000; }
         
+        /* BLACK BOX LOGGER */
+        #debugConsole {
+            position: fixed; bottom: 0; left: 0; right: 0; height: 150px;
+            background: #000; color: #0f0; font-family: monospace; font-size: 12px;
+            padding: 10px; overflow-y: auto; z-index: 99999; border-top: 2px solid #333;
+            display: block; opacity: 0.9;
+        }
+        
         #app-content { display: none; }
         .tab { display: none; }
         .tab.active { display: block; animation: fadeIn 0.3s ease; }
@@ -112,6 +120,7 @@
 </head>
 <body>
 
+<div id="debugConsole">🚀 Iniciando Sistema v63...<br></div>
 <div id="toast"></div>
 
 <div id="modalAuth" style="display: flex;">
@@ -210,7 +219,7 @@
             </details>
 
             <div class="admin-only" style="padding:15px; text-align:center; font-size:0.75rem; color:var(--text-muted); background:#f9fafb; border-radius: 12px; display:flex; flex-direction:column; gap:10px; align-items:center;">
-                <span>v1.0.62 • Diagnóstico</span>
+                <span>v1.0.63 • CAJA NEGRA</span>
                 <button class="btn ghost" style="font-size:0.75rem; padding: 4px 10px; border-color: var(--border-light);" onclick="document.getElementById('modalSupport').style.display='flex'">
                     ☕ Acerca de & Apoyo
                 </button>
@@ -418,11 +427,13 @@
     const DB_KEY = 'cong_pro_v108_master';
     const CRED_KEY = 'cong_pro_firebase_creds';
     const $ = s => document.querySelector(s);
+    const logEl = document.getElementById('debugConsole');
+    function log(msg) { logEl.innerHTML += msg + "<br>"; logEl.scrollTop = logEl.scrollHeight; }
+
     const ymKey = (y,m) => `${y}-${String(m).padStart(2,'0')}`;
     const MESES_NOM = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
     const CICLO_S88 = [9,10,11,12,1,2,3,4,5,6,7,8];
     
-    // 🛡️ INICIALIZACIÓN A PRUEBA DE FALLOS: SIEMPRE ARRAYS VACÍOS
     let state = { personas: [], activity: {}, attendance: {}, config: { pwd: '12345', totalGroups: 5, groups: {} } };
     let CURRENT_ROLE = 'ADMIN'; 
     let curY = new Date().getFullYear(), curM = new Date().getMonth()+1;
@@ -582,56 +593,67 @@
     }
 
     function connectFirebase(apiKey, projectId) {
+        log("Intentando conectar a: " + projectId);
         const statusSpan = $('#statusIndicator');
-        statusSpan.innerHTML = '🟡...';
+        if(statusSpan) statusSpan.innerHTML = '🟡...';
         try {
             const firebaseConfig = { apiKey: apiKey, authDomain: `${projectId}.firebaseapp.com`, projectId: projectId, storageBucket: `${projectId}.firebasestorage.app` };
             app = initializeApp(firebaseConfig);
             db = getFirestore(app);
+            log("Firebase Inicializado. DB lista.");
             startRealtimeSync();
             updateCloudUI(true, projectId);
             if($('#modalSettings').style.display === 'flex') showToast("Conectado");
         } catch(e) {
             console.error(e);
+            log("Error CRÍTICO al conectar: " + e.message);
             alert("Error conectando.");
             updateCloudUI(false);
         }
     }
 
-    // 🛡️ SINCRONIZACIÓN BLINDADA: SI FALTA ALGO EN LA NUBE, LO RELLENA CON VACÍO
     function startRealtimeSync() {
-        if(!db) return;
+        if(!db) { log("No hay DB para sincronizar"); return; }
+        log("Iniciando escucha en tiempo real...");
         onSnapshot(doc(db, "congregacion", "datos_generales"), (doc) => {
+            log("Cambio detectado en nube.");
             if(doc.exists()) {
+                log("Datos recibidos. Actualizando local.");
                 const cloudData = doc.data(); 
                 state = cloudData;
                 
-                // --- CHALECO ANTIBALAS: EVITA CRASH POR DATOS FALTANTES ---
                 if(!state.personas) state.personas = [];
                 if(!state.activity) state.activity = {};
                 if(!state.attendance) state.attendance = {};
                 if(!state.config) state.config = { pwd: '12345', totalGroups: 5, groups: {} };
-                // -----------------------------------------------------------
 
                 localStorage.setItem(DB_KEY, JSON.stringify(state));
                 renderAll();
-                // updateCloudUI(true, "");
-            } else { save(); }
-        }, (error) => { console.error("Sync error:", error); updateCloudUI(false); });
+            } else { 
+                log("Documento no existe en nube. Creando...");
+                save(); 
+            }
+        }, (error) => { 
+            console.error("Sync error:", error); 
+            log("ERROR DE SINCRONIZACIÓN: " + error.code + " - " + error.message);
+            updateCloudUI(false); 
+        });
     }
 
-    // 🚨🚨🚨 AQUÍ ESTÁ EL CAMBIO IMPORTANTE 🚨🚨🚨
-    // AHORA EL SISTEMA GRITARÁ SI ALGO FALLA AL GUARDAR
     window.save = async function() {
+        log("Intentando guardar...");
         localStorage.setItem(DB_KEY, JSON.stringify(state));
         updateDatalist();
         if(db) { 
             try { 
                 await setDoc(doc(db, "congregacion", "datos_generales"), state); 
+                log("✅ GUARDADO EXITOSO EN NUBE");
             } catch(e) { 
-                // AQUÍ SALDRÁ LA ALERTA ROJA CON EL ERROR
+                log("❌ ERROR AL GUARDAR: " + e.message);
                 alert("❌ ERROR AL SUBIR A LA NUBE:\n\n" + e.message); 
             } 
+        } else {
+            log("⚠️ No hay conexión a DB para guardar");
         }
     }
 
@@ -652,7 +674,6 @@
         const badge = $('#roleBadge');
         if(CURRENT_ROLE === 'ADMIN') {
             badge.innerText = 'Administrador'; badge.style.background = '#e0e7ff'; badge.style.color = '#4338ca';
-            // Abrir configuración manual automáticamente para admin
             const details = document.getElementById('manualConfigDetails');
             if(details) details.open = true;
         } else {
