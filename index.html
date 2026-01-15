@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-    <title>Congregación Pro - v64 Final</title>
+    <title>Congregación Pro - v65 Final</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -210,9 +210,9 @@
             </details>
 
             <div class="admin-only" style="padding:15px; text-align:center; font-size:0.75rem; color:var(--text-muted); background:#f9fafb; border-radius: 12px; display:flex; flex-direction:column; gap:10px; align-items:center;">
-                <span>v1.0.64 • Final Release</span>
+                <span>v1.0.65 • Release</span>
                 <button class="btn ghost" style="font-size:0.75rem; padding: 4px 10px; border-color: var(--border-light);" onclick="document.getElementById('modalSupport').style.display='flex'">
-                    ☕ Acerca de & Apoyo
+                    ☕ Acerca de & Soporte
                 </button>
             </div>
         </div>
@@ -226,9 +226,13 @@
             <button class="btn ghost" onclick="document.getElementById('modalSupport').style.display='none'" style="border:none; font-size:1.2rem; padding:4px; color:var(--text-muted);">✕</button>
         </h3>
         <div style="font-size: 0.9rem; color: var(--text-main); line-height: 1.6; margin-bottom: 25px;">
-            <p style="margin-bottom: 15px;">Esta aplicación fue creada con el objetivo de facilitar el trabajo de quienes están encargados de llevar los registros de la congregación.</p>
-            <p style="margin-bottom: 15px; font-weight:600;">Es una herramienta totalmente gratuita.</p>
-            <p>Si deseas, puedes apoyar voluntariamente para cubrir los gastos técnicos de creación y desarrollo continuo.</p>
+            <p style="margin-bottom: 15px;">Esta aplicación fue creada con el objetivo de facilitar el trabajo de quienes están encargados de llevar los registros.</p>
+            <p style="margin-bottom: 15px; font-weight:600;">Es una herramienta totalmente gratuita y de desarrollo independiente.</p>
+            <div style="background:#eef2ff; color:#4338ca; padding:10px; border-radius:8px; font-size:0.8rem; margin-bottom:15px;">
+                <b>¿Necesitas ayuda?</b><br>
+                📧 desarrollo.independiente.app@gmail.com
+            </div>
+            <p style="font-size:0.8rem;"><a href="https://soporte-apps-pro.github.io/privacidad.html" target="_blank" style="color:var(--primary);">Ver Política de Privacidad</a></p>
         </div>
         <button onclick="window.open('TU_LINK_MERCADOPAGO', '_blank')" style="background:#f59e0b; color:white; border:none; padding:12px 20px; border-radius:50px; font-weight:700; cursor:pointer; box-shadow:0 4px 6px rgba(245, 158, 11, 0.3); display:flex; align-items:center; gap:10px; width:100%; justify-content:center; transition:0.2s;">
             <span style="font-size:1.2rem;">☕</span> Invítame un Café
@@ -428,13 +432,18 @@
     let curY = new Date().getFullYear(), curM = new Date().getMonth()+1;
     let actY = curY, actM = curM, asistY = curY, asistM = curM;
 
-    // --- NUEVAS FUNCIONES DE COPIADO SEPARADO ---
+    // --- NUEVAS FUNCIONES DE COPIADO CON PRIVACIDAD BLINDADA ---
     window.copyInstructions = function() {
-        const url = window.location.href;
+        // ENLACE PROFESIONAL (Ya no sale tu nombre personal)
+        // Puedes cambiar esto por el link de la Play Store en el futuro
+        const urlOficial = "https://soporte-apps-pro.github.io/"; 
+        
         const msg = `Hola hermano, aquí tienes los datos para conectar la App.\n\n` +
-                    `1. Entra a este enlace:\n${url}\n\n` +
+                    `1. Asegúrate de tener la App instalada.\n` +
+                    `   (Descárgala aquí si no la tienes: ${urlOficial})\n\n` +
                     `2. Ve a Ajustes (⚙️) y busca donde dice "🔑 Conexión Rápida".\n\n` +
                     `3. Te enviaré la LLAVE en el siguiente mensaje. Cópiala y pégala ahí.`;
+                    
         navigator.clipboard.writeText(msg).then(() => showToast("📋 Instrucciones copiadas"));
     }
 
