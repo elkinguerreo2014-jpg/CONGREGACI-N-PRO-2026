@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-    <title>Congregación Pro - v65 Final</title>
+    <title>Congregación Pro - Web</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -121,6 +121,20 @@
         <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:30px;">Introduce tu clave de acceso.<br><small style="opacity:0.7;">(Clave inicial sugerida: 12345)</small></p>
         <input type="password" id="mPwd" placeholder="••••" style="text-align:center; font-size:2rem; letter-spacing:12px; margin-bottom:30px; font-weight:700; border-radius: 12px; padding: 15px;">
         <button class="btn primary" id="mEnter" onclick="window.attemptLogin()" style="width:100%; padding:16px; font-size:1rem;">ENTRAR AL SISTEMA</button>
+        <p onclick="handleForgotPwd()" style="margin-top:20px; font-size:0.85rem; color:var(--primary); cursor:pointer; text-decoration:underline; font-weight:600;">
+    ¿Olvidaste tu clave?
+</p>
+    </div>
+</div>
+<div id="modalForcePass" style="display: none; position:fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); z-index: 10005; align-items:center; justify-content:center; padding:20px;">
+    <div class="card" style="width:100%; max-width:360px; text-align:center; padding: 30px; background:white; border-radius:15px;">
+        <div style="font-size:2.5rem; margin-bottom:15px;">🔒</div>
+        <h2 style="font-weight:800; color:var(--primary); margin:0;">Seguridad Requerida</h2>
+        <p style="font-size:0.9rem; color:var(--text-muted); margin: 15px 0 20px 0;">
+            Estás usando la clave inicial. Por seguridad, <b>crea una nueva clave de administrador</b>.
+        </p>
+        <input type="password" id="pForceNew" placeholder="Nueva clave segura" style="text-align:center; font-size:1.2rem; margin-bottom:15px; width:100%; padding:12px; border: 2px solid var(--primary); border-radius:8px;">
+        <button class="btn primary" onclick="window.forceUpdatePassword()" style="width:100%; padding:15px; font-weight:bold;">ESTABLECER Y COMENZAR</button>
     </div>
 </div>
 
@@ -132,7 +146,7 @@
         </div>
         <div class="settings-body">
             
-            <div class="settings-group">
+<div class="settings-group">
                 <div style="padding:15px;">
                     <div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:10px;">☁️ Conexión y Datos</div>
                     
@@ -152,23 +166,23 @@
                         </p>
                     </div>
 
+                    <div class="admin-only" style="margin-top:15px; background:#f0f9ff; padding:15px; border-radius:10px; border:1px solid #bae6fd;">
+                        <label style="color:#0369a1; display:flex; align-items:center; gap:5px;">📤 Compartir Llave de Acceso</label>
+                        <p style="font-size:0.75rem; color:#0c4a6e; margin-bottom:10px;">
+                            Envía estos datos a los encargados para que se conecten a tu nube.
+                        </p>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <button class="btn info" onclick="copyInstructions()" style="width:100%;">1️⃣ Copiar Instrucciones</button>
+                            <button class="btn warning" onclick="copyRawToken()" style="width:100%; font-weight:800;">2️⃣ Copiar SOLO LA LLAVE</button>
+                        </div>
+                    </div>
+
                     <details id="manualConfigDetails" style="margin-top:15px;">
-                        <summary style="font-size:0.8rem; color:var(--primary);">⚙️ Configuración Manual (Admin)</summary>
+                        <summary style="font-size:0.8rem; color:var(--text-muted); cursor:pointer;">⚙️ Configuración Técnica (API Keys)</summary>
                         <div class="settings-content" style="border:none; padding-top:10px;">
                             <input type="text" id="fbApiKey" placeholder="API Key" style="margin-bottom:10px;">
                             <input type="text" id="fbProjectId" placeholder="Project ID" style="margin-bottom:10px;">
                             <button class="btn ghost" onclick="saveCloudCredentials()" style="width:100%;">Guardar Manualmente</button>
-                            
-                            <div class="admin-only" style="margin-top:15px; padding-top:15px; border-top:1px dashed var(--border-light);">
-                                <label>Compartir con Encargados</label>
-                                <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:10px;">
-                                    ⚠️ Para facilitar el copiado en WhatsApp, envía primero las instrucciones y luego <b>solo la llave</b> en un segundo mensaje.
-                                </p>
-                                <div style="display: flex; flex-direction: column; gap: 8px;">
-                                    <button class="btn info" onclick="copyInstructions()" style="width:100%;">1️⃣ Copiar Instrucciones</button>
-                                    <button class="btn warning" onclick="copyRawToken()" style="width:100%; font-weight:800;">2️⃣ Copiar SOLO LA LLAVE</button>
-                                </div>
-                            </div>
                         </div>
                     </details>
 
@@ -208,9 +222,20 @@
                     </div>
                 </div>
             </details>
+            <div class="settings-group" style="margin-top: 15px;">
+                <div style="padding:15px;">
+                    <div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:10px;">
+                        🌐 Versión Web (iPhone/PC)
+                    </div>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                         <p style="font-size:0.8rem; color:var(--text-muted); margin:0; flex:1;">Para usar en navegador sin instalar.</p>
+                         <button class="btn info" onclick="shareWebLink()" style="padding:8px 12px;">🔗 Compartir</button>
+                    </div>
+                </div>
+            </div>
 
             <div class="admin-only" style="padding:15px; text-align:center; font-size:0.75rem; color:var(--text-muted); background:#f9fafb; border-radius: 12px; display:flex; flex-direction:column; gap:10px; align-items:center;">
-                <span>v1.0.65 • Release</span>
+                <span>v1.0.1 • Web/App</span>
                 <button class="btn ghost" style="font-size:0.75rem; padding: 4px 10px; border-color: var(--border-light);" onclick="document.getElementById('modalSupport').style.display='flex'">
                     ☕ Acerca de & Soporte
                 </button>
@@ -219,24 +244,28 @@
     </div>
 </div>
 
-<div id="modalSupport">
-    <div class="card" style="width: 380px; max-width: 90%; margin: 0;">
-        <h3 style="display:flex; justify-content:space-between; align-items:center; border:none; padding-bottom:0; margin-bottom:15px;">
-            <span>ℹ️ Acerca de la App</span>
-            <button class="btn ghost" onclick="document.getElementById('modalSupport').style.display='none'" style="border:none; font-size:1.2rem; padding:4px; color:var(--text-muted);">✕</button>
-        </h3>
-        <div style="font-size: 0.9rem; color: var(--text-main); line-height: 1.6; margin-bottom: 25px;">
-            <p style="margin-bottom: 15px;">Esta aplicación fue creada con el objetivo de facilitar el trabajo de quienes están encargados de llevar los registros.</p>
-            <p style="margin-bottom: 15px; font-weight:600;">Es una herramienta totalmente gratuita y de desarrollo independiente.</p>
-            <div style="background:#eef2ff; color:#4338ca; padding:10px; border-radius:8px; font-size:0.8rem; margin-bottom:15px;">
-                <b>¿Necesitas ayuda?</b><br>
-                📧 desarrollo.independiente.app@gmail.com
-            </div>
-            <p style="font-size:0.8rem;"><a href="https://soporte-apps-pro.github.io/privacidad.html" target="_blank" style="color:var(--primary);">Ver Política de Privacidad</a></p>
+<div id="modalSupport" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:10001; align-items:center; justify-content:center; padding: 20px;">
+    <div style="background:white; width:100%; max-width:380px; border-radius:15px; padding:25px; position:relative; text-align:center; font-family: 'Inter', sans-serif;">
+        <button class="btn ghost" onclick="document.getElementById('modalSupport').style.display='none'" style="position:absolute; right:15px; top:15px; border:none; background:none; font-size:22px; cursor:pointer;">&times;</button>
+        
+        <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 15px; border:none;">ℹ️ Acerca de la App</h3>
+        <p style="font-size: 0.95rem; margin-bottom: 20px; color: #444;">Tu apoyo voluntario ayuda a mantener este proyecto gratuito y sin anuncios.</p>
+
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            <button onclick="window.open('https://link.mercadopago.com.co/app2026pro', '_blank')" 
+                style="background-color: #009EE3; color: white; border: none; padding: 14px; border-radius: 25px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                💙 Apoyo por Mercado Pago
+            </button>
+
+            <button onclick="window.open('https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=desarrollo.independiente.app@gmail.com&item_name=Apoyo+App+Pro&currency_code=USD', '_blank')" 
+                style="background-color: #003087; color: white; border: none; padding: 14px; border-radius: 25px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                🅿️ Apoyo por PayPal
+            </button>
         </div>
-        <button onclick="window.open('TU_LINK_MERCADOPAGO', '_blank')" style="background:#f59e0b; color:white; border:none; padding:12px 20px; border-radius:50px; font-weight:700; cursor:pointer; box-shadow:0 4px 6px rgba(245, 158, 11, 0.3); display:flex; align-items:center; gap:10px; width:100%; justify-content:center; transition:0.2s;">
-            <span style="font-size:1.2rem;">☕</span> Invítame un Café
-        </button>
+
+        <p style="margin-top: 20px; font-size: 0.8rem; color: var(--text-muted);">
+            📧 soporte: desarrollo.independiente.app@gmail.com
+        </p>
     </div>
 </div>
 
@@ -301,7 +330,13 @@
                 <div class="admin-tools-grid">
                     <div><label>Fecha Nacimiento</label><input type="date" id="pNac"></div>
                     <div><label>Fecha Bautismo</label><input type="date" id="pBau"></div>
+                    
+                    <div>
+                        <label>Inicio/Reactivación</label>
+                        <input type="month" id="pInicio" title="Mes en que llegó o se reactivó. Antes de esta fecha no contará fallas.">
+                    </div>
                     <div><label>Fecha Expulsión</label><input type="date" id="pFSac"></div>
+                    
                     <div style="display:flex; flex-direction:column; justify-content:flex-end; gap:8px;">
                         <button class="btn primary" id="btnSaveP">💾 Guardar Miembro</button>
                         <div style="display:flex; gap:8px; width:100%;">
@@ -426,24 +461,35 @@
     const MESES_NOM = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
     const CICLO_S88 = [9,10,11,12,1,2,3,4,5,6,7,8];
     
-    // 🛡️ INICIALIZACIÓN A PRUEBA DE FALLOS: SIEMPRE ARRAYS VACÍOS
     let state = { personas: [], activity: {}, attendance: {}, config: { pwd: '12345', totalGroups: 5, groups: {} } };
     let CURRENT_ROLE = 'ADMIN'; 
     let curY = new Date().getFullYear(), curM = new Date().getMonth()+1;
     let actY = curY, actM = curM, asistY = curY, asistM = curM;
 
-    // --- NUEVAS FUNCIONES DE COPIADO CON PRIVACIDAD BLINDADA ---
-    window.copyInstructions = function() {
-        // ENLACE PROFESIONAL (Ya no sale tu nombre personal)
-        // Puedes cambiar esto por el link de la Play Store en el futuro
-        const urlOficial = "https://soporte-apps-pro.github.io/"; 
+    // --- NUEVO: FUNCIÓN PARA COMPARTIR ENLACE WEB ---
+    window.shareWebLink = function() {
+        const urlWeb = "https://soporte-apps-pro.github.io/app/";
+        const msg = `Hola, puedes usar la App "Congregación Pro" desde tu iPhone o PC entrando aquí:\n${urlWeb}`;
         
+        if (navigator.share) {
+            navigator.share({
+                title: 'Congregación Pro Web',
+                text: msg,
+                url: urlWeb
+            }).catch(console.error);
+        } else {
+            navigator.clipboard.writeText(msg).then(() => showToast("🔗 Enlace copiado"));
+        }
+    }
+    // ------------------------------------------------
+
+    window.copyInstructions = function() {
+        const urlOficial = "https://soporte-apps-pro.github.io/"; 
         const msg = `Hola hermano, aquí tienes los datos para conectar la App.\n\n` +
                     `1. Asegúrate de tener la App instalada.\n` +
                     `   (Descárgala aquí si no la tienes: ${urlOficial})\n\n` +
                     `2. Ve a Ajustes (⚙️) y busca donde dice "🔑 Conexión Rápida".\n\n` +
                     `3. Te enviaré la LLAVE en el siguiente mensaje. Cópiala y pégala ahí.`;
-                    
         navigator.clipboard.writeText(msg).then(() => showToast("📋 Instrucciones copiadas"));
     }
 
@@ -468,7 +514,6 @@
             } else { alert("Llave inválida."); }
         } catch(e) { alert("Error: La llave no es válida."); }
     }
-    // ---------------------------------------------
 
     window.openSettings = function() {
         $('#modalSettings').style.display = 'flex';
@@ -555,7 +600,24 @@
         
         if($('#btnSaveP')) $('#btnSaveP').onclick = savePersona;
         if($('#btnDeleteP')) $('#btnDeleteP').onclick = deletePersona;
-        if($('#btnQEdit')) $('#btnQEdit').onclick = () => { const n=$('#qPersona').value; const p=state.personas.find(x=>x.nombre===n); if(p) { editP(p.id); document.querySelector('[data-tab="personas"]').click(); } };
+// Lógica mejorada para el botón EDITAR
+        if($('#btnQEdit')) $('#btnQEdit').onclick = () => { 
+            const n = $('#qPersona').value.trim();
+            if(!n) return alert("⚠️ Escribe un nombre primero.");
+
+            // Buscamos la persona (ignorando mayúsculas/minúsculas para facilitar)
+            const p = state.personas.find(x => x.nombre.toLowerCase() === n.toLowerCase()); 
+            
+            if(p) { 
+                editP(p.id); 
+                // Aseguramos que se vea el formulario arriba
+                window.scrollTo({top: 0, behavior: 'smooth'});
+                // Limpiamos el buscador
+                $('#qPersona').value = '';
+            } else {
+                alert("❌ No se encontró a esa persona.\n\nAsegúrate de seleccionarla de la lista que aparece al escribir.");
+            }
+        };
         if($('#btnSaveReports')) $('#btnSaveReports').onclick = () => { save(); showToast("Guardado ☁️"); };
         if($('#btnSaveAsist')) $('#btnSaveAsist').onclick = () => { save(); showToast("Asistencia Guardada"); renderS88Preview(); };
         
@@ -602,35 +664,28 @@
             if($('#modalSettings').style.display === 'flex') showToast("Conectado");
         } catch(e) {
             console.error(e);
-            alert("Error conectando.");
+           // alert("Error conectando.");
             updateCloudUI(false);
         }
     }
 
-    // 🛡️ SINCRONIZACIÓN BLINDADA: SI FALTA ALGO EN LA NUBE, LO RELLENA CON VACÍO
     function startRealtimeSync() {
         if(!db) return;
         onSnapshot(doc(db, "congregacion", "datos_generales"), (doc) => {
             if(doc.exists()) {
                 const cloudData = doc.data(); 
                 state = cloudData;
-                
-                // --- CHALECO ANTIBALAS: EVITA CRASH POR DATOS FALTANTES ---
+                window.state = state;
                 if(!state.personas) state.personas = [];
                 if(!state.activity) state.activity = {};
                 if(!state.attendance) state.attendance = {};
                 if(!state.config) state.config = { pwd: '12345', totalGroups: 5, groups: {} };
-                // -----------------------------------------------------------
-
                 localStorage.setItem(DB_KEY, JSON.stringify(state));
                 renderAll();
-                // updateCloudUI(true, "");
             } else { save(); }
         }, (error) => { console.error("Sync error:", error); updateCloudUI(false); });
     }
 
-    // 🚨🚨🚨 AQUÍ ESTÁ EL CAMBIO IMPORTANTE 🚨🚨🚨
-    // AHORA EL SISTEMA GRITARÁ SI ALGO FALLA AL GUARDAR
     window.save = async function() {
         localStorage.setItem(DB_KEY, JSON.stringify(state));
         updateDatalist();
@@ -638,43 +693,145 @@
             try { 
                 await setDoc(doc(db, "congregacion", "datos_generales"), state); 
             } catch(e) { 
-                // AQUÍ SALDRÁ LA ALERTA ROJA CON EL ERROR
                 alert("❌ ERROR AL SUBIR A LA NUBE:\n\n" + e.message); 
             } 
         }
     }
 
-    window.attemptLogin = function() {
-        const pwd = $('#mPwd').value;
-        const adminPwd = (state.config && state.config.pwd) ? state.config.pwd : '12345';
-        if (pwd === adminPwd) { CURRENT_ROLE = 'ADMIN'; enterApp(); return; } 
-        let foundGroup = null;
-        const groups = state.config.groups || {};
-        for (const [grpNum, grpPwd] of Object.entries(groups)) { if (grpPwd === pwd) { foundGroup = grpNum; break; } }
-        if (foundGroup) { CURRENT_ROLE = 'G' + foundGroup; enterApp(); } else { alert("❌ Clave incorrecta"); }
+// --- FUNCIÓN DE OLVIDO DE CLAVE (UNIVERSAL) ---
+    window.handleForgotPwd = function() {
+        alert("🔒 RECUPERACIÓN DE ACCESO\n\n" +
+              "El sistema usa una clave única de administración.\n\n" +
+              "❓ ¿CÓMO RECUPERARLA?\n" +
+              "La clave está visible dentro de la base de datos (Google Firebase).\n\n" +
+              "👉 Si tú creaste la conexión a la Nube:\n" +
+              "Entra a console.firebase.google.com > Firestore Database > datos_generales > config. Ahí verás el campo 'pwd'.\n\n" +
+              "👉 Si tú NO configuraste la Nube:\n" +
+              "Por favor, contacta al hermano que instaló o configuró la aplicación en este dispositivo.");
+    };
+
+window.attemptLogin = function() {
+    console.log("🔵 Intentando acceder...");
+
+    const input = document.getElementById('mPwd');
+    const pwd = input ? input.value.trim() : '';
+
+    // ==================================================
+    // 🛡️ SEGURIDAD: BLOQUEO DE CLAVE VACÍA
+    // Esto impide que entren solo dando Enter
+    if (!pwd || pwd.length === 0) {
+        return alert("⚠️ Por favor, escribe la clave para entrar.");
+    }
+    // ==================================================
+
+    // Aseguramos la configuración inicial
+    if (!window.state) window.state = {};
+    if (!window.state.config) window.state.config = { pwd: '12345', groups: {}, totalGroups: 5 };
+    
+    const config = window.state.config;
+    
+    // --- 1. VERIFICACIÓN DE ADMINISTRADOR ---
+    const adminPwd = config.pwd ? String(config.pwd) : '12345';
+    
+    if (pwd === adminPwd) {
+        if (pwd === '12345') {
+            alert("⚠️ AVISO\nEstás usando la clave de Admin por defecto (12345).\nTe recomendamos cambiarla en Ajustes.");
+        }
+        window.CURRENT_ROLE = 'ADMIN';
+        enterApp(); 
+        return; 
     }
 
-    function enterApp() {
-        $('#modalAuth').style.display = 'none';
-        $('#app-content').style.display = 'block';
-        document.body.className = (CURRENT_ROLE === 'ADMIN') ? 'role-admin' : 'role-restricted';
-        const badge = $('#roleBadge');
-        if(CURRENT_ROLE === 'ADMIN') {
-            badge.innerText = 'Administrador'; badge.style.background = '#e0e7ff'; badge.style.color = '#4338ca';
-            // Abrir configuración manual automáticamente para admin
-            const details = document.getElementById('manualConfigDetails');
-            if(details) details.open = true;
-        } else {
-            const g = CURRENT_ROLE.replace('G','');
-            badge.innerText = `Encargado Grupo ${g}`; badge.style.background = '#d1fae5'; badge.style.color = '#065f46';
-            $('#selGInforme').value = g; $('#selGInforme').disabled = true;
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            $('#actividad').classList.add('active'); $('#tabActividad').classList.add('active');
+    // --- 2. VERIFICACIÓN DE ENCARGADOS (GRUPOS) ---
+    let foundGroup = null;
+    const groups = config.groups || {};
+    const totalGroups = config.totalGroups || 5; 
+
+    for (let i = 1; i <= totalGroups; i++) {
+        const storedPwd = groups[i]; // Clave personalizada si existe
+        const defaultPwd = 'grupo' + i; // Clave por defecto
+
+        // A. Si hay clave personalizada y coincide
+        if (storedPwd && String(storedPwd) === pwd) {
+            foundGroup = i;
+            break;
         }
-        renderAll();
+        
+        // B. Si NO hay clave personalizada, probamos la de defecto
+        if (!storedPwd && pwd === defaultPwd) {
+            foundGroup = i;
+            break;
+        }
     }
+
+    if (foundGroup) {
+        window.CURRENT_ROLE = 'G' + foundGroup;
+        enterApp(); 
+    } else {
+        alert("❌ Clave incorrecta.\n\nAdmin: Clave configurada (o 12345).\nEncargados: Su clave personalizada o 'grupo' + número.");
+    }
+};
+// --- 3. FUNCIÓN DE CAMBIO DE CLAVE (INDEPENDIENTE) ---
+window.forceUpdatePassword = function() {
+    const input = document.getElementById('pForceNew');
+    const newP = input ? input.value.trim() : "";
+    if (newP.length < 4) return alert("❌ Mínimo 4 caracteres.");
+    if (newP === '12345') return alert("❌ No uses la clave inicial.");
+    
+    if(!window.state) window.state = {};
+    if(!window.state.config) window.state.config = {};
+    window.state.config.pwd = newP;
+    
+    if (typeof window.save === 'function') { window.save(); }
+    
+    document.getElementById('modalForcePass').style.display = 'none';
+    document.getElementById('modalAuth').style.display = 'none'; 
+    window.CURRENT_ROLE = 'ADMIN';
+    enterApp();
+    alert("✅ Clave configurada con éxito.");
+};
+
+// --- 4. FUNCIÓN DE ENTRADA AL SISTEMA (RESTAURADA) ---
+function enterApp() {
+    $('#modalAuth').style.display = 'none';
+    $('#app-content').style.display = 'block';
+    document.body.className = (window.CURRENT_ROLE === 'ADMIN') ? 'role-admin' : 'role-restricted';
+    
+    const badge = $('#roleBadge');
+    if (window.CURRENT_ROLE === 'ADMIN') {
+        badge.innerText = 'Administrador';
+        badge.style.background = '#e0e7ff';
+        badge.style.color = '#4338ca';
+    if (window.CURRENT_ROLE === 'ADMIN') {
+        badge.innerText = 'Administrador';
+        badge.style.background = '#e0e7ff';
+        badge.style.color = '#4338ca';
+
+        // --- PEGA ESTO AQUÍ (CREA EL BOTÓN DE AYUDA) ---
+        let btnHelp = document.getElementById('btnAdminHelp');
+        if (!btnHelp) { // Si no existe, lo creamos
+            btnHelp = document.createElement('button');
+            btnHelp.id = 'btnAdminHelp';
+            btnHelp.innerText = '📘 Ver Guía de Uso';
+            btnHelp.style.cssText = "margin-top: 10px; background: #4338ca; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 12px;";
+            btnHelp.onclick = function() { document.getElementById('modalManual').style.display = 'flex'; };
+            // Lo agregamos debajo del badge o donde prefieras. 
+            // Aquí lo pondremos en el encabezado si existe, o en el body temporalmente.
+            badge.parentNode.appendChild(btnHelp); 
+        }
+        // ------------------------------------------------
+    }    
+    } else {
+        const g = window.CURRENT_ROLE.replace('G', '');
+        badge.innerText = `Encargado Grupo ${g}`;
+        badge.style.background = '#d1fae5';
+        badge.style.color = '#065f46';
+    }
+    renderAll();
+}
 
     try { const saved = localStorage.getItem(DB_KEY); if(saved) state = JSON.parse(saved); } catch(e) {}
+    window.state = state;
     if(!state.personas) state.personas = [];
     if(!state.config) state.config = { pwd: '12345', totalGroups: 5, groups: {} };
 
@@ -710,15 +867,42 @@
     window.savePersona = function() { 
         const id=$('#pId').value, n=$('#pNombre').value.trim(); 
         if(!n) return alert("Nombre obligatorio"); 
-        const data={ id:id||'p'+Date.now(), nombre:n, grupo:$('#pGrupo').value, sexo:$('#pSexo').value, esp:$('#pEsp').value, nac:$('#pNac').value, bau:$('#pBau').value, fsac:$('#pFSac').value, pr:$('#pPR').checked, anciano:$('#pAnc').checked, sm:$('#pSM').checked, pe:$('#pPE').checked, mis:$('#pMis').checked, sacado:!!$('#pFSac').value }; 
+        
+        const data={ 
+            id: id||'p'+Date.now(), 
+            nombre: n, 
+            grupo: $('#pGrupo').value, 
+            sexo: $('#pSexo').value, 
+            esp: $('#pEsp').value, 
+            nac: $('#pNac').value, 
+            bau: $('#pBau').value,
+            inicio: $('#pInicio').value, // <--- ESTO ES LO NUEVO 💾
+            fsac: $('#pFSac').value, 
+            pr: $('#pPR').checked, 
+            anciano: $('#pAnc').checked, 
+            sm: $('#pSM').checked, 
+            pe: $('#pPE').checked, 
+            mis: $('#pMis').checked, 
+            sacado: !!$('#pFSac').value 
+        }; 
+
         if(id) state.personas[state.personas.findIndex(x=>x.id===id)]=data; else state.personas.push(data); 
         save(); renderMiembros(); resetPForm(); showToast("Guardado");
     }
     
     window.deletePersona = function() { const id=$('#pId').value; if(!id)return; if(confirm("¿ELIMINAR miembro?")) { state.personas=state.personas.filter(p=>p.id!==id); save(); renderMiembros(); resetPForm(); showToast("Eliminado"); } }
     
-    window.resetPForm = function() { $('#pId').value=''; $('#pNombre').value=''; ['pNac','pBau','pFSac','pSexo','pEsp'].forEach(id=>$('#'+id).value=''); ['pAnc','pSM','pPE','pMis','pPR'].forEach(id=>$('#'+id).checked=false); $('#btnCancelEdit').style.display='none'; $('#btnDeleteP').style.display='none'; $('#btnSaveP').textContent = '💾 Guardar Miembro'; $('#btnSaveP').className = 'btn primary'; }
-    
+window.resetPForm = function() { 
+        $('#pId').value=''; 
+        $('#pNombre').value=''; 
+        // 👇 AQUI AGREGAMOS 'pInicio' A LA LISTA DE LIMPIEZA
+        ['pNac','pBau','pFSac','pInicio','pSexo','pEsp'].forEach(id=>$('#'+id).value=''); 
+        ['pAnc','pSM','pPE','pMis','pPR'].forEach(id=>$('#'+id).checked=false); 
+        $('#btnCancelEdit').style.display='none'; 
+        $('#btnDeleteP').style.display='none'; 
+        $('#btnSaveP').textContent = '💾 Guardar Miembro'; 
+        $('#btnSaveP').className = 'btn primary'; 
+    }    
     window.renderMiembros = function() { 
         const tb=$('#tblMiembros tbody'); if(!tb)return; tb.innerHTML=''; 
         const list = state.personas.filter(p=>!p.sacado).sort((a,b)=>a.nombre.localeCompare(b.nombre));
@@ -731,13 +915,122 @@
     }
     
     window.getPrivilegesString = function(p) { return [p.anciano?'Anciano':'', p.sm?'SM':'', p.pr?'PR':'', p.pe?'PE':''].filter(Boolean).join(', '); }
-    window.editP = (id) => { const p=state.personas.find(x=>x.id===id); if(!p)return; $('#pId').value=p.id; $('#pNombre').value=p.nombre; $('#pSexo').value=p.sexo; $('#pEsp').value=p.esp; $('#pNac').value=p.nac||''; $('#pBau').value=p.bau||''; $('#pFSac').value=p.fsac||''; $('#pPR').checked=!!p.pr; $('#pAnc').checked=!!p.anciano; $('#pSM').checked=!!p.sm; $('#pPE').checked=!!p.pe; $('#pMis').checked=!!p.mis; $('#btnCancelEdit').style.display='inline-flex'; $('#btnDeleteP').style.display='inline-flex'; $('#btnSaveP').textContent='💾 Actualizar'; $('#btnSaveP').className='btn success'; window.scrollTo({top:0, behavior:'smooth'}); }
-    
+window.editP = (id) => { 
+        const p=state.personas.find(x=>x.id===id); if(!p)return; 
+        $('#pId').value=p.id; 
+        $('#pNombre').value=p.nombre; 
+        $('#pSexo').value=p.sexo; 
+        $('#pEsp').value=p.esp; 
+        $('#pNac').value=p.nac||''; 
+        $('#pBau').value=p.bau||''; 
+        $('#pInicio').value=p.inicio||''; // <--- ESTO ES LO NUEVO: Recupera la fecha 📂
+        $('#pFSac').value=p.fsac||''; 
+        $('#pPR').checked=!!p.pr; 
+        $('#pAnc').checked=!!p.anciano; 
+        $('#pSM').checked=!!p.sm; 
+        $('#pPE').checked=!!p.pe; 
+        $('#pMis').checked=!!p.mis; 
+        $('#btnCancelEdit').style.display='inline-flex'; 
+        $('#btnDeleteP').style.display='inline-flex'; 
+        $('#btnSaveP').textContent='💾 Actualizar'; 
+        $('#btnSaveP').className='btn success'; 
+        window.scrollTo({top:0, behavior:'smooth'}); 
+    }    
     window.updateDatalist = function() { const l=$('#pList'); if(l){ l.innerHTML = ''; state.personas.forEach(p => l.innerHTML += `<option value="${p.nombre}">`); } }
     window.showToast = function(m) { const t=$('#toast'); t.innerHTML = `<span>${m}</span>`; t.style.display='block'; setTimeout(()=>t.style.display='none', 3000); }
-    window.exportBackup = function() { const blob=new Blob([JSON.stringify(state)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`CongPro_Backup_${new Date().toISOString().slice(0,10)}.json`; a.click(); }
-    window.updatePassword = function() { if(!state.config) state.config={}; const p=$('#pNew').value; if(p) { state.config.pwd=p; save(); $('#modalPwd').style.display='none'; showToast("Clave actualizada"); } }
-    
+    window.exportBackup = async function() {
+        const isApp = window.hasOwnProperty('Capacitor');
+        const data = JSON.stringify(state);
+        const fileName = `CongPro_Backup_${new Date().toISOString().slice(0,10)}.json`;
+
+        if (isApp && Capacitor.Plugins.Filesystem) {
+            try {
+                const { Filesystem } = Capacitor.Plugins;
+                await Filesystem.writeFile({
+                    path: fileName,
+                    data: data,
+                    directory: 'DOCUMENTS',
+                    encoding: 'utf8'
+                });
+                alert("✅ ¡Respaldo guardado en Documentos del celular!");
+            } catch (e) {
+                alert("❌ Error al guardar en celular: " + e.message);
+            }
+        } else {
+            // LÓGICA CORREGIDA PARA PC
+            try {
+                const blob = new Blob([data], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a); // Paso extra para asegurar compatibilidad
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showToast("📥 Descarga iniciada en PC");
+            } catch (err) {
+                alert("❌ Error en descarga PC: " + err.message);
+            }
+        }
+    };
+// ... (código anterior: window.exportBackup) ...
+// };  <-- Cierra la función anterior
+
+// --- FUNCIÓN DE CAMBIO DE CLAVE (VERSIÓN ROBUSTA) ---
+    window.updatePassword = async function() {
+        console.log("🔵 Iniciando cambio de clave...");
+        
+        // 1. Verificamos conexión
+        const isOnline = document.getElementById('headerStatus')?.classList.contains('sync');
+        const inputEl = document.getElementById('pNew');
+        if (!inputEl) return; 
+        
+        const newPwd = inputEl.value.trim();
+
+        if (newPwd && newPwd.length >= 4) {
+            // AVISO VISUAL: Cambiamos el botón para que sepas que está trabajando
+            const btn = document.querySelector('#modalPwd .btn.primary');
+            const originalText = btn.innerText;
+            btn.innerText = "⏳ Guardando en Nube...";
+            btn.disabled = true;
+
+            try {
+                // 2. Actualizamos la memoria local primero
+                if(!window.state) window.state = {};
+                if(!window.state.config) window.state.config = {};
+                window.state.config.pwd = newPwd;
+
+                // 3. Forzamos la subida y ESPERAMOS (await)
+                // Esto garantiza que no se cierre hasta que Firebase diga "OK"
+                if (typeof window.save === 'function') {
+                    await window.save(); 
+                }
+
+                // 4. Éxito confirmado
+                inputEl.value = ''; 
+                document.getElementById('modalPwd').style.display = 'none';
+                
+                if(isOnline) {
+                    alert("✅ ¡ÉXITO!\nLa clave en la Nube ahora es: " + newPwd + "\n\nLa App se ha sincronizado correctamente.");
+                } else {
+                    alert("⚠️ AVISO: Guardado solo en este celular (Offline).\nConéctate a internet pronto para que la Nube se entere.");
+                }
+
+            } catch (error) {
+                console.error(error);
+                alert("❌ ERROR: La Nube rechazó el cambio.\n" + error.message);
+                // Si falla, revertimos el cambio visualmente para que lo intentes de nuevo
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+
+        } else {
+            alert("⚠️ La clave es muy corta. Mínimo 4 caracteres.");
+        }
+    }
+// window.renderSacados = function(){ ... (Esto NO lo borres, es lo que sigue)
     window.renderSacados=function(){
         const tb=$('#tblSacados tbody');if(!tb)return;tb.innerHTML='';
         const list = state.personas.filter(p=>p.sacado);
@@ -752,73 +1045,100 @@
     }
     window.renderAuxiliares=function(){const tb=$('#tblAuxiliares tbody'),k=ymKey(curY,curM);if(!tb)return;tb.innerHTML='';state.personas.filter(p=>!p.sacado&&state.activity[k]?.[p.id]?.pa).forEach(p=>{tb.innerHTML+=`<tr><td><b>${p.nombre}</b></td><td>G${p.grupo}</td><td>${state.activity[k][p.id].horas} horas</td></tr>`;});}
     
-    window.renderAsistInputs=function(){const k=ymKey(asistY,asistM);if(!state.attendance[k])state.attendance[k]={es:[0,0,0,0,0,0],fs:[0,0,0,0,0,0]};const cES=$('#contES'),cFS=$('#contFS');cES.innerHTML='';cFS.innerHTML='';for(let i=0;i<5;i++){cES.innerHTML+=`<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;"><label style="margin:0;">Semana ${i+1}</label><input type="number" value="${state.attendance[k].es[i]||0}" oninput="updAsist('es',${i},this.value)" style="width:80px; text-align:center;"></div>`;cFS.innerHTML+=`<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;"><label style="margin:0;">Semana ${i+1}</label><input type="number" value="${state.attendance[k].fs[i]||0}" oninput="updAsist('fs',${i},this.value)" style="width:80px; text-align:center;"></div>`;}}
+    window.renderAsistInputs=function(){const k=ymKey(asistY,asistM);if(!state.attendance[k])state.attendance[k]={es:[0,0,0,0,0,0],fs:[0,0,0,0,0,0]};const cES=$('#contES'),cFS=$('#contFS');cES.innerHTML='';cFS.innerHTML='';for(let i=0;i<5;i++){cES.innerHTML+=`<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;"><label style="margin:0;">Semana ${i+1}</label><input type="number" value="${state.attendance[k].es[i]||0}" onchange="updAsist('es',${i},this.value)" style="width:80px; text-align:center;"></div>`;cFS.innerHTML+=`<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;"><label style="margin:0;">Semana ${i+1}</label><input type="number" value="${state.attendance[k].fs[i]||0}" onchange="updAsist('fs',${i},this.value)" style="width:80px; text-align:center;"></div>`;}}
     window.updAsist=(t,i,v)=>{const k=ymKey(asistY,asistM);state.attendance[k][t][i]=parseInt(v||0);save();}
 
     window.renderEstadoEspiritual = function() { 
         const tbIn=$('#tblInactivos tbody'), tbIrr=$('#tblIrregulares tbody'); if(!tbIn)return; tbIn.innerHTML=''; tbIrr.innerHTML=''; 
-        const syStart = (curM>=9)?curY:curY-1; 
+        
+        // Calculamos cuándo empezó el Año de Servicio actual (Septiembre)
+        const syStart = (curM>=9) ? curY : curY-1; 
+        
         let countIna = 0;
+        
         state.personas.filter(p=>!p.sacado).sort((a,b)=>a.nombre.localeCompare(b.nombre)).forEach(p=>{ 
+            
+            // --- 1. CÁLCULO DE INACTIVOS ---
             let zeros=0, last='-'; 
-            for(let i=0;i<36;i++){ let ty=curY, tm=curM-i; while(tm<=0){tm+=12;ty--;} const act=state.activity[ymKey(ty,tm)]?.[p.id]; if(act&&(act.horas>0||act.part)){ last=`${MESES_NOM[tm-1]} ${ty}`; break; } else if(i<6) zeros++; } 
+            for(let i=0;i<36;i++){ 
+                let ty=curY, tm=curM-i; 
+                while(tm<=0){tm+=12;ty--;} 
+
+                // 🛑 FRENO INTELIGENTE: Si la fecha es anterior al inicio, paramos.
+                const checkKey = `${ty}-${String(tm).padStart(2,'0')}`;
+                if (p.inicio && checkKey < p.inicio) break;
+
+                const act=state.activity[ymKey(ty,tm)]?.[p.id]; 
+                if(act&&(act.horas>0||act.part)){ last=`${MESES_NOM[tm-1]} ${ty}`; break; } 
+                else if(i<6) zeros++; 
+            } 
+            
             if(zeros>=6){ 
                 countIna++;
-                tbIn.innerHTML+=`<tr><td><b>${p.nombre}</b></td><td>G${p.grupo}</td><td>${last}</td><td><span style="background:#fee2e2; color:#b91c1c; padding:2px 8px; border-radius:4px; font-weight:bold;">+${zeros} meses</span></td></tr>`; 
+                tbIn.innerHTML+=`<tr><td><b>${p.nombre}</b></td><td>G${p.grupo}</td><td>${last}</td><td><span style="background:#fee2e2; color:#b91c1c; padding:2px 8px; border-radius:4px; font-weight:bold;">Inactivo</span></td></tr>`; 
             } 
-            else { let fail=[]; for(let i=1;i<=12;i++){ let ty=curY, tm=curM-i; while(tm<=0){tm+=12;ty--;} if(ty<syStart || (ty===syStart && tm<9)) break; const act=state.activity[ymKey(ty,tm)]?.[p.id]; if(!act||(!act.horas && !act.part)) fail.push(MESES_NOM[tm-1].substr(0,3)); } if(fail.length>0){ tbIrr.innerHTML+=`<tr><td>${p.nombre}</td><td>G${p.grupo}</td><td><span style="color:var(--warning); font-weight:600;">${fail.join(', ')}</span></td></tr>`; } } 
+            else { 
+                // --- 2. CÁLCULO DE IRREGULARES ---
+                let fail=[]; 
+                for(let i=1;i<=12;i++){ 
+                    let ty=curY, tm=curM-i; 
+                    while(tm<=0){tm+=12;ty--;} 
+                    
+                    // Si nos salimos del año de servicio actual, paramos
+                    if(ty<syStart || (ty===syStart && tm<9)) break; 
+
+                    // 🛑 FRENO INTELIGENTE: Si el mes es anterior al inicio, ignoramos la falta.
+                    const currentCheckKey = `${ty}-${String(tm).padStart(2,'0')}`;
+                    if (p.inicio && currentCheckKey < p.inicio) continue;
+
+                    const act=state.activity[ymKey(ty,tm)]?.[p.id]; 
+                    if(!act||(!act.horas && !act.part)) fail.push(MESES_NOM[tm-1].substr(0,3)); 
+                } 
+                
+                if(fail.length>0){ 
+                    tbIrr.innerHTML+=`<tr><td>${p.nombre}</td><td>G${p.grupo}</td><td><span style="color:var(--warning); font-weight:600;">${fail.join(', ')}</span></td></tr>`; 
+                } 
+            } 
         });
         const cEl = $('#cIna'); if(cEl) cEl.innerText = `(${countIna})`;
     }
-
-    // --- NUEVO: FUNCIÓN PARA LIMPIAR ESTILOS ANTES DE IMPRIMIR ---
     window.toggleS21Inputs = function() { const m=$('#s21Mode').value; $('#s21InputIndiv').style.display=(m==='individual')?'block':'none'; $('#s21InputGroup').style.display=(m==='group')?'block':'none'; $('#preview-viewport').innerHTML=''; }
     window.getS21HTML = function(p,sy) { let rows='',tH=0; CICLO_S88.forEach(m=>{ const y=(m>=9)?sy:sy+1, r=state.activity[ymKey(y,m)]?.[p.id]||{horas:0,est:0,pa:false,part:false}; tH+=(r.horas||0); rows+=`<tr><td>${MESES_NOM[m-1]}</td><td>${(r.horas||r.part)?'[X]':''}</td><td>${r.est||''}</td><td>${r.pa?'[X]':''}</td><td>${r.horas||''}</td><td></td></tr>`; }); const privs = [p.anciano?'Anciano':'', p.sm?'SM':'', p.pr?'PR':'', p.pe?'PE':''].filter(Boolean).join(', '); return `<div class="print-canvas"><div style="text-align:center; font-weight:800; font-size:12pt; margin-bottom:10px;">REGISTRO DE PUBLICADOR</div><div class="s21-header-box"><div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span><b>Nombre:</b> ${p.nombre}</span><span><b>Grupo:</b> ${p.grupo}</span></div><div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span><b>F. Nacimiento:</b> ${p.nac||'-'}</span><span><b>F. Bautismo:</b> ${p.bau||'-'}</span></div><div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span><b>Sexo:</b> ${p.sexo}</span><span><b>Esperanza:</b> ${p.esp}</span></div><div style="margin-top:5px; border-top:1px dashed #ccc; padding-top:5px;"><b>Privilegios:</b> ${privs||'Publicador'}</div></div><table class="official-table"><thead><tr><th style="width:20%">Año ${sy}-${sy+1}</th><th>Partic.</th><th>Est</th><th>P. Aux</th><th>Horas</th><th>Notas</th></tr></thead><tbody>${rows}</tbody><tfoot><tr><td colspan="4" style="text-align:right; font-weight:bold;">Total Horas:</td><td>${tH}</td><td></td></tr></tfoot></table></div>`; }
     window.previewS21 = function() { const m=$('#s21Mode').value; let l=[]; if(m==='individual'){const n=$('#s21Search').value; const p=state.personas.find(x=>x.nombre===n); if(p)l=[p];} else if(m==='group'){l=state.personas.filter(p=>p.grupo==$('#s21GroupSel').value && !p.sacado);} else if(m==='pr'){l=state.personas.filter(p=>p.pr&&!p.sacado);} else {l=state.personas.filter(p=>!p.sacado);} $('#preview-viewport').innerHTML=l.map(p=>getS21HTML(p,parseInt($('#s21Year').value))).join(''); }
     
-    // --- LÓGICA DE AHORRO DE TINTA APLICADA AQUI ---
     window.downloadPDFS21 = function() { 
         const el = document.getElementById('preview-viewport');
         if(!el.innerHTML) return alert("Ver primero");
-        
-        // 1. Quitar fondo y padding
-        el.style.background = 'white';
-        el.style.padding = '0';
-        
+        el.style.background = 'white'; el.style.padding = '0';
         html2pdf().set({margin:10, filename:'S21.pdf', image:{type:'jpeg',quality:0.98}, html2canvas:{scale:1.5}, jsPDF:{unit:'mm',format:'a4'}})
-        .from(el).save()
-        .then(() => {
-            // 2. Restaurar al terminar
-            el.style.background = '#525252';
-            el.style.padding = '20px';
-        });
+        .from(el).save().then(() => { el.style.background = '#525252'; el.style.padding = '20px'; });
     }
 
     window.renderS88Preview = function() { const sy=parseInt($('#s88Year').value); const build=(t)=>{let rows='',tA=0,tR=0; CICLO_S88.forEach(m=>{const y=(m>=9)?sy:sy+1, d=state.attendance[ymKey(y,m)]?.[t]||[0,0,0,0,0,0], re=d.filter(v=>v>0).length, as=d.reduce((a,b)=>a+b,0), pr=re>0?Math.round(as/re):''; tA+=as; tR+=re; rows+=`<tr><td>${MESES_NOM[m-1]}</td><td>${re||''}</td><td>${as||''}</td><td><b>${pr}</b></td></tr>`;}); return {h:rows,avg:tR>0?Math.round(tA/tR):''};}; const es=build('es'), fs=build('fs'); $('#s88-preview-viewport').innerHTML=`<div class="print-canvas"><div style="text-align:center; font-weight:800;">REGISTRO ASISTENCIA</div><br><b>REUNIÓN VIDA Y MINISTERIO</b><table class="official-table"><thead><tr><th>Mes</th><th>Reun</th><th>Total</th><th>Prom</th></tr></thead><tbody>${es.h}</tbody><tfoot><tr><td colspan="3" style="text-align:right">PROM. ANUAL</td><td>${es.avg}</td></tr></tfoot></table><br><b>REUNIÓN PÚBLICA</b><table class="official-table"><thead><tr><th>Mes</th><th>Reun</th><th>Total</th><th>Prom</th></tr></thead><tbody>${fs.h}</tbody><tfoot><tr><td colspan="3" style="text-align:right">PROM. ANUAL</td><td>${fs.avg}</td></tr></tfoot></table></div>`; }
     
-    // --- LÓGICA DE AHORRO DE TINTA APLICADA AQUI TAMBIÉN ---
     window.generatePDF = function() { 
         const el = document.getElementById('s88-preview-viewport');
         if(!el) return;
-        
-        el.style.background = 'white';
-        el.style.padding = '0';
-
+        el.style.background = 'white'; el.style.padding = '0';
         html2pdf().set({margin:10, filename:'S88.pdf', image:{type:'jpeg',quality:0.98}, html2canvas:{scale:1.5}, jsPDF:{unit:'mm',format:'a4'}})
-        .from(el).save()
-        .then(() => {
-            el.style.background = '#525252';
-            el.style.padding = '20px';
-        });
+        .from(el).save().then(() => { el.style.background = '#525252'; el.style.padding = '20px'; });
     }
     
-    // DASHBOARD RESUMEN
-    window.renderResumenMensual = function(y, m) { 
-        const k=ymKey(y,m), act=state.activity[k]||{}, att=state.attendance[k]||{es:[],fs:[]}; 
-        let tM=0,activos=0,pubC=0,pubE=0,prC=0,prH=0,prE=0,paC=0,paH=0,paE=0; 
-        const last6=[]; for(let i=0;i<6;i++){let tm=m-i,ty=y; if(tm<=0){tm+=12;ty-=1;} last6.push(ymKey(ty,tm));} 
-        state.personas.forEach(p=>{ 
-            if(p.sacado)return; tM++; 
+    window.renderResumenMensual = function(y, m) {
+        const k=ymKey(y,m), act=state.activity[k]||{}, att=state.attendance[k]||{es:[],fs:[]};
+        let tM=0,activos=0,pubC=0,pubE=0,prC=0,prH=0,prE=0,paC=0,paH=0,paE=0;
+        const last6=[]; for(let i=0;i<6;i++){let tm=m-i,ty=y; if(tm<=0){tm+=12;ty-=1;} last6.push(ymKey(ty,tm));}
+        
+        // 1. CREAMOS LA FECHA DEL RESUMEN QUE ESTAMOS MIRANDO 📅
+        const viewDate = `${y}-${String(m).padStart(2,'0')}`;
+
+        state.personas.forEach(p=>{
+            if(p.sacado) return;
+
+            // 2. SI LA FECHA DEL RESUMEN ES ANTERIOR A SU LLEGADA, NO CUENTA 🛑
+            if(p.inicio && viewDate < p.inicio) return;
+
+            tM++; // Sumamos al total de publicadores 
             let haInf=false; for(const lk of last6){ if(state.activity[lk]?.[p.id]?.horas>0 || state.activity[lk]?.[p.id]?.part){ haInf=true; break; } } if(haInf) activos++; 
             const r=act[p.id]||{}; if(r.horas>0||r.part){ const h=parseFloat(r.horas||0), e=parseInt(r.est||0); if(p.pr){prC++;prH+=h;prE+=e;} else if(r.pa){paC++;paH+=h;paE+=e;} else{pubC++;pubE+=e;} } 
         }); 
@@ -877,13 +1197,186 @@
                 const data = JSON.parse(e.target.result);
                 if(data.personas && Array.isArray(data.personas)) {
                     state = data; save(); alert("✅ Datos restaurados correctamente. La página se recargará."); location.reload();
-                } else { alert("❌ El archivo no parece ser un backup válido de Congregación Pro."); }
+                } else { alert("❌ El archivo no parece ser un backup válido."); }
             } catch(err) { alert("❌ Error leyendo el archivo: " + err.message); } 
         }; 
-        reader.readAsText(file); 
+        //reader.readAsText(file); 
     }
 
     window.addEventListener("DOMContentLoaded", () => { init(); });
+    
 </script>
+<div id="modalManual" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15, 23, 42, 0.7); backdrop-filter:blur(4px); z-index:10000; align-items:center; justify-content:center;">
+    <div style="background:white; width:95%; max-width:700px; height:90vh; border-radius:16px; display:flex; flex-direction:column; box-shadow:0 25px 50px rgba(0,0,0,0.5); overflow:hidden; animation: fadeIn 0.3s ease;">
+        
+        <div style="padding:20px; background:#f8fafc; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <h2 style="margin:0; color:#1e293b; font-size:1.4rem;">📘 Manual de Usuario</h2>
+                <span style="font-size:0.85rem; color:#64748b;">Guía completa v1.0.1</span>
+            </div>
+            <button onclick="document.getElementById('modalManual').style.display='none'" style="background:none; border:none; font-size:32px; color:#94a3b8; cursor:pointer; line-height:1;">&times;</button>
+        </div>
+
+        <div style="padding:0 20px 20px 20px; overflow-y:auto; line-height:1.6; color:#334155; font-family:sans-serif;">
+            
+            <div style="margin-top:20px; margin-bottom:15px; background:#eff6ff; padding:15px; border-radius:8px; border-left:4px solid #3b82f6;">
+                <h3 style="margin:0 0 10px 0; color:#1d4ed8; font-size:1.1em;">🔝 Barra Superior</h3>
+                <p style="margin:0; font-size:0.95em;">
+                    <b>📅 Selector de Fecha:</b> 
+                    <br>• <i>Mes Actual:</i> Para trabajar hoy.
+                    <br>• <i>Mes Pasado:</i> Para historia (totales ajustados automáticamente).
+                    <br><b>🔒 Candado:</b> Bloquea la pantalla.
+                </p>
+            </div>
+
+            <hr style="border:0; border-top:1px solid #e2e8f0; margin:20px 0;">
+            
+            <details style="margin-bottom:10px; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;">
+                <summary style="background:white; padding:12px; font-weight:bold; cursor:pointer; list-style:none;">1️⃣ Gestión de Miembros</summary>
+                <div style="padding:15px; background:#f8fafc; border-top:1px solid #e2e8f0; font-size:0.95em;">
+                    <ul style="padding-left:20px; margin-top:0;">
+                        <li><b>Crear/Editar:</b> Nombre, Grupo, Nacimiento, Bautismo.</li>
+                        <li style="background:#fff7ed; padding:10px; border-radius:6px; margin:8px 0; border:1px solid #fed7aa; color:#9a3412;">
+                            <b>⭐ CASILLA "INICIO/REACTIVACIÓN"</b><br>
+                            ✅ <b>Déjala VACÍA:</b> Si es antiguo.<br>
+                            ✅ <b>Pon FECHA:</b> Si es <b>Nuevo</b> o se <b>Mudó</b> (Evita falsos irregulares).
+                        </li>
+                    </ul>
+                </div>
+            </details>
+
+            <details style="margin-bottom:10px; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;">
+                <summary style="background:white; padding:12px; font-weight:bold; cursor:pointer; list-style:none;">2️⃣ Lista General</summary>
+                <div style="padding:15px; background:#f8fafc; border-top:1px solid #e2e8f0; font-size:0.95em;">
+                    Usa el buscador y toca el <b>lápiz (✏️)</b> para editar.
+                </div>
+            </details>
+
+            <details style="margin-bottom:10px; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;">
+                <summary style="background:white; padding:12px; font-weight:bold; cursor:pointer; list-style:none;">3️⃣ Informes</summary>
+                <div style="padding:15px; background:#f8fafc; border-top:1px solid #e2e8f0; font-size:0.95em;">
+                    • <b>Autoguardado:</b> Escribe y toca fuera.<br>
+                    • <b>Checks:</b> ☑️ P (Regular), ☑️ A (Auxiliar), ☑️ S/M (Participó).
+                </div>
+            </details>
+
+            <details style="margin-bottom:10px; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;">
+                <summary style="background:white; padding:12px; font-weight:bold; cursor:pointer; list-style:none;">4️⃣ Asistencia</summary>
+                <div style="padding:15px; background:#f8fafc; border-top:1px solid #e2e8f0; font-size:0.95em;">
+                    Ingresa totales. El promedio es automático.
+                </div>
+            </details>
+
+            <details style="margin-bottom:10px; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;">
+                <summary style="background:white; padding:12px; font-weight:bold; cursor:pointer; list-style:none;">5️⃣ Precursores</summary>
+                <div style="padding:15px; background:#f8fafc; border-top:1px solid #e2e8f0; font-size:0.95em;">
+                    Control de Horas vs. Meta y Acumulado Anual.
+                </div>
+            </details>
+
+            <details style="margin-bottom:10px; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;">
+                <summary style="background:white; padding:12px; font-weight:bold; cursor:pointer; list-style:none;">6️⃣ Tarjeta de Publicador</summary>
+                <div style="padding:15px; background:#f8fafc; border-top:1px solid #e2e8f0; font-size:0.95em;">
+                    Tabla anual (Sep-Ago). Botón para generar <b>PDF</b>.
+                </div>
+            </details>
+
+            <details style="margin-bottom:10px; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;">
+                <summary style="background:white; padding:12px; font-weight:bold; cursor:pointer; list-style:none;">7️⃣ Grupos</summary>
+                <div style="padding:15px; background:#f8fafc; border-top:1px solid #e2e8f0; font-size:0.95em;">
+                    Listado y totales de actividad por grupo.
+                </div>
+            </details>
+
+            <details style="margin-bottom:10px; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;">
+                <summary style="background:white; padding:12px; font-weight:bold; cursor:pointer; list-style:none;">8️⃣ Resumen (Dashboard)</summary>
+                <div style="padding:15px; background:#f8fafc; border-top:1px solid #e2e8f0; font-size:0.95em;">
+                    Totales y Promedios.
+                    <br><b>⚠️ Alertas:</b>
+                    <br>• <b>Irregulares:</b> Deben informes.
+                    <br>• <b>Inactivos:</b> 6 meses sin informar.
+                </div>
+            </details>
+
+             <details style="margin-bottom:10px; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;">
+                <summary style="background:white; padding:12px; font-weight:bold; cursor:pointer; list-style:none;">9️⃣ Sacados</summary>
+                <div style="padding:15px; background:#f8fafc; border-top:1px solid #e2e8f0; font-size:0.95em;">
+                    Papelera de reciclaje. Puedes restaurar.
+                </div>
+            </details>
+
+             <details style="margin-bottom:10px; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;">
+                <summary style="background:white; padding:12px; font-weight:bold; cursor:pointer; list-style:none;">🔟 Inactivos</summary>
+                <div style="padding:15px; background:#f8fafc; border-top:1px solid #e2e8f0; font-size:0.95em;">
+                    Lista de seguimiento pastoral (6+ meses).
+                </div>
+            </details>
+
+            <hr style="border:0; border-top:1px solid #e2e8f0; margin:20px 0;">
+
+            <h3 style="margin-bottom:15px; color:#1e293b;">⚙️ Sección 11: Configuración</h3>
+
+            <details style="margin-bottom:8px; border:1px solid #cbd5e1; border-radius:8px;">
+                <summary style="background:#f1f5f9; padding:10px; cursor:pointer; font-weight:bold;">📂 A. Datos (Backups)</summary>
+                <div style="padding:15px; background:white; font-size:0.95em;">
+                    <ul style="padding-left:20px;">
+                        <li><b>📥 Exportar:</b> Descarga `.json`. Hazlo <b>mensualmente</b>.</li>
+                        <li><b>📤 Importar:</b> Solo para restaurar.</li>
+                        <li><b>🗑️ Borrar Todo:</b> Deja la App de fábrica.</li>
+                    </ul>
+                </div>
+            </details>
+
+            <details style="margin-bottom:8px; border:1px solid #cbd5e1; border-radius:8px;">
+                <summary style="background:#eff6ff; color:#1d4ed8; padding:10px; cursor:pointer; font-weight:bold; border:1px solid #bfdbfe;">☁️ B. Conexión Web (TUTORIAL TÉCNICO)</summary>
+                <div style="padding:15px; background:white; font-size:0.95em;">
+                    <p style="margin-top:0;"><b>Estado:</b> Indica si estás conectado al servidor.</p>
+                    
+                    <div style="background:#f8fafc; padding:12px; border-radius:8px; border:1px solid #e2e8f0; margin-top:10px;">
+                        <h4 style="margin:0 0 10px 0; color:#0f172a;">🛠️ Cómo configurar tu Nube (Firebase)</h4>
+                        <p style="margin:0 0 10px 0; font-size:0.9em;">Esta App usa Google Firebase (Gratis) para sincronizar datos. Sigue estos pasos para obtener tus claves:</p>
+                        
+                        <ol style="padding-left:20px; margin:0; font-size:0.9em; color:#334155; line-height:1.5;">
+                            <li style="margin-bottom:5px;">Entra a <a href="https://console.firebase.google.com" target="_blank" style="color:#2563eb;">console.firebase.google.com</a> con tu cuenta Google.</li>
+                            <li style="margin-bottom:5px;">Click en <b>"Agregar proyecto"</b>. Ponle nombre (ej: <code>CongregacionDB</code>). Dale Continuar y <b>desactiva</b> Google Analytics. Crea el proyecto.</li>
+                            <li style="margin-bottom:5px;">En el menú lateral, ve a <b>"Compilación"</b> > <b>"Firestore Database"</b> y click en <b>"Crear base de datos"</b>.</li>
+                            <li style="margin-bottom:5px;">Elige ubicación cercana y click en <b>"Habilitar"</b>.</li>
+                            <li style="margin-bottom:5px;">Ve a la pestaña <b>"Reglas"</b> (arriba). Cambia <code>false</code> por <code>true</code> en la línea de <i>allow read, write</i> (para empezar) y dale <b>"Publicar"</b>.</li>
+                            <li style="margin-bottom:5px;">Vuelve al <b>"Resumen del proyecto"</b> (la casita 🏠 arriba izq).</li>
+                            <li style="margin-bottom:5px;">Click en el ícono redondo <b>Web (</>)</b>. Pon un apodo y click <b>"Registrar app"</b>.</li>
+                            <li style="margin-bottom:5px;">Aparecerá un código. Solo copia el <code>apiKey</code> y el <code>projectId</code>.</li>
+                            <li><b>¡Listo!</b> Pega esos 2 datos en la configuración de esta App para conectarte.</li>
+                        </ol>
+                    </div>
+
+                    <p style="margin-top:15px; font-size:0.9em;"><b>Nota:</b> Si ya tienes claves, solo ingresa tu ID de Conexión y pulsa <b>Sincronizar</b>.</p>
+                </div>
+            </details>
+
+            <details style="margin-bottom:8px; border:1px solid #cbd5e1; border-radius:8px;">
+                <summary style="background:#f1f5f9; padding:10px; cursor:pointer; font-weight:bold;">🔐 C. Claves</summary>
+                <div style="padding:15px; background:white; font-size:0.95em;">
+                    Cambia la <b>Clave Maestra</b> o gestiona claves de acceso.
+                </div>
+            </details>
+
+            <details style="margin-bottom:8px; border:1px solid #cbd5e1; border-radius:8px;">
+                <summary style="background:#f1f5f9; padding:10px; cursor:pointer; font-weight:bold;">ℹ️ D. Soporte y Apoyo</summary>
+                <div style="padding:15px; background:white; font-size:0.95em;">
+                    <p><b>Versión:</b> v1.0.1</p>
+                    <div style="margin-top:15px; padding:15px; background:#f0fdf4; border:1px solid #86efac; border-radius:8px;">
+                        <h4 style="margin:0 0 5px 0; color:#15803d;">🤝 Apoyo Voluntario</h4>
+                        <p style="margin:0; font-size:0.9em; color:#166534;">
+                            Esta App es gratuita. Mantener el servidor requiere recursos.
+                            <br>Si deseas, puedes contribuir voluntariamente para el mantenimiento técnico del sistema.
+                        </p>
+                    </div>
+                </div>
+            </details>
+
+            <p style="text-align:center; font-size:0.8em; margin-top:30px; color:#cbd5e1;">Congregación Pro - Manual v1.0.1</p>
+        </div>
+    </div>
+</div>
 </body>
 </html>
