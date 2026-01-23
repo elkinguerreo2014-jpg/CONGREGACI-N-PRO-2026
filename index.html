@@ -235,7 +235,7 @@
             </div>
 
             <div class="admin-only" style="padding:15px; text-align:center; font-size:0.75rem; color:var(--text-muted); background:#f9fafb; border-radius: 12px; display:flex; flex-direction:column; gap:10px; align-items:center;">
-                <span>v1.0.1 • Web/App</span>
+                <span>v1.0.3 • Web/App</span>
                 <button class="btn ghost" style="font-size:0.75rem; padding: 4px 10px; border-color: var(--border-light);" onclick="document.getElementById('modalSupport').style.display='flex'">
                     ☕ Acerca de & Soporte
                 </button>
@@ -336,7 +336,18 @@
                         <input type="month" id="pInicio" title="Mes en que llegó o se reactivó. Antes de esta fecha no contará fallas.">
                     </div>
                     <div><label>Fecha Expulsión</label><input type="date" id="pFSac"></div>
-                    
+                    <div style="margin-top: 15px; margin-bottom: 15px; padding: 10px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 8px;">
+    <label style="font-weight: bold; color: #0d6efd; display: block; margin-bottom: 5px;">
+        <i class="bi bi-clock-history"></i> Historial Rápido (Evitar "Irregular")
+    </label>
+    <small style="color: #666; display: block; margin-bottom: 10px;">
+        Marque los meses que predicó antes de hoy:
+    </small>
+    
+    <div id="contenedor-historial-rapido" style="display: flex; flex-wrap: wrap; gap: 10px;">
+        </div>
+</div>
+
                     <div style="display:flex; flex-direction:column; justify-content:flex-end; gap:8px;">
                         <button class="btn primary" id="btnSaveP">💾 Guardar Miembro</button>
                         <div style="display:flex; gap:8px; width:100%;">
@@ -460,7 +471,26 @@
     const ymKey = (y,m) => `${y}-${String(m).padStart(2,'0')}`;
     const MESES_NOM = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
     const CICLO_S88 = [9,10,11,12,1,2,3,4,5,6,7,8];
-    
+    // ... debajo de const CICLO_S88 ...
+
+    // NUEVO: Función para obtener el Año de Servicio actual
+    // Ejemplo: Si es Sept 2025, devuelve 2026. Si es Ene 2026, devuelve 2026.
+    const getServiceYear = () => {
+        const d = new Date();
+        // Si el mes es Septiembre (8) o mayor, ya es el siguiente año de servicio
+        return d.getMonth() >= 8 ? d.getFullYear() + 1 : d.getFullYear();
+    };
+
+    // NUEVO: Convierte mes calendario a año correcto según el Año de Servicio elegido
+    // targetYear: El año de servicio (ej: 2024). mes: 0-11
+    const getYearForMonth = (targetYear, mesIndex) => {
+        // Si el mes es Sept(8) a Dic(11), pertenece al año anterior calendario
+        if (mesIndex >= 8) return targetYear - 1;
+        // Si es Ene(0) a Ago(7), es el mismo año calendario
+        return targetYear;
+    };
+
+    let currentSession = { role: 'admin', group: null }; // 👈 NUEVA VARIABLE DE SEGURIDAD
     let state = { personas: [], activity: {}, attendance: {}, config: { pwd: '12345', totalGroups: 5, groups: {} } };
     let CURRENT_ROLE = 'ADMIN'; 
     let curY = new Date().getFullYear(), curM = new Date().getMonth()+1;
@@ -581,14 +611,34 @@
         $('#mEnter').onclick = attemptLogin;
         $('#mPwd').onkeydown = (e) => { if(e.key==='Enter') attemptLogin(); };
         const mSels = [$('#headerMonth'), $('#actMonthSelect'), $('#resMonth'), $('#asistMonthSelect')];
-        mSels.forEach(sel => { if(sel){ sel.innerHTML=''; MESES_NOM.forEach((m,i)=>{const o=document.createElement('option'); o.value=i+1; o.text=m; if(i+1===curM)o.selected=true; sel.appendChild(o);}); } });
-        if($('#headerYear')) $('#headerYear').value = curY;
-        if($('#actYearInput')) $('#actYearInput').value = curY;
+         mSels.forEach(sel => { 
+            if(sel){ 
+                sel.innerHTML=''; 
+                MESES_NOM.forEach((m,i)=>{
+                    const o=document.createElement('option'); 
+                    o.value=i+1; 
+                    o.text=m; 
+                    if(i+1===curM) o.selected=true; 
+                    sel.appendChild(o);
+                }); 
+            } 
+        });
+        // 1. Calculamos el Año de Servicio usando tu nueva función
+        const currentServiceYear = getServiceYear();
+
+        // El encabezado (headerYear) se queda con el año calendario para navegar hoy
+        if($('#headerYear')) $('#headerYear').value = curY; 
+        
+        // El informe mensual (actYearInput) también suele ser calendario
+        if($('#actYearInput')) $('#actYearInput').value = curY; 
         if($('#asistYearInput')) $('#asistYearInput').value = curY;
         if($('#resYear')) $('#resYear').value = curY;
-        if($('#s21Year')) $('#s21Year').value = (curM>=9)?curY:curY-1;
-        if($('#s88Year')) $('#s88Year').value = (curM>=9)?curY:curY-1;
-        
+
+        // AQUÍ EL CAMBIO IMPORTANTE:
+        // La Tarjeta (S-21) y el Registro (S-88) deben iniciar mostrando el AÑO DE SERVICIO
+        if($('#s21Year')) $('#s21Year').value = currentServiceYear;
+        if($('#s88Year')) $('#s88Year').value = currentServiceYear;
+        // ------------------        
         if($('#headerMonth')) $('#headerMonth').onchange = (e) => { curM=parseInt(e.target.value); renderAll(); };
         if($('#headerYear')) $('#headerYear').onchange = (e) => { curY=parseInt(e.target.value); renderAll(); };
         if($('#selGInforme')) $('#selGInforme').onchange = renderActividad;
@@ -710,55 +760,41 @@
               "Por favor, contacta al hermano que instaló o configuró la aplicación en este dispositivo.");
     };
 
+// --- FUNCIÓN DE LOGIN MEJORADA (DETECTA ROL Y GRUPO) ---
 window.attemptLogin = function() {
     console.log("🔵 Intentando acceder...");
 
     const input = document.getElementById('mPwd');
     const pwd = input ? input.value.trim() : '';
 
-    // ==================================================
-    // 🛡️ SEGURIDAD: BLOQUEO DE CLAVE VACÍA
-    // Esto impide que entren solo dando Enter
-    if (!pwd || pwd.length === 0) {
-        return alert("⚠️ Por favor, escribe la clave para entrar.");
-    }
-    // ==================================================
+    if (!pwd) return alert("⚠️ Escribe la clave.");
 
-    // Aseguramos la configuración inicial
     if (!window.state) window.state = {};
     if (!window.state.config) window.state.config = { pwd: '12345', groups: {}, totalGroups: 5 };
     
     const config = window.state.config;
     
-    // --- 1. VERIFICACIÓN DE ADMINISTRADOR ---
-    const adminPwd = config.pwd ? String(config.pwd) : '12345';
-    
-    if (pwd === adminPwd) {
-        if (pwd === '12345') {
-            alert("⚠️ AVISO\nEstás usando la clave de Admin por defecto (12345).\nTe recomendamos cambiarla en Ajustes.");
-        }
+    // 1. SI ES ADMIN (Clave Maestra)
+    // -----------------------------
+    // Nota: Usamos config.pwd o el default '12345'
+    if (pwd === (config.pwd || '12345')) {
         window.CURRENT_ROLE = 'ADMIN';
+        currentSession = { role: 'admin', group: null }; // 🔓 Acceso Total
         enterApp(); 
         return; 
     }
 
-    // --- 2. VERIFICACIÓN DE ENCARGADOS (GRUPOS) ---
+    // 2. SI ES ENCARGADO (Buscamos su grupo)
+    // -------------------------------------
     let foundGroup = null;
-    const groups = config.groups || {};
     const totalGroups = config.totalGroups || 5; 
 
     for (let i = 1; i <= totalGroups; i++) {
-        const storedPwd = groups[i]; // Clave personalizada si existe
-        const defaultPwd = 'grupo' + i; // Clave por defecto
+        const storedPwd = config.groups[i]; 
+        const defaultPwd = 'grupo' + i; 
 
-        // A. Si hay clave personalizada y coincide
-        if (storedPwd && String(storedPwd) === pwd) {
-            foundGroup = i;
-            break;
-        }
-        
-        // B. Si NO hay clave personalizada, probamos la de defecto
-        if (!storedPwd && pwd === defaultPwd) {
+        // Probamos si la clave coincide con algún grupo
+        if ((storedPwd && String(storedPwd) === pwd) || (!storedPwd && pwd === defaultPwd)) {
             foundGroup = i;
             break;
         }
@@ -766,9 +802,11 @@ window.attemptLogin = function() {
 
     if (foundGroup) {
         window.CURRENT_ROLE = 'G' + foundGroup;
+        // 🔒 AQUÍ ESTÁ EL TRUCO: Guardamos quién es para bloquearlo después
+        currentSession = { role: 'group', group: foundGroup }; 
         enterApp(); 
     } else {
-        alert("❌ Clave incorrecta.\n\nAdmin: Clave configurada (o 12345).\nEncargados: Su clave personalizada o 'grupo' + número.");
+        alert("❌ Clave incorrecta.");
     }
 };
 // --- 3. FUNCIÓN DE CAMBIO DE CLAVE (INDEPENDIENTE) ---
@@ -842,20 +880,65 @@ function enterApp() {
         updateDatalist();
     }
 
+    // --- FUNCIÓN DE INFORMES BLINDADA (SOLO SU GRUPO) ---
     window.renderActividad = function() {
-        const g = $('#selGInforme').value;
-        const tb = $('#tblActividad tbody');
-        const k = ymKey(actY, actM);
+        // 1. OBTENEMOS EL SELECTOR DE GRUPOS
+        const selector = document.querySelector('#selGInforme');
+        let g = selector ? selector.value : '1';
+
+        // 🔒 CANDADO DE SEGURIDAD
+        // Si detectamos que es un Encargado, ignoramos el selector y forzamos SU grupo
+        if (currentSession.role === 'group') {
+            g = currentSession.group; 
+            
+            // Visualmente bloqueamos el selector para que sepa que no puede cambiar
+            if (selector) {
+                selector.value = g;
+                selector.disabled = true;       // Se pone gris (Desactivado)
+                selector.style.opacity = "0.7"; // Efecto visual
+                selector.title = "🔒 Solo puedes ver tu grupo";
+            }
+        } else {
+            // Si es Admin, liberamos el selector
+            if (selector) {
+                selector.disabled = false;
+                selector.style.opacity = "1";
+            }
+        }
+
+        // 2. RENDERIZAMOS LA TABLA (IGUAL QUE ANTES)
+        const tb = document.querySelector('#tblActividad tbody');
+        if(!tb) return;
+        
         tb.innerHTML = '';
+        const k = ymKey(actY, actM); // Llave de fecha (ej: 2026-01)
+        
+        // Filtramos la lista usando la variable 'g' que ya está asegurada
         const list = state.personas.filter(p => p.grupo == g && !p.sacado).sort((a,b)=>a.nombre.localeCompare(b.nombre));
-        const cEl = $('#cAct'); if(cEl) cEl.innerText = `(${list.length})`;
-        if(list.length === 0) { tb.innerHTML = `<tr><td colspan="6" style="padding:30px; text-align:center; color:var(--text-muted);">No hay miembros en el Grupo ${g}.</td></tr>`; return; }
+        
+        const cEl = document.getElementById('cAct'); 
+        if(cEl) cEl.innerText = `(${list.length})`;
+        
+        if(list.length === 0) { 
+            tb.innerHTML = `<tr><td colspan="6" style="padding:25px; text-align:center; color:#6b7280;">No hay miembros en el Grupo ${g}.</td></tr>`; 
+            return; 
+        }
+
+        // Dibujamos las filas
         list.forEach(p => {
             const r = state.activity[k]?.[p.id] || {part:false, horas:0, est:0, pa:false, nota:''};
-            tb.innerHTML += `<tr><td style="font-weight:600;">${p.nombre}</td><td style="text-align:center;"><input type="checkbox" ${r.part?'checked':''} onchange="updAct('${p.id}','part',this.checked)"></td><td><input type="number" value="${r.horas}" onchange="updAct('${p.id}','horas',this.value)" style="width:60px; text-align:center;"></td><td><input type="number" value="${r.est}" onchange="updAct('${p.id}','est',this.value)" style="width:60px; text-align:center;"></td><td style="text-align:center;"><input type="checkbox" ${r.pa?'checked':''} onchange="updAct('${p.id}','pa',this.checked)"></td><td><input type="text" value="${r.nota||''}" onchange="updAct('${p.id}','nota',this.value)" placeholder="..."></td></tr>`;
+            
+            tb.innerHTML += `
+                <tr>
+                    <td style="font-weight:600; color:#374151;">${p.nombre}</td>
+                    <td style="text-align:center;"><input type="checkbox" ${r.part?'checked':''} onchange="updAct('${p.id}','part',this.checked)" style="transform:scale(1.2);"></td>
+                    <td style="text-align:center;"><input type="number" value="${r.horas}" onchange="updAct('${p.id}','horas',this.value)" style="width:50px; text-align:center; padding:4px; border:1px solid #d1d5db; border-radius:4px;"></td>
+                    <td style="text-align:center;"><input type="number" value="${r.est}" onchange="updAct('${p.id}','est',this.value)" style="width:50px; text-align:center; padding:4px; border:1px solid #d1d5db; border-radius:4px;"></td>
+                    <td style="text-align:center;"><input type="checkbox" ${r.pa?'checked':''} onchange="updAct('${p.id}','pa',this.checked)" style="transform:scale(1.2);"></td>
+                    <td><input type="text" value="${r.nota||''}" onchange="updAct('${p.id}','nota',this.value)" placeholder="..." style="width:100%; border:1px solid #d1d5db; border-radius:4px; padding:4px;"></td>
+                </tr>`;
         });
-    }
-
+    };
     window.updAct = (pid, f, v) => { 
         const k = ymKey(actY, actM); 
         if(!state.activity[k]) state.activity[k] = {}; 
@@ -864,31 +947,83 @@ function enterApp() {
         save(); 
     }
 
-    window.savePersona = function() { 
-        const id=$('#pId').value, n=$('#pNombre').value.trim(); 
-        if(!n) return alert("Nombre obligatorio"); 
-        
-        const data={ 
-            id: id||'p'+Date.now(), 
-            nombre: n, 
-            grupo: $('#pGrupo').value, 
-            sexo: $('#pSexo').value, 
-            esp: $('#pEsp').value, 
-            nac: $('#pNac').value, 
-            bau: $('#pBau').value,
-            inicio: $('#pInicio').value, // <--- ESTO ES LO NUEVO 💾
-            fsac: $('#pFSac').value, 
-            pr: $('#pPR').checked, 
-            anciano: $('#pAnc').checked, 
-            sm: $('#pSM').checked, 
-            pe: $('#pPE').checked, 
-            mis: $('#pMis').checked, 
-            sacado: !!$('#pFSac').value 
-        }; 
+   window.savePersona = function() {
+    const id = $('#pId').value, n = $('#pNombre').value.trim();
+    if(!n) return alert("Nombre obligatorio");
 
-        if(id) state.personas[state.personas.findIndex(x=>x.id===id)]=data; else state.personas.push(data); 
-        save(); renderMiembros(); resetPForm(); showToast("Guardado");
+    // 1. Recopilamos los datos (Igual que antes)
+    const data = {
+        id: id || 'p' + Date.now(),
+        nombre: n,
+        grupo: $('#pGrupo').value,
+        sexo: $('#pSexo').value,
+        esp: $('#pEsp').value,
+        nac: $('#pNac').value,
+        bau: $('#pBau').value,
+        inicio: $('#pInicio').value, 
+        fsac: $('#pFSac').value,
+        pr: $('#pPR').checked,
+        anciano: $('#pAnc').checked,
+        sm: $('#pSM').checked,
+        pe: $('#pPE').checked,
+        // Agrego protección por si estos campos no existen en todos lados
+        mis: $('#pMis') ? $('#pMis').checked : false, 
+        sacado: $('#pFSac').value 
+    };
+
+    // 2. Guardamos (Lógica ajustada a TU código original)
+    if(id) {
+        // Es una EDICIÓN: Buscamos y actualizamos
+        const index = state.personas.findIndex(x => x.id == id);
+        if(index >= 0) state.personas[index] = data;
+    } else {
+        // Es NUEVO: Lo agregamos a la lista
+        state.personas.push(data);
+        
+ // --- CORRECCIÓN INTELIGENTE: GUARDAR HISTORIAL ---
+        const checks = document.querySelectorAll('.check-historial:checked');
+
+        if (checks.length > 0) {
+            checks.forEach(check => {
+                const mes = parseInt(check.value);
+                
+                // --- LÓGICA INTELIGENTE DE AÑO ---
+                // Si el mes seleccionado es MAYOR al mes actual real, 
+                // asumimos que fue el año pasado.
+                let anioDestino = actY; 
+                const fechaHoy = new Date();
+                
+                if (actY === fechaHoy.getFullYear() && mes > fechaHoy.getMonth()) {
+                    anioDestino = actY - 1;
+                }
+                // ----------------------------------
+
+                const k = ymKey(anioDestino, mes); 
+
+                // Si no existe el mes, lo creamos
+                if (!state.activity[k]) state.activity[k] = {};
+
+                // Guardamos
+                state.activity[k][data.id] = { 
+                    part: true, 
+                    horas: 0, 
+                    est: 0, 
+                    pa: false, 
+                    nota: 'Historial' 
+                };
+            });
+            console.log("✅ Historial guardado inteligentemente.");
+        }
+        // --------------------------------------------------------
     }
+
+    // 3. Finalizar
+    save(); 
+    renderMiembros(); 
+    resetPForm(); 
+    // Usamos tu función de notificaciones si existe, o alert
+    if(window.showToast) showToast("Guardado correctamente"); else alert("Guardado");
+};
     
     window.deletePersona = function() { const id=$('#pId').value; if(!id)return; if(confirm("¿ELIMINAR miembro?")) { state.personas=state.personas.filter(p=>p.id!==id); save(); renderMiembros(); resetPForm(); showToast("Eliminado"); } }
     
@@ -1048,23 +1183,26 @@ window.editP = (id) => {
     window.renderAsistInputs=function(){const k=ymKey(asistY,asistM);if(!state.attendance[k])state.attendance[k]={es:[0,0,0,0,0,0],fs:[0,0,0,0,0,0]};const cES=$('#contES'),cFS=$('#contFS');cES.innerHTML='';cFS.innerHTML='';for(let i=0;i<5;i++){cES.innerHTML+=`<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;"><label style="margin:0;">Semana ${i+1}</label><input type="number" value="${state.attendance[k].es[i]||0}" onchange="updAsist('es',${i},this.value)" style="width:80px; text-align:center;"></div>`;cFS.innerHTML+=`<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;"><label style="margin:0;">Semana ${i+1}</label><input type="number" value="${state.attendance[k].fs[i]||0}" onchange="updAsist('fs',${i},this.value)" style="width:80px; text-align:center;"></div>`;}}
     window.updAsist=(t,i,v)=>{const k=ymKey(asistY,asistM);state.attendance[k][t][i]=parseInt(v||0);save();}
 
-    window.renderEstadoEspiritual = function() { 
-        const tbIn=$('#tblInactivos tbody'), tbIrr=$('#tblIrregulares tbody'); if(!tbIn)return; tbIn.innerHTML=''; tbIrr.innerHTML=''; 
+window.renderEstadoEspiritual = function() { 
+        const tbIn=$('#tblInactivos tbody'), tbIrr=$('#tblIrregulares tbody'); 
+        if(!tbIn)return; 
+        tbIn.innerHTML=''; tbIrr.innerHTML=''; 
         
-        // Calculamos cuándo empezó el Año de Servicio actual (Septiembre)
-        const syStart = (curM>=9) ? curY : curY-1; 
+        // 1. AQUI LA MAGIA: Usamos el Año de Servicio (Septiembre)
+        const serviceYear = getServiceYear(); 
         
         let countIna = 0;
         
         state.personas.filter(p=>!p.sacado).sort((a,b)=>a.nombre.localeCompare(b.nombre)).forEach(p=>{ 
             
-            // --- 1. CÁLCULO DE INACTIVOS ---
+            // --- A. CÁLCULO DE INACTIVOS (Regla: 6 meses sin reportar, sin importar el año) ---
             let zeros=0, last='-'; 
+            // Miramos 36 meses atrás para encontrar el último reporte
             for(let i=0;i<36;i++){ 
                 let ty=curY, tm=curM-i; 
                 while(tm<=0){tm+=12;ty--;} 
 
-                // 🛑 FRENO INTELIGENTE: Si la fecha es anterior al inicio, paramos.
+                // Freno: Si es antes de que la persona llegara
                 const checkKey = `${ty}-${String(tm).padStart(2,'0')}`;
                 if (p.inicio && checkKey < p.inicio) break;
 
@@ -1078,24 +1216,39 @@ window.editP = (id) => {
                 tbIn.innerHTML+=`<tr><td><b>${p.nombre}</b></td><td>G${p.grupo}</td><td>${last}</td><td><span style="background:#fee2e2; color:#b91c1c; padding:2px 8px; border-radius:4px; font-weight:bold;">Inactivo</span></td></tr>`; 
             } 
             else { 
-                // --- 2. CÁLCULO DE IRREGULARES ---
+                // --- B. CÁLCULO DE IRREGULARES (Regla: Fallas desde el 1 de Septiembre) ---
                 let fail=[]; 
-                for(let i=1;i<=12;i++){ 
-                    let ty=curY, tm=curM-i; 
-                    while(tm<=0){tm+=12;ty--;} 
-                    
-                    // Si nos salimos del año de servicio actual, paramos
-                    if(ty<syStart || (ty===syStart && tm<9)) break; 
-
-                    // 🛑 FRENO INTELIGENTE: Si el mes es anterior al inicio, ignoramos la falta.
-                    const currentCheckKey = `${ty}-${String(tm).padStart(2,'0')}`;
-                    if (p.inicio && currentCheckKey < p.inicio) continue;
-
-                    const act=state.activity[ymKey(ty,tm)]?.[p.id]; 
-                    if(!act||(!act.horas && !act.part)) fail.push(MESES_NOM[tm-1].substr(0,3)); 
-                } 
                 
-                if(fail.length>0){ 
+                // Calculamos cuándo empezó el ciclo actual (1 Sept del año anterior)
+                const startOfCycle = new Date(serviceYear - 1, 8, 1); 
+                const today = new Date();
+                
+                let pointer = new Date(startOfCycle);
+                
+                // Recorremos mes a mes hasta HOY
+                while (pointer < today) {
+                    // No contamos el mes actual como falla todavía
+                    if(pointer.getMonth() === today.getMonth() && pointer.getFullYear() === today.getFullYear()) break;
+
+                    let py = pointer.getFullYear();
+                    let pm = pointer.getMonth() + 1; // 1-12
+                    const key = ymKey(py, pm);
+                    
+                    const currentCheckKey = `${py}-${String(pm).padStart(2,'0')}`;
+                    
+                    // Si la persona ya estaba en la congregación en esa fecha...
+                    if (!p.inicio || currentCheckKey >= p.inicio) {
+                         const act = state.activity[key]?.[p.id];
+                         // Si NO tiene horas Y tampoco marcó participación -> ES FALLA
+                         if(!act || (!act.horas && !act.part)) {
+                             fail.push(MESES_NOM[pm-1].substr(0,3)); 
+                         }
+                    }
+                    // Avanzar al siguiente mes
+                    pointer.setMonth(pointer.getMonth() + 1);
+                }
+                
+                if(fail.length > 0){ 
                     tbIrr.innerHTML+=`<tr><td>${p.nombre}</td><td>G${p.grupo}</td><td><span style="color:var(--warning); font-weight:600;">${fail.join(', ')}</span></td></tr>`; 
                 } 
             } 
@@ -1187,24 +1340,171 @@ window.editP = (id) => {
         </div>`; 
     }
 
+    // --- FUNCIÓN DE IMPORTACIÓN INTELIGENTE (FUSIÓN / RESTAURACIÓN) ---
+  // --- FUNCIÓN DE IMPORTACIÓN BLINDADA (ESPERA A LA NUBE) ---
     window.importData = (input) => { 
         const file = input.files[0]; 
         if(!file) return; 
-        if(!confirm("⚠️ ¿Restaurar copia de seguridad? Esto reemplazará los datos actuales.")) { input.value = ''; return; }
-        const reader = new FileReader(); 
-        reader.onload = function(e) { 
-            try { 
-                const data = JSON.parse(e.target.result);
-                if(data.personas && Array.isArray(data.personas)) {
-                    state = data; save(); alert("✅ Datos restaurados correctamente. La página se recargará."); location.reload();
-                } else { alert("❌ El archivo no parece ser un backup válido."); }
-            } catch(err) { alert("❌ Error leyendo el archivo: " + err.message); } 
-        }; 
-        //reader.readAsText(file); 
-    }
 
+        const reader = new FileReader(); 
+        
+        // 1. Usamos 'async' aquí para poder frenar el sistema mientras guarda
+        reader.onload = async function(e) { 
+            try { 
+                const dataImportada = JSON.parse(e.target.result);
+
+                if(dataImportada.personas && Array.isArray(dataImportada.personas)) {
+                    
+                    let modoFusion = confirm(
+                        "📂 DATOS RECIBIDOS DEL ENCARGADO\n\n" +
+                        "¿Qué deseas hacer?\n\n" +
+                        "[ACEPTAR] = 🧬 FUSIONAR (Recomendado: Suma sus informes a tu nube).\n" +
+                        "[CANCELAR] = ⚠️ RESTAURAR (Borra tu nube y pone este archivo)."
+                    );
+
+                    if (modoFusion) {
+                        // ==========================================
+                        // 🧬 MODO A: FUSIÓN INTELIGENTE (SUMAR)
+                        // ==========================================
+                        let nuevos = 0;
+                        let actualizados = 0;
+                        let mesesTocados = new Set();
+
+                        // A. Fusionar Personas
+                        dataImportada.personas.forEach(pImp => {
+                            let existe = state.personas.find(p => p.id === pImp.id);
+                            if (!existe) {
+                                state.personas.push(pImp);
+                                nuevos++;
+                            }
+                        });
+
+                        // B. Fusionar Informes
+                        if(dataImportada.activity) {
+                            for (const [fechaKey, grupoPersonas] of Object.entries(dataImportada.activity)) {
+                                if(!state.activity[fechaKey]) state.activity[fechaKey] = {};
+                                
+                                for (const [pId, informe] of Object.entries(grupoPersonas)) {
+                                    // Solo si tiene datos útiles
+                                    if(informe.part || informe.horas > 0 || informe.est > 0 || informe.pa) {
+                                        state.activity[fechaKey][pId] = informe;
+                                        actualizados++;
+                                        mesesTocados.add(fechaKey);
+                                    }
+                                }
+                            }
+                        }
+
+                        // C. Guardar Localmente
+                        save(); 
+
+                        // D. EL FRENO DE MANO (Espera obligatoria para subir a Nube)
+                        const listaMeses = Array.from(mesesTocados).join(", ");
+                        
+                        // Aviso visual (Pantalla negra)
+                        let aviso = document.createElement('div');
+                        aviso.style.cssText = "position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:rgba(0,0,0,0.85); color:white; padding:30px; border-radius:15px; z-index:9999; text-align:center; box-shadow:0 0 20px rgba(0,0,0,0.5); font-family:sans-serif;";
+                        aviso.innerHTML = "<h2 style='margin:0 0 10px 0;'>☁️ Sincronizando...</h2><p style='margin:0;'>Subiendo datos a la nube.<br>Por favor espera...</p>";
+                        document.body.appendChild(aviso);
+
+                        // ⏱️ Esperamos 2.5 segundos
+                        await new Promise(r => setTimeout(r, 2500));
+
+                        alert(
+                            `✅ DATOS GUARDADOS EN LA NUBE\n\n` +
+                            `📅 Meses actualizados: ${listaMeses || "Ninguno"}\n` +
+                            `📝 Informes sumados: ${actualizados}\n\n` +
+                            `La página se recargará ahora.`
+                        );
+                        location.reload();
+
+                    } else {
+                        // ==========================================
+                        // ⚠️ MODO B: RESTAURACIÓN TOTAL (REEMPLAZAR)
+                        // ==========================================
+                        if(confirm("⚠️ ¿Seguro que quieres BORRAR tu base de datos y reemplazarla?")) {
+                            state = dataImportada; 
+                            save(); 
+                            
+                            // Espera de seguridad también aquí
+                            let aviso = document.createElement('div');
+                            aviso.style.cssText = "position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#c2410c; color:white; padding:20px; border-radius:10px; z-index:9999; font-family:sans-serif;";
+                            aviso.innerHTML = "<h3>⚠️ Restaurando...</h3>";
+                            document.body.appendChild(aviso);
+                            
+                            await new Promise(r => setTimeout(r, 2500));
+                            
+                            alert("✅ Datos restaurados."); 
+                            location.reload();
+                        } else {
+                            input.value = '';
+                        }
+                    }
+                } else { 
+                    alert("❌ El archivo no es válido."); 
+                }
+            } catch(err) { 
+                alert("❌ Error: " + err.message); 
+                input.value = '';
+            } 
+        }; 
+        
+        reader.readAsText(file); // Leemos el archivo
+        input.value = ''; // Reseteamos el input
+    };
     window.addEventListener("DOMContentLoaded", () => { init(); });
+
+   // --- PEGAR ESTO ANTES DEL  DE LA LÍNEA 1264 ---
+
+window.renderizarHistorialRapido = function() {
+    const contenedor = document.getElementById('contenedor-historial-rapido');
+    if(!contenedor) return; 
+    contenedor.innerHTML = ''; 
+
+    const hoy = new Date();
+    const mesIndexActual = hoy.getMonth(); // 0 = Enero, 11 = Diciembre
     
+    // Nombres para mostrar en pantalla
+    const nombres = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+
+    // LÓGICA DE RELOJ: Empezamos siempre en Septiembre (Índice 8)
+    let puntero = 8; 
+
+    // Recorremos máximo 12 meses o hasta encontrar el mes actual
+    for(let i=0; i<12; i++) {
+        // Normalizamos el puntero (si es 12 vuelve a 0, si es 13 vuelve a 1...)
+        let m = puntero % 12;
+
+        // ¡STOP! Si llegamos al mes actual (Enero), paramos el bucle.
+        if (m === mesIndexActual) break;
+
+        // CORRECCIÓN: Guardamos (m + 1) para que Enero sea "1" y Septiembre sea "9"
+        const valorReal = m + 1;
+
+        const div = document.createElement('div');
+        div.innerHTML = `
+            <label style="cursor:pointer; display:flex; align-items:center; gap:5px; font-size: 0.9em; background:white; padding:4px 8px; border-radius:6px; border:1px solid #e5e7eb;">
+                <input class="check-historial" type="checkbox" value="${valorReal}" checked style="accent-color: #0d6efd; transform:scale(1.2);">
+                <span style="font-weight:600; color:#374151;">${nombres[m]}</span>
+            </label>
+        `;
+        contenedor.appendChild(div);
+
+        // Avanzamos al siguiente mes
+        puntero++;
+    }
+};
+
+// Aseguramos que se ejecute al resetear el formulario
+const originalReset = window.resetPForm;
+window.resetPForm = function() {
+    if(originalReset) originalReset();
+    setTimeout(window.renderizarHistorialRapido, 50); 
+};
+
+// Ejecutar al inicio también para asegurar que aparezcan
+setTimeout(window.renderizarHistorialRapido, 500);
+
 </script>
 <div id="modalManual" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15, 23, 42, 0.7); backdrop-filter:blur(4px); z-index:10000; align-items:center; justify-content:center;">
     <div style="background:white; width:95%; max-width:700px; height:90vh; border-radius:16px; display:flex; flex-direction:column; box-shadow:0 25px 50px rgba(0,0,0,0.5); overflow:hidden; animation: fadeIn 0.3s ease;">
@@ -1212,7 +1512,7 @@ window.editP = (id) => {
         <div style="padding:20px; background:#f8fafc; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
             <div>
                 <h2 style="margin:0; color:#1e293b; font-size:1.4rem;">📘 Manual de Usuario</h2>
-                <span style="font-size:0.85rem; color:#64748b;">Guía completa v1.0.1</span>
+                <span style="font-size:0.85rem; color:#64748b;">Guía completa v1.0.3</span>
             </div>
             <button onclick="document.getElementById('modalManual').style.display='none'" style="background:none; border:none; font-size:32px; color:#94a3b8; cursor:pointer; line-height:1;">&times;</button>
         </div>
@@ -1231,18 +1531,90 @@ window.editP = (id) => {
 
             <hr style="border:0; border-top:1px solid #e2e8f0; margin:20px 0;">
             
+           <details open style="margin-bottom:15px; border:1px solid #cbd5e1; border-radius:8px; overflow:hidden;">
+    <summary style="background:#f1f5f9; padding:12px; cursor:pointer; font-weight:bold; color:#334155; list-style:none;">
+        👥 0. Cómo Colaborar con Encargados de Grupo
+    </summary>
+    <div style="padding:15px; background:#fff; border-top:1px solid #cbd5e1; font-size:0.95em; color:#334155;">
+        
+        <p style="margin-bottom:15px; line-height: 1.5;">
+            <strong style="color:#0ea5e9;">¡Delegue trabajo fácilmente!</strong><br>
+            Esta App permite que los encargados de grupo le ayuden. Ellos pueden usar la App con un rol limitado para ver y llenar informes <strong>solo de su propio grupo</strong>.
+        </p>
+
+        <p style="margin-bottom:15px; font-style: italic;">
+            Si el encargado también descarga la App Congregación Pro, pueden compartir datos de dos formas:
+        </p>
+
+        <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:15px; margin-bottom:15px;">
+            <strong style="color:#15803d; display:block; margin-bottom:8px; font-size:1.1em;">
+                🚀 OPCIÓN A: Conexión en Línea (Recomendado)
+            </strong>
+            <small style="display:block; margin-bottom:10px; color:#166534;">
+                Los datos se envían por internet automáticamente.
+            </small>
+            <ol style="padding-left:20px; margin:0; line-height: 1.6;">
+                <li style="margin-bottom:8px;">
+                    <strong>Usted (Admin):</strong> Vaya a Configuración y haga click en el botón <span style="background:#6c757d; color:white; padding:2px 6px; border-radius:4px; font-size:0.9em;">Copiar solo Llave</span>. Envíe ese código por WhatsApp al encargado.
+                </li>
+                <li>
+                    <strong>El Encargado:</strong> Debe ir a Configuración en su App, pegar el código en la casilla <em>"Pegue aquí la llave de acceso"</em> y hacer click en <span style="background:#0d6efd; color:white; padding:2px 6px; border-radius:4px; font-size:0.9em;">Conectar</span>.
+                </li>
+            </ol>
+            <div style="margin-top:10px; font-weight:bold; color:#15803d; border-top: 1px dashed #bbf7d0; padding-top:5px;">
+                ✅ Listo: Lo que el encargado anote en su celular, le aparecerá a usted al instante.
+            </div>
+        </div>
+
+        <div style="background:#fff7ed; border:1px solid #fdba74; border-radius:8px; padding:15px;">
+            <strong style="color:#c2410c; display:block; margin-bottom:8px; font-size:1.1em;">
+                📂 OPCIÓN B: Sin Internet (Archivos JSON)
+            </strong>
+            <small style="display:block; margin-bottom:10px; color:#9a3412;">
+                Use esta opción si prefieren trabajar sin conexión (Offline).
+            </small>
+            <ol style="padding-left:20px; margin:0; line-height: 1.6;">
+                <li style="margin-bottom:8px;">
+                    <strong>El Encargado:</strong> Llena los informes en su App. Al terminar, va a Configuración y crea una <strong>Copia de Seguridad</strong>. Se descargará un archivo (JSON) que debe enviarle a usted por el medio que desee (WhatsApp, correo, etc.).
+                </li>
+                <li>
+                    <strong>Usted (Admin):</strong> Recibe el archivo, va a Configuración en su App, hace click en <span style="background:#ffc107; color:black; padding:2px 6px; border-radius:4px; font-size:0.9em;">Restaurar</span> y busca el archivo que le envió el encargado.
+                </li>
+            </ol>
+            <div style="margin-top:10px; font-size:0.9em; color:#c2410c; background:rgba(255,255,255,0.6); padding:8px; border-radius:4px;">
+                ⚠️ <strong>Nota:</strong> Al restaurar, su base de datos se actualizará con la información nueva que contiene el archivo.
+            </div>
+        </div>
+
+    </div>
+</details>
             <details style="margin-bottom:10px; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;">
                 <summary style="background:white; padding:12px; font-weight:bold; cursor:pointer; list-style:none;">1️⃣ Gestión de Miembros</summary>
                 <div style="padding:15px; background:#f8fafc; border-top:1px solid #e2e8f0; font-size:0.95em;">
-                    <ul style="padding-left:20px; margin-top:0;">
-                        <li><b>Crear/Editar:</b> Nombre, Grupo, Nacimiento, Bautismo.</li>
-                        <li style="background:#fff7ed; padding:10px; border-radius:6px; margin:8px 0; border:1px solid #fed7aa; color:#9a3412;">
-                            <b>⭐ CASILLA "INICIO/REACTIVACIÓN"</b><br>
-                            ✅ <b>Déjala VACÍA:</b> Si es antiguo.<br>
-                            ✅ <b>Pon FECHA:</b> Si es <b>Nuevo</b> o se <b>Mudó</b> (Evita falsos irregulares).
-                        </li>
-                    </ul>
-                </div>
+    
+    <ul style="padding-left:20px; margin-top:0; margin-bottom:10px;">
+        <li><b>Crear/Editar:</b> Nombre, Grupo, Nacimiento, Bautismo.</li>
+    </ul>
+
+    <div style="background:#fff7ed; border:1px solid #fdba74; border-radius:6px; padding:10px; margin-bottom:10px;">
+         <strong style="color:#c2410c; display:block; margin-bottom:5px;">⭐ CASILLA "INICIO/REACTIVACIÓN"</strong>
+         <div style="color:#9a3412; font-size:0.9em;">
+            <div>✅ <b>Déjala VACÍA:</b> Si es antiguo.</div>
+            <div>✅ <b>Pon FECHA:</b> Si es Nuevo o se Mudó.</div>
+         </div>
+    </div>
+
+    <div style="background:#e0f2fe; border:1px solid #7dd3fc; border-radius:6px; padding:10px;">
+        <strong style="color:#0369a1; display:block; margin-bottom:5px;">
+            <i class="bi bi-magic"></i> NUEVO: Carga Rápida
+        </strong>
+        <div style="color:#0c4a6e; font-size:0.9em;">
+            Al registrar, marque las casillas <b>(Sept, Oct...)</b> al final.<br>
+            ✨ <em>Resultado:</em> Se guarda como <span style="background:#22c55e; color:white; padding:1px 5px; border-radius:3px;">Regular</span> automáticamente.
+        </div>
+    </div>
+
+</div>
             </details>
 
             <details style="margin-bottom:10px; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;">
@@ -1363,7 +1735,7 @@ window.editP = (id) => {
             <details style="margin-bottom:8px; border:1px solid #cbd5e1; border-radius:8px;">
                 <summary style="background:#f1f5f9; padding:10px; cursor:pointer; font-weight:bold;">ℹ️ D. Soporte y Apoyo</summary>
                 <div style="padding:15px; background:white; font-size:0.95em;">
-                    <p><b>Versión:</b> v1.0.1</p>
+                    <p><b>Versión:</b> v1.0.3</p>
                     <div style="margin-top:15px; padding:15px; background:#f0fdf4; border:1px solid #86efac; border-radius:8px;">
                         <h4 style="margin:0 0 5px 0; color:#15803d;">🤝 Apoyo Voluntario</h4>
                         <p style="margin:0; font-size:0.9em; color:#166534;">
@@ -1374,7 +1746,7 @@ window.editP = (id) => {
                 </div>
             </details>
 
-            <p style="text-align:center; font-size:0.8em; margin-top:30px; color:#cbd5e1;">Congregación Pro - Manual v1.0.1</p>
+            <p style="text-align:center; font-size:0.8em; margin-top:30px; color:#cbd5e1;">Congregación Pro - Manual v1.0.3</p>
         </div>
     </div>
 </div>
