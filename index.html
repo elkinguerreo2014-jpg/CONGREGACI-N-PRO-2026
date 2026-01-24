@@ -7,6 +7,7 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 
     <style>
         :root {
@@ -198,6 +199,30 @@
                     </div>
                 </div>
             </div>
+            <div class="settings-group" style="margin-top: 15px; border: 1px solid #16a34a;">
+                <div style="padding:15px; background: #f0fdf4;">
+                    <div style="font-size:0.8rem; font-weight:700; color:#15803d; text-transform:uppercase; margin-bottom:10px;">
+                        📗 Migración Masiva (Excel)
+                    </div>
+                    <p style="font-size:0.8rem; color:#14532d; margin-bottom:15px;">
+                        ¿Traes datos de otra parte? Descarga nuestra plantilla, llénala y súbela.
+                    </p>
+                    
+                    <div class="action-row">
+                        <button class="icon-btn" onclick="downloadExcelTemplate()" style="border:1px solid #86efac; background:white;">
+                            <span style="font-size:1.5rem;">📥</span>
+                            <small style="color:#166534; font-weight:bold;">1. Bajar Plantilla</small>
+                        </button>
+
+                        <div class="icon-btn" style="position:relative; background:#16a34a; border:none; color:white;">
+                            <span style="font-size:1.5rem;">📂</span>
+                            <small style="font-weight:bold;">2. Cargar Excel</small>
+                            <input type="file" accept=".xlsx, .xls" onchange="importFromExcel(this)" 
+                                   style="position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%;">
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <details class="settings-group admin-only">
                 <summary>🔐 Gestión de Accesos</summary>
@@ -287,7 +312,7 @@
                 <h1 style="font-size: 1.1rem; font-weight: 800; margin:0;">Congregación Pro</h1>
                 <div style="display:flex; gap:10px; align-items:center;">
                     <span id="roleBadge">...</span>
-                    <span id="headerStatus" class="status-badge offline">⚪ Offline</span>
+                    <span id="headerStatus" class="status-badge offline" onclick="toggleConnection()" style="cursor:pointer">⚪ Offline</span>
                 </div>
             </div>
         </div>
@@ -607,6 +632,232 @@
         showToast(`Clave del Grupo ${gID} guardada`);
     }
 
+    // --- FUNCIONES NUEVAS PARA EXCEL ---
+// ==========================================
+// 1. GENERAR PLANTILLA "INTUITIVA" (DOBLE COLUMNA)
+// ==========================================
+window.downloadExcelTemplate = function() {
+    // Encabezados de Datos Personales
+    const headersDatos = [
+        "NOMBRE COMPLETO", "GRUPO (1-5)", "SEXO (H/M)", "F. NACIMIENTO", "F. BAUTISMO", 
+        "PRIVILEGIOS (Anciano, SM, PR)", "ESPERANZA (Otras/Ungido)", "NOTAS (Opcional)"
+    ];
+
+    // Encabezados de Meses (SEPARADOS PARA QUE SEA OBVIO)
+    const headersMeses = [
+        "SEP (Horas)", "SEP (Estudios)", 
+        "OCT (Horas)", "OCT (Estudios)",
+        "NOV (Horas)", "NOV (Estudios)",
+        "DIC (Horas)", "DIC (Estudios)",
+        "ENE (Horas)", "ENE (Estudios)",
+        "FEB (Horas)", "FEB (Estudios)",
+        "MAR (Horas)", "MAR (Estudios)",
+        "ABR (Horas)", "ABR (Estudios)",
+        "MAY (Horas)", "MAY (Estudios)",
+        "JUN (Horas)", "JUN (Estudios)",
+        "JUL (Horas)", "JUL (Estudios)",
+        "AGO (Horas)", "AGO (Estudios)"
+    ];
+
+    const allHeaders = [...headersDatos, ...headersMeses];
+
+    // EJEMPLOS CLARÍSIMOS
+    const example1 = [
+        "Ej: Juan Pérez", 1, "H", "1980-05-20", "2000-11-15", "Anciano", "Otras", "Viene de otra congre",
+        10, 0,  // Sep: 10 horas
+        8,  1,  // Oct: 8 horas, 1 estudio
+        12, 0,  // Nov
+        "P", 0, // Dic: "P" significa que predicó
+        // ... resto vacíos
+    ];
+
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet([allHeaders, example1]);
+
+    // Ancho de columnas
+    const wDatos = {wch:15}; 
+    const wMes = {wch:12}; 
+    let colWidths = [{wch:25}, {wch:8}, {wch:8}, {wch:12}, {wch:12}, {wch:20}, {wch:15}, {wch:20}];
+    for(let k=0; k<24; k++) colWidths.push(wMes);
+    ws['!cols'] = colWidths;
+
+    XLSX.utils.book_append_sheet(wb, ws, "Plantilla_Facil");
+    XLSX.writeFile(wb, "Plantilla_CongregacionPro.xlsx");
+};
+
+// ==========================================
+// 1. GENERAR PLANTILLA "INTUITIVA" (DOBLE COLUMNA)
+// ==========================================
+window.downloadExcelTemplate = function() {
+    // Encabezados de Datos Personales
+    const headersDatos = [
+        "NOMBRE COMPLETO", "GRUPO (1-5)", "SEXO (H/M)", "F. NACIMIENTO", "F. BAUTISMO", 
+        "PRIVILEGIOS (Anciano, SM, PR)", "ESPERANZA (Otras/Ungido)", "NOTAS (Opcional)"
+    ];
+
+    // Encabezados de Meses (SEPARADOS PARA QUE SEA OBVIO)
+    const headersMeses = [
+        "SEP (Horas)", "SEP (Estudios)", 
+        "OCT (Horas)", "OCT (Estudios)",
+        "NOV (Horas)", "NOV (Estudios)",
+        "DIC (Horas)", "DIC (Estudios)",
+        "ENE (Horas)", "ENE (Estudios)",
+        "FEB (Horas)", "FEB (Estudios)",
+        "MAR (Horas)", "MAR (Estudios)",
+        "ABR (Horas)", "ABR (Estudios)",
+        "MAY (Horas)", "MAY (Estudios)",
+        "JUN (Horas)", "JUN (Estudios)",
+        "JUL (Horas)", "JUL (Estudios)",
+        "AGO (Horas)", "AGO (Estudios)"
+    ];
+
+    const allHeaders = [...headersDatos, ...headersMeses];
+
+    // EJEMPLOS CLARÍSIMOS
+    const example1 = [
+        "Ej: Juan Pérez", 1, "H", "1980-05-20", "2000-11-15", "Anciano", "Otras", "Viene de otra congre",
+        10, 0,  // Sep: 10 horas
+        8,  1,  // Oct: 8 horas, 1 estudio
+        12, 0,  // Nov
+        "P", 0, // Dic: "P" significa que predicó
+        // ... resto vacíos
+    ];
+
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet([allHeaders, example1]);
+
+    // Ancho de columnas
+    const wDatos = {wch:15}; 
+    const wMes = {wch:12}; 
+    let colWidths = [{wch:25}, {wch:8}, {wch:8}, {wch:12}, {wch:12}, {wch:20}, {wch:15}, {wch:20}];
+    for(let k=0; k<24; k++) colWidths.push(wMes);
+    ws['!cols'] = colWidths;
+
+    XLSX.utils.book_append_sheet(wb, ws, "Plantilla_Facil");
+    XLSX.writeFile(wb, "Plantilla_CongregacionPro.xlsx");
+};
+
+// ==========================================
+// 2. IMPORTADOR MAESTRO (SIN SALIRSE DE LA APP)
+// ==========================================
+window.importFromExcel = function(input) {
+    const file = input.files[0];
+    if(!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, {type: 'array'});
+            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+            const rows = XLSX.utils.sheet_to_json(firstSheet, {header: 1});
+
+            let countNuevos = 0;
+            let countEditados = 0;
+
+            const hoy = new Date();
+            let yearInicio = hoy.getFullYear();
+            if (hoy.getMonth() < 8) yearInicio = yearInicio - 1;
+
+            const mapMeses = [
+                {colH:8,  colE:9,  m:9,  y:yearInicio},   // Sep
+                {colH:10, colE:11, m:10, y:yearInicio},   // Oct
+                {colH:12, colE:13, m:11, y:yearInicio},   // Nov
+                {colH:14, colE:15, m:12, y:yearInicio},   // Dic
+                {colH:16, colE:17, m:1,  y:yearInicio+1}, // Ene
+                {colH:18, colE:19, m:2,  y:yearInicio+1}, // Feb
+                {colH:20, colE:21, m:3,  y:yearInicio+1}, // Mar
+                {colH:22, colE:23, m:4,  y:yearInicio+1}, // Abr
+                {colH:24, colE:25, m:5,  y:yearInicio+1}, // May
+                {colH:26, colE:27, m:6,  y:yearInicio+1}, // Jun
+                {colH:28, colE:29, m:7,  y:yearInicio+1}, // Jul
+                {colH:30, colE:31, m:8,  y:yearInicio+1}  // Ago
+            ];
+
+            for(let i=1; i<rows.length; i++) {
+                const row = rows[i];
+                if (!row) continue;
+
+                const nombre = row[0] ? String(row[0]).trim() : "";
+                if(!nombre || nombre === "NOMBRE COMPLETO" || nombre.startsWith("Ej:")) continue;
+
+                let persona = state.personas.find(p => p.nombre.toLowerCase() === nombre.toLowerCase());
+                let esNuevo = false;
+
+                if (!persona) {
+                    persona = { 
+                        id: 'p' + Date.now() + Math.floor(Math.random()*100000),
+                        nombre: nombre,
+                        grupo: 1, sexo: 'Hombre', esp: 'Otras ovejas', inicio: '', fsac: ''
+                    };
+                    esNuevo = true;
+                    countNuevos++;
+                } else {
+                    countEditados++;
+                }
+
+                const privs = row[5] ? String(row[5]).toUpperCase() : "";
+                if(row[1]) persona.grupo = row[1];
+                if(row[2]) persona.sexo = String(row[2]).toUpperCase().includes('M') ? 'Mujer' : 'Hombre';
+                if(row[3]) persona.nac = parseDate(row[3]);
+                if(row[4]) persona.bau = parseDate(row[4]);
+                
+                persona.anciano = privs.includes("ANC");
+                persona.sm = privs.includes("SM") || privs.includes("SIERVO");
+                persona.pr = privs.includes("PR") || privs.includes("REGULAR");
+                persona.pe = privs.includes("ESP") || privs.includes("ESPECIAL");
+                persona.mis = privs.includes("MIS");
+                
+                if(row[6]) persona.esp = String(row[6]).toUpperCase().includes('UNG') ? 'Ungido' : 'Otras ovejas';
+                if(row[7]) persona.notas = String(row[7]).trim();
+
+                if (esNuevo) state.personas.push(persona);
+
+                mapMeses.forEach(dato => {
+                    const valHoras = row[dato.colH]; 
+                    const valEst   = row[dato.colE]; 
+
+                    if( (valHoras !== undefined && valHoras !== "") || (valEst !== undefined && valEst !== "") ) {
+                        const key = `${dato.y}-${String(dato.m).padStart(2, '0')}`;
+                        if (!state.activity[key]) state.activity[key] = {};
+
+                        let h = 0, e = 0, pub = false;
+                        const sHoras = String(valHoras).toUpperCase().trim();
+
+                        if (sHoras === 'P' || sHoras === 'X' || sHoras === 'SI') { pub = true; } 
+                        else if (!isNaN(parseFloat(sHoras))) { h = parseFloat(sHoras); pub = true; }
+                        if (valEst && !isNaN(parseFloat(valEst))) e = parseFloat(valEst);
+
+                        if (pub || e > 0) {
+                            state.activity[key][persona.id] = { part: true, horas: h, est: e, pa: false, nota: '' };
+                        }
+                    }
+                });
+            }
+            
+            save();
+            
+            // AQUI ESTA EL TRUCO: renderAll() en vez de reload()
+            alert(`✅ IMPORTACIÓN EXITOSA\n\n🆕 Nuevos: ${countNuevos}\n✏️ Actualizados: ${countEditados}\n\nLa pantalla se actualizará sin salir.`);
+            renderAll(); 
+
+        } catch(error) {
+            alert("❌ Error al procesar el Excel.");
+            console.error(error);
+        }
+    };
+    reader.readAsArrayBuffer(file);
+    input.value = ''; 
+};
+function parseDate(val) {
+    if(!val) return "";
+    if(typeof val === 'number') {
+        const d = new Date(Math.round((val - 25569)*86400*1000));
+        return d.toISOString().split('T')[0];
+    }
+    return String(val).trim();
+}
+    
     window.init = function() {
         $('#mEnter').onclick = attemptLogin;
         $('#mPwd').onkeydown = (e) => { if(e.key==='Enter') attemptLogin(); };
@@ -702,48 +953,87 @@
         connectFirebase(apiKey, projectId);
     }
 
-    function connectFirebase(apiKey, projectId) {
+function connectFirebase(apiKey, projectId) {
+        // 1. NUEVO: Revisamos si el usuario bloqueó la conexión (Offline)
+        const isForcedOffline = localStorage.getItem('cong_pro_force_offline') === 'true';
+        
+        if (isForcedOffline) {
+            updateCloudUI(false); // Ponemos el icono en gris
+            console.log("🚫 Conexión bloqueada por el usuario (Modo Offline).");
+            return; // ¡Y NOS DETENEMOS AQUÍ! No conectamos.
+        }
+
         const statusSpan = $('#statusIndicator');
         if(statusSpan) statusSpan.innerHTML = '🟡...';
         try {
             const firebaseConfig = { apiKey: apiKey, authDomain: `${projectId}.firebaseapp.com`, projectId: projectId, storageBucket: `${projectId}.firebasestorage.app` };
-            app = initializeApp(firebaseConfig);
+            
+            // Solo inicializamos si no existe ya
+            if (!app) app = initializeApp(firebaseConfig);
             db = getFirestore(app);
-            startRealtimeSync();
+            
+            startRealtimeSync(); // Iniciamos la escucha de datos
+            
             updateCloudUI(true, projectId);
-            if($('#modalSettings').style.display === 'flex') showToast("Conectado");
+            if($('#modalSettings').style.display === 'flex') showToast("Conectado 🟢");
         } catch(e) {
             console.error(e);
-           // alert("Error conectando.");
             updateCloudUI(false);
         }
     }
 
     function startRealtimeSync() {
         if(!db) return;
-        onSnapshot(doc(db, "congregacion", "datos_generales"), (doc) => {
+        
+        // 2. NUEVO: Guardamos el "cable" en la variable global para poder cortarlo luego
+        window.unsubscribeSync = onSnapshot(doc(db, "congregacion", "datos_generales"), (doc) => {
             if(doc.exists()) {
                 const cloudData = doc.data(); 
+                
+                // Actualizamos el estado local con lo que viene de la nube
                 state = cloudData;
                 window.state = state;
+                
+                // Aseguramos que la estructura sea válida
                 if(!state.personas) state.personas = [];
                 if(!state.activity) state.activity = {};
                 if(!state.attendance) state.attendance = {};
                 if(!state.config) state.config = { pwd: '12345', totalGroups: 5, groups: {} };
+                
                 localStorage.setItem(DB_KEY, JSON.stringify(state));
-                renderAll();
-            } else { save(); }
-        }, (error) => { console.error("Sync error:", error); updateCloudUI(false); });
+                renderAll(); // Repintamos la pantalla
+            } else { 
+                save(); // Si no existe en la nube, subimos lo nuestro
+            }
+        }, (error) => { 
+            console.error("Sync error:", error); 
+            updateCloudUI(false); 
+        });
     }
 
     window.save = async function() {
+        // 1. Siempre guardamos en la memoria del celular (Local)
         localStorage.setItem(DB_KEY, JSON.stringify(state));
-        updateDatalist();
+        updateDatalist(); // Actualizamos lista del buscador
+
+        // 2. EL GUARDA: Verificamos si estamos en Offline
+        const isOffline = localStorage.getItem('cong_pro_force_offline') === 'true';
+        
+        if (isOffline) {
+            console.log("🔕 Guardado LOCAL (Nube desactivada)");
+            // Si estamos Offline, NOS DETENEMOS AQUÍ. No enviamos nada a Firebase.
+            return; 
+        }
+
+        // 3. Si estamos Online, enviamos a la Nube
         if(db) { 
             try { 
                 await setDoc(doc(db, "congregacion", "datos_generales"), state); 
+                // Opcional: Console log para depurar
+                // console.log("☁️ Subido a la nube");
             } catch(e) { 
-                alert("❌ ERROR AL SUBIR A LA NUBE:\n\n" + e.message); 
+                // Si falla la subida (ej: se fue el internet real), avisamos pero no bloqueamos
+                console.error("❌ Error subiendo a nube (pero guardado local): " + e.message); 
             } 
         }
     }
@@ -1050,27 +1340,51 @@ window.resetPForm = function() {
     }
     
     window.getPrivilegesString = function(p) { return [p.anciano?'Anciano':'', p.sm?'SM':'', p.pr?'PR':'', p.pe?'PE':''].filter(Boolean).join(', '); }
-window.editP = (id) => { 
-        const p=state.personas.find(x=>x.id===id); if(!p)return; 
-        $('#pId').value=p.id; 
-        $('#pNombre').value=p.nombre; 
-        $('#pSexo').value=p.sexo; 
-        $('#pEsp').value=p.esp; 
-        $('#pNac').value=p.nac||''; 
-        $('#pBau').value=p.bau||''; 
-        $('#pInicio').value=p.inicio||''; // <--- ESTO ES LO NUEVO: Recupera la fecha 📂
-        $('#pFSac').value=p.fsac||''; 
-        $('#pPR').checked=!!p.pr; 
-        $('#pAnc').checked=!!p.anciano; 
-        $('#pSM').checked=!!p.sm; 
-        $('#pPE').checked=!!p.pe; 
-        $('#pMis').checked=!!p.mis; 
-        $('#btnCancelEdit').style.display='inline-flex'; 
-        $('#btnDeleteP').style.display='inline-flex'; 
-        $('#btnSaveP').textContent='💾 Actualizar'; 
-        $('#btnSaveP').className='btn success'; 
-        window.scrollTo({top:0, behavior:'smooth'}); 
-    }    
+// ==========================================
+// FUNCIÓN EDITAR (CON CAMBIO DE PESTAÑA AUTOMÁTICO)
+// ==========================================
+window.editP = (id) => {
+    const p = state.personas.find(x => x.id === id); 
+    if (!p) return;
+
+    // 1. LLENAR LOS CAMPOS DEL FORMULARIO
+    $('#pId').value = p.id;
+    $('#pNombre').value = p.nombre;
+    $('#pSexo').value = p.sexo;
+    $('#pEsp').value = p.esp;
+    $('#pNac').value = p.nac || '';
+    $('#pBau').value = p.bau || '';
+    $('#pInicio').value = p.inicio || ''; 
+    $('#pFSac').value = p.fsac || '';
+
+    // Privilegios
+    $('#pPR').checked = !!p.pr;
+    $('#pAnc').checked = !!p.anciano;
+    $('#pSM').checked = !!p.sm;
+    $('#pPE').checked = !!p.pe;
+    if($('#pMis')) $('#pMis').checked = !!p.mis; 
+
+    // 2. CAMBIAR A LA PESTAÑA DE GESTIÓN (ID "personas")
+    // Desactivamos todas las pestañas primero
+    document.querySelectorAll('.tabs button, .tab').forEach(el => el.classList.remove('active'));
+    
+    // Activamos el botón de la pestaña 1
+    const btnTab = document.querySelector('button[data-tab="personas"]');
+    if(btnTab) btnTab.classList.add('active');
+    
+    // Activamos el contenido de la pestaña 1
+    const secTab = document.getElementById('personas');
+    if(secTab) secTab.classList.add('active');
+
+    // 3. CAMBIAR ESTADO DE BOTONES
+    $('#btnCancelEdit').style.display = 'inline-flex';
+    $('#btnDeleteP').style.display = 'inline-flex';
+    $('#btnSaveP').textContent = '💾 Actualizar';
+    $('#btnSaveP').className = 'btn success';
+
+    // 4. IR AL INICIO DE LA PÁGINA
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
     window.updateDatalist = function() { const l=$('#pList'); if(l){ l.innerHTML = ''; state.personas.forEach(p => l.innerHTML += `<option value="${p.nombre}">`); } }
     window.showToast = function(m) { const t=$('#toast'); t.innerHTML = `<span>${m}</span>`; t.style.display='block'; setTimeout(()=>t.style.display='none', 3000); }
     window.exportBackup = async function() {
@@ -1340,119 +1654,123 @@ window.renderEstadoEspiritual = function() {
         </div>`; 
     }
 
-    // --- FUNCIÓN DE IMPORTACIÓN INTELIGENTE (FUSIÓN / RESTAURACIÓN) ---
-  // --- FUNCIÓN DE IMPORTACIÓN BLINDADA (ESPERA A LA NUBE) ---
-    window.importData = (input) => { 
-        const file = input.files[0]; 
-        if(!file) return; 
+  // ==========================================
+// IMPORTADOR DE RESPALDOS (JSON) - SIN SALIRSE
+// ==========================================
+window.importData = (input) => { 
+    const file = input.files[0]; 
+    if(!file) return; 
 
-        const reader = new FileReader(); 
-        
-        // 1. Usamos 'async' aquí para poder frenar el sistema mientras guarda
-        reader.onload = async function(e) { 
-            try { 
-                const dataImportada = JSON.parse(e.target.result);
+    const reader = new FileReader(); 
+    
+    reader.onload = async function(e) { 
+        try { 
+            const dataImportada = JSON.parse(e.target.result);
 
-                if(dataImportada.personas && Array.isArray(dataImportada.personas)) {
-                    
-                    let modoFusion = confirm(
-                        "📂 DATOS RECIBIDOS DEL ENCARGADO\n\n" +
-                        "¿Qué deseas hacer?\n\n" +
-                        "[ACEPTAR] = 🧬 FUSIONAR (Recomendado: Suma sus informes a tu nube).\n" +
-                        "[CANCELAR] = ⚠️ RESTAURAR (Borra tu nube y pone este archivo)."
-                    );
+            if(dataImportada.personas && Array.isArray(dataImportada.personas)) {
+                
+                let modoFusion = confirm(
+                    "📂 RESPALDO DETECTADO\n\n" +
+                    "¿Qué deseas hacer?\n\n" +
+                    "[ACEPTAR] = 🧬 FUSIONAR (Suma datos sin borrar).\n" +
+                    "[CANCELAR] = ⚠️ RESTAURAR (Borra todo y pone este archivo)."
+                );
 
-                    if (modoFusion) {
-                        // ==========================================
-                        // 🧬 MODO A: FUSIÓN INTELIGENTE (SUMAR)
-                        // ==========================================
-                        let nuevos = 0;
-                        let actualizados = 0;
-                        let mesesTocados = new Set();
-
-                        // A. Fusionar Personas
-                        dataImportada.personas.forEach(pImp => {
-                            let existe = state.personas.find(p => p.id === pImp.id);
-                            if (!existe) {
-                                state.personas.push(pImp);
-                                nuevos++;
-                            }
-                        });
-
-                        // B. Fusionar Informes
-                        if(dataImportada.activity) {
-                            for (const [fechaKey, grupoPersonas] of Object.entries(dataImportada.activity)) {
-                                if(!state.activity[fechaKey]) state.activity[fechaKey] = {};
-                                
-                                for (const [pId, informe] of Object.entries(grupoPersonas)) {
-                                    // Solo si tiene datos útiles
-                                    if(informe.part || informe.horas > 0 || informe.est > 0 || informe.pa) {
-                                        state.activity[fechaKey][pId] = informe;
-                                        actualizados++;
-                                        mesesTocados.add(fechaKey);
-                                    }
+                if (modoFusion) {
+                    // MODO FUSIÓN
+                    let nuevos = 0;
+                    let actualizados = 0;
+                    dataImportada.personas.forEach(pImp => {
+                        let existe = state.personas.find(p => p.id === pImp.id);
+                        if (!existe) { state.personas.push(pImp); nuevos++; }
+                    });
+                    if(dataImportada.activity) {
+                        for (const [key, grupo] of Object.entries(dataImportada.activity)) {
+                            if(!state.activity[key]) state.activity[key] = {};
+                            for (const [pid, inf] of Object.entries(grupo)) {
+                                if(inf.part || inf.horas > 0 || inf.est > 0) {
+                                    state.activity[key][pid] = inf;
+                                    actualizados++;
                                 }
                             }
                         }
-
-                        // C. Guardar Localmente
-                        save(); 
-
-                        // D. EL FRENO DE MANO (Espera obligatoria para subir a Nube)
-                        const listaMeses = Array.from(mesesTocados).join(", ");
-                        
-                        // Aviso visual (Pantalla negra)
-                        let aviso = document.createElement('div');
-                        aviso.style.cssText = "position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:rgba(0,0,0,0.85); color:white; padding:30px; border-radius:15px; z-index:9999; text-align:center; box-shadow:0 0 20px rgba(0,0,0,0.5); font-family:sans-serif;";
-                        aviso.innerHTML = "<h2 style='margin:0 0 10px 0;'>☁️ Sincronizando...</h2><p style='margin:0;'>Subiendo datos a la nube.<br>Por favor espera...</p>";
-                        document.body.appendChild(aviso);
-
-                        // ⏱️ Esperamos 2.5 segundos
-                        await new Promise(r => setTimeout(r, 2500));
-
-                        alert(
-                            `✅ DATOS GUARDADOS EN LA NUBE\n\n` +
-                            `📅 Meses actualizados: ${listaMeses || "Ninguno"}\n` +
-                            `📝 Informes sumados: ${actualizados}\n\n` +
-                            `La página se recargará ahora.`
-                        );
-                        location.reload();
-
-                    } else {
-                        // ==========================================
-                        // ⚠️ MODO B: RESTAURACIÓN TOTAL (REEMPLAZAR)
-                        // ==========================================
-                        if(confirm("⚠️ ¿Seguro que quieres BORRAR tu base de datos y reemplazarla?")) {
-                            state = dataImportada; 
-                            save(); 
-                            
-                            // Espera de seguridad también aquí
-                            let aviso = document.createElement('div');
-                            aviso.style.cssText = "position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#c2410c; color:white; padding:20px; border-radius:10px; z-index:9999; font-family:sans-serif;";
-                            aviso.innerHTML = "<h3>⚠️ Restaurando...</h3>";
-                            document.body.appendChild(aviso);
-                            
-                            await new Promise(r => setTimeout(r, 2500));
-                            
-                            alert("✅ Datos restaurados."); 
-                            location.reload();
-                        } else {
-                            input.value = '';
-                        }
                     }
-                } else { 
-                    alert("❌ El archivo no es válido."); 
+                    save(); 
+                    alert(`✅ FUSIÓN COMPLETADA\n\nSe agregaron ${nuevos} personas y ${actualizados} informes.`);
+                    renderAll(); // <--- TRUCO: Repinta sin salir
+
+                } else {
+                    // MODO RESTAURACIÓN
+                    if(confirm("⚠️ ¿Seguro que quieres BORRAR tu base actual y reemplazarla?")) {
+                        state = dataImportada; 
+                        save(); 
+                        alert("✅ Datos restaurados correctamente."); 
+                        renderAll(); // <--- TRUCO: Repinta sin salir
+                    } else {
+                        input.value = '';
+                    }
                 }
-            } catch(err) { 
-                alert("❌ Error: " + err.message); 
-                input.value = '';
-            } 
-        }; 
+            } else { 
+                alert("❌ Archivo inválido."); 
+            }
+        } catch(err) { 
+            alert("❌ Error: " + err.message); 
+            input.value = '';
+        } 
+    }; 
+    
+    reader.readAsText(file); 
+    input.value = ''; 
+};
+    
+// ==========================================
+// 🕹️ INTERRUPTOR ONLINE / OFFLINE
+// ==========================================
+window.unsubscribeSync = null; 
+
+window.toggleConnection = function() {
+    const stored = localStorage.getItem('cong_pro_firebase_creds');
+    if (!stored) return alert("⚠️ Primero debes configurar la conexión en Ajustes.");
+
+    const isForcedOffline = localStorage.getItem('cong_pro_force_offline') === 'true';
+
+    if (isForcedOffline) {
+        // --- CONECTAR (De Offline a Online) ---
         
-        reader.readAsText(file); // Leemos el archivo
-        input.value = ''; // Reseteamos el input
-    };
-    window.addEventListener("DOMContentLoaded", () => { init(); });
+        // 1. Quitamos el candado
+        localStorage.removeItem('cong_pro_force_offline'); 
+        
+        const c = JSON.parse(stored);
+        
+        // 2. Conectamos el cable
+        if(window.connectFirebase) connectFirebase(c.apiKey, c.projectId);
+        
+        // 3. 🔥 ¡ESTA ES LA CLAVE! 🔥
+        // Forzamos una subida inmediata de lo que hiciste mientras estabas Offline
+        // para que la nube no te sobrescriba con datos viejos.
+        if(window.save) window.save(); 
+
+        // 4. Feedback visual verde inmediato
+        updateCloudUI(true, c.projectId); 
+        showToast("🟢 Conectando y subiendo cambios...");
+
+    } else {
+        // --- DESCONECTAR (De Online a Offline) ---
+        if (confirm("¿Desconectar de la Nube y trabajar Offline?")) {
+            localStorage.setItem('cong_pro_force_offline', 'true'); 
+            
+            if (window.unsubscribeSync) {
+                window.unsubscribeSync(); 
+                window.unsubscribeSync = null;
+            }
+            
+            updateCloudUI(false); 
+            showToast("⚪ Modo Offline");
+        }
+    }
+};
+
+window.addEventListener("DOMContentLoaded", () => { init(); });
 
    // --- PEGAR ESTO ANTES DEL  DE LA LÍNEA 1264 ---
 
