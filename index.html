@@ -115,7 +115,7 @@
 
 <div id="toast"></div>
 
-<div id="modalAuth" style="display: flex;">
+    <div id="modalAuth" style="display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; justify-content: center; align-items: center; background: #374151;">
     <div class="card" style="width:360px; max-width:90%; text-align:center; margin-bottom:0; padding: 40px 20px;">
         <div style="background:var(--primary); width:60px; height:60px; border-radius:16px; margin:0 auto 20px auto; display:flex; align-items:center; justify-content:center; color:white; font-size:1.8rem;">🔐</div>
         <h2 style="font-weight:800; margin-bottom:10px; color:var(--text-main);">Bienvenido</h2>
@@ -336,8 +336,8 @@
         </div>
         <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
             <button class="btn ghost" onclick="openSettings()">⚙️ Ajustes</button>
-            <div style="display:flex; gap:5px; align-items:center; background:#fff; padding:4px; border-radius:8px; border:1px solid var(--border-light);">
-                <input type="number" id="headerYear" style="width:70px; border:none; box-shadow:none; padding:5px; font-weight:bold; text-align:center;">
+        <div style="display:flex; gap:5px; align-items:center; background:#fff; padding:4px; border-radius:8px; border:1px solid var(--border); pointer-events: none; opacity: 0.6;">
+            <input type="number" id="headerYear" style="width:70px; border:none; box-shadow:none; padding:5px; font-weight:bold; text-align:center;">
                 <select id="headerMonth" style="width:110px; border:none; box-shadow:none; padding:5px; font-weight:bold;"></select>
             </div>
             <button class="btn danger" onclick="location.reload()" style="padding:8px 12px;">🔒</button>
@@ -452,7 +452,50 @@
         </section>
 
         <section id="precursores" class="tab admin-only">
-            <div class="card"><h3><span>🏅 Precursores Regulares</span> <span id="cPre" class="count-badge">0</span></h3><div class="table-container"><table class="table" id="tblPrecursores"><tbody></tbody></table></div></div>
+<div class="card">
+        <h3>
+            <span>🏆 Precursores Regulares</span> 
+            <span id="cPre" class="count-badge">0</span>
+        </h3>
+
+        <div class="admin-tools-grid" style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #eee;">
+            <div>
+                <label>Mes</label>
+                <select id="precMes" class="form-control">
+                    <option value="0">Enero</option>
+                    <option value="1">Febrero</option>
+                    <option value="2">Marzo</option>
+                    <option value="3">Abril</option>
+                    <option value="4">Mayo</option>
+                    <option value="5">Junio</option>
+                    <option value="6">Julio</option>
+                    <option value="7">Agosto</option>
+                    <option value="8">Septiembre</option>
+                    <option value="9">Octubre</option>
+                    <option value="10">Noviembre</option>
+                    <option value="11">Diciembre</option>
+                </select>
+            </div>
+            <div>
+                <label>Año</label>
+                <input type="number" id="precAno" class="form-control" value="2026">
+            </div>
+            <div style="display:flex; align-items:flex-end;">
+                <button class="btn primary" onclick="renderAllPrecursores()">📅 Ver Datos</button>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table class="table" id="tblPrecursores">
+            <thead>
+        <tr>
+            <th style="width: 40%;">Publicador</th>
+            <th style="text-align:center; width: 25%;">Total Año</th>
+            <th style="text-align:center; width: 35%;">Meta (600h)</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table></div></div>
             <div class="card" style="margin-top:20px;"><h3>🏃 Precursores Auxiliares (Mes Actual)</h3><div class="table-container"><table class="table" id="tblAuxiliares"><tbody></tbody></table></div></div>
         </section>
 
@@ -1158,8 +1201,30 @@ function enterApp() {
         if (!btnHelp) { // Si no existe, lo creamos
             btnHelp = document.createElement('button');
             btnHelp.id = 'btnAdminHelp';
-            btnHelp.innerText = '📘 Ver Guía de Uso';
-            btnHelp.style.cssText = "margin-top: 10px; background: #4338ca; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 12px;";
+            // --- NUEVO ESTILO: ARMONIOSO Y REDONDEADO ---
+            btnHelp.innerHTML = '<span style="font-size:1.1em">📘</span> Guía';
+            
+            // Estilos CSS para que parezca una "Píldora" (igual que los otros badges)
+            btnHelp.style.cssText = `
+                margin-left: 10px;
+                background: #e0e7ff;       /* Azul muy suave */
+                color: #4338ca;            /* Letras color índigo */
+                border: 1px solid #c7d2fe; /* Borde fino */
+                padding: 4px 12px;         /* Relleno cómodo */
+                border-radius: 99px;       /* Bordes totalmente redondos */
+                font-weight: 700;          /* Letra negrita */
+                font-size: 0.75rem;        /* Tamaño pequeño y elegante */
+                cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                transition: all 0.2s;
+            `;
+
+            // Efecto Hover (al pasar el mouse se oscurece un poquito)
+            btnHelp.onmouseover = function() { this.style.background = '#c7d2fe'; };
+            btnHelp.onmouseout  = function() { this.style.background = '#e0e7ff'; };
+
             btnHelp.onclick = function() { document.getElementById('modalManual').style.display = 'flex'; };
             // Lo agregamos debajo del badge o donde prefieras. 
             // Aquí lo pondremos en el encabezado si existe, o en el body temporalmente.
@@ -1504,14 +1569,202 @@ window.editP = (id) => {
         const cEl = $('#cSac'); if(cEl) cEl.innerText = `(${list.length})`;
         list.forEach(p=>{tb.innerHTML+=`<tr><td>${p.nombre}</td><td>${p.bau||'-'}</td><td style="color:var(--danger)">${p.fsac||'-'}</td></tr>`;});
     }
-    window.renderPrecursores=function(){
-        const tb=$('#tblPrecursores tbody');if(!tb)return;tb.innerHTML='';
-        const list = state.personas.filter(p=>p.pr&&!p.sacado);
-        const cEl = $('#cPre'); if(cEl) cEl.innerText = `(${list.length})`;
-        list.forEach(p=>{tb.innerHTML+=`<tr><td><b>${p.nombre}</b></td><td>G${p.grupo}</td><td>${p.bau||'-'}</td><td><span style="background:#dcfce7; color:#166534; padding:2px 8px; border-radius:4px; font-weight:bold;">Activo</span></td></tr>`;});
-    }
-    window.renderAuxiliares=function(){const tb=$('#tblAuxiliares tbody'),k=ymKey(curY,curM);if(!tb)return;tb.innerHTML='';state.personas.filter(p=>!p.sacado&&state.activity[k]?.[p.id]?.pa).forEach(p=>{tb.innerHTML+=`<tr><td><b>${p.nombre}</b></td><td>G${p.grupo}</td><td>${state.activity[k][p.id].horas} horas</td></tr>`;});}
     
+// ==========================================
+// FUNCIÓN MAESTRA: Actualiza Regulares y Auxiliares a la vez
+// ==========================================
+window.renderAllPrecursores = function() {
+    // 1. Leemos los selectores NUEVOS
+    let y = parseInt(document.getElementById('precAno').value);
+    let m = parseInt(document.getElementById('precMes').value);
+    
+    // Si están vacíos (primera carga), usamos la fecha real de hoy
+    if (!y || isNaN(m)) {
+        const d = new Date();
+        y = d.getFullYear();
+        m = d.getMonth();
+        // Seteamos los valores en los inputs para que se vean
+        document.getElementById('precAno').value = y;
+        document.getElementById('precMes').value = m;
+    }
+
+    // 2. Ejecutamos las dos funciones con esa fecha
+    window.renderPrecursores(y, m);
+    
+    // Si tienes una función para auxiliares, la llamamos también:
+    if(window.renderAuxiliares) window.renderAuxiliares(y, m);
+};
+
+// ==========================================
+// PRECURSORES REGULARES (Adaptado al Selector)
+// ==========================================
+window.renderPrecursores = function(yearIn, monthIn) {
+    const tb = $('#tblPrecursores tbody');
+    if (!tb) return;
+    tb.innerHTML = '';
+
+    const META_ANUAL = 600;
+    const RITMO_MES = 50; 
+    
+    // --- AQUÍ ESTÁ EL CAMBIO IMPORTANTE ---
+    // Usamos los valores que nos llegan (o hoy si no llegan)
+    let curY = yearIn;
+    let curM = monthIn;
+    
+    if (curY === undefined) { 
+        const d = new Date(); 
+        curY = d.getFullYear(); 
+        curM = d.getMonth(); 
+    }
+    // --------------------------------------
+
+    const serviceYear = (curM >= 8) ? curY + 1 : curY;
+
+    // Calcular ritmo
+    let mesServicioActual = (curM >= 8) ? (curM - 7) : (curM + 5);
+    const metaIdealHoy = mesServicioActual * RITMO_MES;
+
+    const list = state.personas.filter(p => p.pr && !p.sacado).sort((a,b) => a.nombre.localeCompare(b.nombre));
+    const cEl = $('#cPre'); if(cEl) cEl.innerText = `(${list.length})`;
+
+    list.forEach(p => {
+        let horasCampo = 0;
+        let horasLDC = 0;
+
+        const cicloMeses = [9,10,11,12,1,2,3,4,5,6,7,8];
+        cicloMeses.forEach(m => {
+            const y = (m >= 9) ? serviceYear - 1 : serviceYear;
+            const key = `${y}-${String(m).padStart(2, '0')}`;
+            
+            if (state.activity[key] && state.activity[key][p.id]) {
+                const registro = state.activity[key][p.id];
+                horasCampo += (Number(registro.horas) || 0);
+                
+                const textoNota = registro.nota || registro.notas || "";
+                if (textoNota && typeof textoNota === 'string') {
+                    const match = textoNota.match(/(\d+)/);
+                    if (match) horasLDC += parseInt(match[0], 10);
+                }
+            }
+        });
+
+        const totalGeneral = horasCampo + horasLDC;
+        let faltan = META_ANUAL - totalGeneral;
+        let diferenciaRitmo = totalGeneral - metaIdealHoy;
+        
+        let ritmoHTML = '';
+        if (diferenciaRitmo >= 0) {
+            ritmoHTML = `<div style="font-size:0.7rem; color:#166534; font-weight:600; margin-top:2px;">👍 Bien (+${diferenciaRitmo})</div>`;
+        } else {
+            ritmoHTML = `<div style="font-size:0.7rem; color:#dc2626; font-weight:600; margin-top:2px;">⚠️ Atraso ${diferenciaRitmo}</div>`;
+        }
+
+        let etiquetaHTML = '';
+        if (faltan <= 0) {
+            etiquetaHTML = `
+                <div style="background:#dcfce7; color:#166534; padding:4px 8px; border-radius:12px; border:1px solid #bbf7d0; display:inline-flex; align-items:center; gap:3px;">
+                    <span>🎉</span> <span style="font-weight:800; font-size:0.75rem;">LISTO</span>
+                </div>`;
+            ritmoHTML = ''; 
+        } else {
+            etiquetaHTML = `
+                <div style="background:#fff7ed; color:#c2410c; padding:3px 8px; border-radius:12px; border:1px solid #fdba74; display:inline-block;">
+                    <span style="font-size:0.65rem; font-weight:600;">FALTAN</span>
+                    <span style="font-size:0.9rem; font-weight:800;">${faltan}</span>
+                </div>`;
+        }
+
+        let detalleHorasHTML = `<div style="font-size:1.3rem; font-weight:800; color:#374151;">${totalGeneral}</div>`;
+        if (horasLDC > 0) {
+            detalleHorasHTML += `<div style="font-size:0.7rem; color:#2563eb; background:#eff6ff; padding:2px 6px; border-radius:4px; display:inline-block; margin-top:2px; border:1px solid #bfdbfe;">Inc. ${horasLDC} LDC</div>`;
+        } else {
+             detalleHorasHTML += `<div style="font-size:0.7rem; color:#9ca3af;">Total</div>`;
+        }
+
+        tb.innerHTML += `
+            <tr style="vertical-align: middle;">
+                <td style="padding: 10px;">
+                    <div style="font-weight:700; font-size:0.95rem; color:#1f2937;">${p.nombre}</div>
+                    <div style="font-size:0.7rem; color:#6b7280;">Grupo ${p.grupo}</div>
+                </td>
+                <td style="text-align:center; vertical-align:middle; background-color:#f9fafb;">${detalleHorasHTML}</td>
+                <td style="text-align:center; vertical-align:middle; padding:8px 4px;">${etiquetaHTML}${ritmoHTML}</td>
+            </tr>`;
+    });
+};
+// ==========================================
+// PRECURSORES AUXILIARES (DEFINITIVO: SIMPLE)
+// ==========================================
+window.renderAuxiliares = function(yearIn, monthIn) {
+    // 1. Determinar Fecha
+    let curY = yearIn;
+    let curM = monthIn;
+    if (curY === undefined) { const d = new Date(); curY = d.getFullYear(); curM = d.getMonth(); }
+
+    // 2. Buscar Contenedor
+    const section = document.getElementById('precursores');
+    let container = null;
+    let header = null;
+
+    section.querySelectorAll('h3').forEach(h => {
+        if(h.innerText.includes('Auxiliares')) {
+            header = h;
+            container = h.parentElement;
+        }
+    });
+
+    if(!container) return;
+
+    // 3. Actualizar Título
+    const meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+    header.innerText = `🏃 Precursores Auxiliares (${meses[curM]} ${curY})`;
+
+    // 4. Preparar Tabla
+    let tableContainer = container.querySelector('#auxContent');
+    if (!tableContainer) {
+        tableContainer = document.createElement('div');
+        tableContainer.id = 'auxContent';
+        container.appendChild(tableContainer);
+    }
+    tableContainer.innerHTML = ''; 
+
+    // 5. Filtrar Datos
+    const key = `${curY}-${String(curM).padStart(2, '0')}`;
+    const list = state.personas.filter(p => {
+        const reg = state.activity[key] && state.activity[key][p.id];
+        return reg && reg.pa; 
+    }).sort((a,b) => a.nombre.localeCompare(b.nombre));
+
+    if(list.length === 0) {
+        tableContainer.innerHTML = '<div style="padding:20px; text-align:center; color:#9ca3af;">No hay auxiliares registrados en este mes.</div>';
+        return;
+    }
+
+    // 6. Generar Tabla Simple
+    let html = `<table class="table" style="margin-top:10px; width:100%;">
+        <thead>
+            <tr style="background:#f9fafb; font-size:0.85rem; color:#6b7280;">
+                <th style="padding:10px; text-align:left;">Nombre</th>
+                <th style="text-align:center; width:100px;">Horas</th>
+            </tr>
+        </thead>
+        <tbody>`;
+
+    list.forEach(p => {
+        const reg = state.activity[key][p.id];
+        // Solo horas numéricas, sin notas/LDC
+        const horas = (Number(reg.horas) || 0);
+        
+        html += `<tr style="border-bottom:1px solid #eee;">
+            <td style="padding:10px; font-weight:600; color:#374151;">${p.nombre}</td>
+            <td style="text-align:center; font-weight:800; font-size:1.1rem; color:#1f2937;">
+                ${horas}
+            </td>
+        </tr>`;
+    });
+    html += '</tbody></table>';
+    tableContainer.innerHTML = html;
+};    
     window.renderAsistInputs=function(){const k=ymKey(asistY,asistM);if(!state.attendance[k])state.attendance[k]={es:[0,0,0,0,0,0],fs:[0,0,0,0,0,0]};const cES=$('#contES'),cFS=$('#contFS');cES.innerHTML='';cFS.innerHTML='';for(let i=0;i<5;i++){cES.innerHTML+=`<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;"><label style="margin:0;">Semana ${i+1}</label><input type="number" value="${state.attendance[k].es[i]||0}" onchange="updAsist('es',${i},this.value)" style="width:80px; text-align:center;"></div>`;cFS.innerHTML+=`<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;"><label style="margin:0;">Semana ${i+1}</label><input type="number" value="${state.attendance[k].fs[i]||0}" onchange="updAsist('fs',${i},this.value)" style="width:80px; text-align:center;"></div>`;}}
     window.updAsist=(t,i,v)=>{const k=ymKey(asistY,asistM);state.attendance[k][t][i]=parseInt(v||0);save();}
 
@@ -1866,11 +2119,37 @@ setTimeout(window.renderizarHistorialRapido, 500);
             </div>
 
             <hr style="border:0; border-top:1px solid #e2e8f0; margin:20px 0;">
+         
+            <details style="margin-bottom:10px; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;">
+                <summary style="background:white; padding:12px; font-weight:bold; cursor:pointer; list-style:none; color:#0f172a;">
+                    🔌 Interruptor Online / Offline
+                </summary>
+                <div style="padding:15px; background:#f8fafc; border-top:1px solid #e2e8f0; font-size:0.95em;">
+                    <p style="margin-top:0;">En la parte superior de la pantalla verás un indicador de estado (🟢 o ⚪). Puedes tocarlo para cambiar de modo:</p>
+                    
+                    <ul style="padding-left:20px; margin-bottom:15px;">
+                        <li style="margin-bottom:5px;">
+                            <b>🟢 Modo Online (Conectado):</b> Todo lo que hagas se guarda automáticamente en la Nube. Es lo ideal para que el Administrador vea los datos al instante.
+                        </li>
+                        <li>
+                            <b>⚪ Modo Offline (Local):</b> La App se desconecta de internet. Los datos se guardan <b>solo en tu celular</b>. Útil si no tienes datos móviles o la señal es mala.
+                        </li>
+                    </ul>
+
+                    <div style="background:#e0f2fe; border:1px solid #7dd3fc; border-radius:6px; padding:10px;">
+                        <strong style="color:#0369a1;">💡 Importante:</strong>
+                        <p style="margin:5px 0 0 0; font-size:0.9em; color:#0c4a6e;">
+                            Cuando vuelvas a tener internet, toca el indicador <b>⚪ Offline</b> para reconectar. La App subirá automáticamente todo lo que trabajaste mientras estabas desconectado.
+                        </p>
+                    </div>
+                </div>
+            </details>
             
            <details open style="margin-bottom:15px; border:1px solid #cbd5e1; border-radius:8px; overflow:hidden;">
     <summary style="background:#f1f5f9; padding:12px; cursor:pointer; font-weight:bold; color:#334155; list-style:none;">
         👥 0. Cómo Colaborar con Encargados de Grupo
     </summary>
+
     <div style="padding:15px; background:#fff; border-top:1px solid #cbd5e1; font-size:0.95em; color:#334155;">
         
         <p style="margin-bottom:15px; line-height: 1.5;">
