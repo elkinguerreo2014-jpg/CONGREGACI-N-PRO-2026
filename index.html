@@ -259,13 +259,31 @@
                 </div>
             </div>
 
-            <div class="admin-only" style="padding:15px; text-align:center; font-size:0.75rem; color:var(--text-muted); background:#f9fafb; border-radius: 12px; display:flex; flex-direction:column; gap:10px; align-items:center;">
-                <span>v1.0.3 • Web/App</span>
-                <button class="btn ghost" style="font-size:0.75rem; padding: 4px 10px; border-color: var(--border-light);" onclick="document.getElementById('modalSupport').style.display='flex'">
-                    ☕ Acerca de & Soporte
+            <div class="admin-only" style="padding:15px; text-align:center; margin-top: 10px;">
+                <span style="font-size:0.7rem; color:#94a3b8; display:block; margin-bottom:10px;">v1.0.3 • Web/App</span>
+                
+                <button onclick="document.getElementById('modalSupport').style.display='flex'" 
+                    style="
+                        width: 100%;
+                        background-color: #e0e7ff; /* Fondo Azul Suave */
+                        color: #4338ca;            /* Letras Índigo Fuerte */
+                        border: 2px solid #c7d2fe; /* Borde sutil */
+                        padding: 15px 20px;        /* Mucho relleno (Doble tamaño) */
+                        font-size: 1.1rem;         /* Letra grande */
+                        font-weight: 800;          /* Letra gruesa */
+                        border-radius: 16px;       /* Bordes muy redondeados */
+                        cursor: pointer;
+                        box-shadow: 0 4px 6px -1px rgba(67, 56, 202, 0.15); /* Sombrita elegante */
+                        display: flex; align-items: center; justify-content: center; gap: 10px;
+                        transition: transform 0.1s;
+                    "
+                    onmousedown="this.style.transform='scale(0.97)'" 
+                    onmouseup="this.style.transform='scale(1)'">
+                    
+                    <span style="font-size: 1.4rem;">☕</span>
+                    Acerca de & Soporte
                 </button>
-            </div>
-        </div>
+            </div>        </div>
     </div>
 </div>
 
