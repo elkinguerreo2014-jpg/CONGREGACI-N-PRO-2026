@@ -17,7 +17,133 @@
             --warning: #f59e0b; --info: #3b82f6; --radius-md: 16px; --radius-sm: 10px;
             --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1);
         }
+/* ========================================================= */
+    /* 🌑 MODO OSCURO "MASTER" (CORREGIDO HEADER Y TABLAS) 🌑 */
+    /* ========================================================= */
+    body.dark-mode {
+        --bg-body: #0f172a;        /* Fondo Azul Noche */
+        --surface: #1e293b;        /* Tarjetas Gris Azulado */
+        --text-main: #f1f5f9;      /* Blanco Brillante */
+        --text-muted: #94a3b8;     /* Gris Claro */
+        --border-light: #334155;   /* Bordes Oscuros */
+        --input-bg: #020617;       /* Inputs Negros */
+    }
 
+    /* 1. ARREGLO DEL HEADER (BARRA SUPERIOR) */
+    body.dark-mode header.top {
+        background-color: var(--bg-body) !important;
+        border-bottom: 1px solid var(--border-light) !important;
+    }
+    
+    /* El Título "Congregación Pro" a Blanco */
+    body.dark-mode header.top h1 {
+        color: #ffffff !important;
+    }
+    
+    /* Los selectores de Fecha (Año/Mes) en el Header */
+    body.dark-mode header.top input,
+    body.dark-mode header.top select {
+        background-color: var(--surface) !important;
+        color: #ffffff !important;
+        border: 1px solid var(--border-light) !important;
+    }
+
+    /* 2. ARREGLO DE ETIQUETAS (BADGES) */
+    /* Badge de "Administrador" o "Encargado" */
+    body.dark-mode #roleBadge {
+        background-color: #312e81 !important; /* Fondo Azul Oscuro */
+        color: #c7d2fe !important;            /* Letras Azul Claro Brillante */
+        border: 1px solid #4338ca !important;
+    }
+    /* Badge de "Online/Offline" */
+    body.dark-mode .status-badge {
+        background-color: var(--input-bg) !important;
+        color: #fff !important;
+        border: 1px solid var(--border-light) !important;
+    }
+
+    /* 3. FUERZA BRUTA: TARJETAS Y CONTENEDORES */
+    body.dark-mode, 
+    body.dark-mode .container,
+    body.dark-mode .modal-content {
+        background-color: var(--bg-body) !important;
+        color: var(--text-main) !important;
+    }
+
+    body.dark-mode .card,
+    body.dark-mode .settings-card,
+    body.dark-mode .dash-card {
+        background-color: var(--surface) !important;
+        border-color: var(--border-light) !important;
+        color: var(--text-main) !important;
+    }
+
+    /* 4. TEXTOS GENERALES (Para que nada quede oculto) */
+    body.dark-mode h2, body.dark-mode h3, body.dark-mode h4,
+    body.dark-mode strong, body.dark-mode b, body.dark-mode label,
+    body.dark-mode span:not(.badge):not(.status-badge) {
+        color: #e2e8f0 !important;
+    }
+
+    /* 5. TABLAS (Nombres visibles) */
+    body.dark-mode .table th {
+        background-color: #020617 !important;
+        color: #94a3b8 !important;
+        border-bottom-color: var(--border-light) !important;
+    }
+    body.dark-mode .table td {
+        background-color: var(--surface) !important;
+        color: #e2e8f0 !important; /* <--- ESTO ARREGLA LOS NOMBRES */
+        border-bottom-color: var(--border-light) !important;
+    }
+    body.dark-mode .table tbody tr:hover td {
+        background-color: #334155 !important;
+        color: #fff !important;
+    }
+
+    /* 6. INPUTS (Cajas de texto negras) */
+    body.dark-mode input:not([type="checkbox"]), 
+    body.dark-mode select, 
+    body.dark-mode textarea {
+        background-color: var(--input-bg) !important;
+        color: #fff !important;
+        border: 1px solid #475569 !important;
+    }
+
+  /* 7. LIMPIEZA DE FONDOS BLANCOS REBELDES (Versión Blindada) */
+    body.dark-mode *[style*="background:white"],
+    body.dark-mode *[style*="background: white"],
+    body.dark-mode *[style*="background:#fff"],
+    body.dark-mode *[style*="background: #fff"],
+    body.dark-mode *[style*="background-color: #f9fafb"] {
+        background-color: var(--surface) !important;
+        color: var(--text-main) !important;
+        border-color: var(--border-light) !important;
+    }
+
+    /* 🔥 ATAQUE DIRECTO AL CUADRO DEL HISTORIAL (Por ID) 🔥 */
+    body.dark-mode #boxHistorial {
+        background-color: var(--surface) !important;
+        border-color: var(--border-light) !important;
+    }
+    
+    /* Arreglar el texto pequeño dentro del cuadro */
+    body.dark-mode #boxHistorial small {
+        color: #cbd5e1 !important; 
+    }
+    
+    /* Arreglar el título azul dentro del cuadro */
+    body.dark-mode #boxHistorial label {
+        color: #60a5fa !important;
+    }    
+    /* 8. BOTONES GHOST (Ajustes y Guía) */
+    body.dark-mode .btn.ghost {
+        color: #cbd5e1 !important;
+        border-color: #475569 !important;
+    }
+    body.dark-mode .btn.ghost:hover {
+        background-color: #334155 !important;
+    }
         * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); line-height: 1.5; font-size: 14px; margin: 0; }
 
@@ -109,6 +235,147 @@
             .tabs-container { top: 115px; } 
             .admin-tools-grid, .asist-grid-layout, .stat-grid, .dash-grid { grid-template-columns: 1fr; } 
         }
+        /* === PARCHE FINAL: TEXTOS VISIBLES === */
+    body.dark-mode label, 
+    body.dark-mode .dash-label,
+    body.dark-mode h3, 
+    body.dark-mode h4,
+    body.dark-mode strong,
+    body.dark-mode b {
+        color: #e2e8f0 !important; /* Blanco brillante */
+    }
+
+    body.dark-mode input, 
+    body.dark-mode select, 
+    body.dark-mode textarea {
+        color: #ffffff !important;
+    }
+    /* === ARREGLO DE FONDO DEL FORMULARIO === */
+    body.dark-mode .admin-tools-grid {
+        background-color: transparent !important;
+        border-color: var(--border-light) !important;
+    }
+    
+    /* Asegurar que los títulos de los campos se vean bien */
+    body.dark-mode .admin-tools-grid label {
+        color: #e2e8f0 !important;
+    }
+/* === ÚLTIMO PARCHE: ETIQUETAS PEQUEÑAS === */
+
+    /* 1. SECCIÓN 2: Los grupos (G1, G2...) */
+    body.dark-mode #tblMiembros span {
+        background-color: #334155 !important;
+        color: #fff !important;
+        border: 1px solid #475569;
+    }
+
+    /* 2. SECCIÓN 5: Las horas LDC */
+    body.dark-mode #tblPrecursores div[style*="background:#eff6ff"],
+    body.dark-mode #tblPrecursores div[style*="background: #eff6ff"] {
+        background-color: #172554 !important;
+        color: #bfdbfe !important;
+        border-color: #1e40af !important;
+    }
+
+    /* 3. SECCIÓN 10: La etiqueta "Inactivo" */
+    body.dark-mode #tblInactivos span {
+        background-color: #450a0a !important;
+        color: #fca5a5 !important;
+        border: 1px solid #7f1d1d !important;
+    }
+    /* 4. ARREGLO BOTÓN GUÍA */
+    body.dark-mode #btnAdminHelp {
+        background-color: #312e81 !important; /* Fondo Azul Oscuro */
+        color: #ffffff !important;            /* Letra Blanca */
+        border: 1px solid #4338ca !important;
+    }
+    /* === ARREGLO DE MODALES (GUÍA Y AJUSTES) === */
+
+    /* 1. Fondo Oscuro para la ventana de Ajustes */
+    body.dark-mode .settings-card {
+        background-color: #1e293b !important; /* Gris Azulado Oscuro */
+        border: 1px solid #334155 !important;
+    }
+
+    /* 2. Fondo Oscuro para la ventana de la Guía */
+    /* Ataca directamente al div blanco dentro del modal */
+    body.dark-mode #modalManual > div {
+        background-color: #1e293b !important;
+        color: #fff !important;
+    }
+
+    /* 3. Arreglo de los desplegables y cajas internas */
+    body.dark-mode summary,
+    body.dark-mode .settings-group,
+    body.dark-mode .settings-content {
+        background-color: #0f172a !important; /* Fondo casi negro */
+        color: #e2e8f0 !important;
+        border-color: #334155 !important;
+    }
+
+    /* 4. Asegurar que los textos dentro se lean */
+    body.dark-mode #modalManual p, 
+    body.dark-mode #modalManual li,
+    body.dark-mode .settings-body p {
+        color: #cbd5e1 !important; /* Gris claro suave */
+    }
+    /* === RETOQUE FINAL: CONTRASTE EN CAJAS INTERNAS === */
+
+    /* 1. Botones cuadrados grandes (Respaldo, Excel...) */
+    body.dark-mode .icon-btn {
+        background-color: #1e293b !important;
+        color: #fff !important;
+        border: 1px solid #475569 !important;
+    }
+    
+    /* 2. Forzar oscuras todas las cajitas de colores (Verde, Naranja, Azul, Gris) */
+    /* Esto es lo que arregla que no se lean los textos claros */
+    body.dark-mode #modalManual div[style*="background"],
+    body.dark-mode #modalManual details,
+    body.dark-mode #modalManual summary,
+    body.dark-mode .settings-card div[style*="background"],
+    body.dark-mode .settings-card details,
+    body.dark-mode .settings-card summary,
+    body.dark-mode .status-card {
+        background-color: #0f172a !important; /* Fondo casi negro */
+        color: #e2e8f0 !important;             /* Letra blanca legible */
+        border-color: #334155 !important;      /* Borde sutil */
+    }
+
+    /* 3. Asegurar que las letras pequeñas y párrafos brillen */
+    body.dark-mode .settings-card small,
+    body.dark-mode .settings-card p,
+    body.dark-mode #modalManual small,
+    body.dark-mode #modalManual li,
+    body.dark-mode #modalManual p {
+        color: #cbd5e1 !important;
+    }
+    /* === ÚLTIMO DETALLE: BOTÓN DE SOPORTE === */
+    /* Atrapamos el botón por su función de abrir el soporte */
+    body.dark-mode button[onclick*="modalSupport"] {
+        background-color: #1e3a8a !important; /* Azul Noche Profundo */
+        color: #ffffff !important;            /* Letra Blanca Brillante */
+        border: 2px solid #1e40af !important; /* Borde Azul Oscuro */
+        box-shadow: none !important;
+    }
+    /* === ARREGLO FINAL: ENCABEZADO DE AJUSTES === */
+    /* Pintamos la barra de título de oscuro */
+    body.dark-mode .settings-header {
+        background-color: #1e293b !important; /* Mismo gris azulado que la ventana */
+        border-bottom: 1px solid #334155 !important;
+    }
+
+    /* Aseguramos que el título "Ajustes" resalte */
+    body.dark-mode .settings-header h3 {
+        color: #ffffff !important;
+    }
+    /* === ARREGLO DE CONTADORES (NUMERITOS) === */
+    body.dark-mode .count-badge {
+        background-color: #334155 !important; /* Gris Oscuro */
+        color: #ffffff !important;            /* Número Blanco */
+        border: 1px solid #475569 !important; /* Borde fino */
+    }
+
     </style>
 </head>
 <body>
@@ -335,8 +602,12 @@
             </div>
         </div>
         <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-            <button class="btn ghost" onclick="openSettings()">⚙️ Ajustes</button>
-        <div style="display:flex; gap:5px; align-items:center; background:#fff; padding:4px; border-radius:8px; border:1px solid var(--border); pointer-events: none; opacity: 0.6;">
+        <div style="display:flex; gap:5px;">
+         <button class="btn ghost" onclick="toggleTheme()" id="btnTheme" style="padding:6px 10px; font-size:1.2rem;">🌙</button>
+         <button class="btn ghost" onclick="openSettings()">⚙️ Ajustes</button>
+        </div>
+
+            <div style="display:flex; gap:5px; align-items:center; background:#fff; padding:4px; border-radius:8px; border:1px solid var(--border); pointer-events: none; opacity: 0.6;">
             <input type="number" id="headerYear" style="width:70px; border:none; box-shadow:none; padding:5px; font-weight:bold; text-align:center;">
                 <select id="headerMonth" style="width:110px; border:none; box-shadow:none; padding:5px; font-weight:bold;"></select>
             </div>
@@ -379,8 +650,8 @@
                         <input type="month" id="pInicio" title="Mes en que llegó o se reactivó. Antes de esta fecha no contará fallas.">
                     </div>
                     <div><label>Fecha Expulsión</label><input type="date" id="pFSac"></div>
-                    <div style="margin-top: 15px; margin-bottom: 15px; padding: 10px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 8px;">
-    <label style="font-weight: bold; color: #0d6efd; display: block; margin-bottom: 5px;">
+                    <div id="boxHistorial" style="margin-top: 15px; margin-bottom: 15px; padding: 10px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 8px;"></div>
+                    <label style="font-weight: bold; color: #0d6efd; display: block; margin-bottom: 5px;">
         <i class="bi bi-clock-history"></i> Historial Rápido (Evitar "Irregular")
     </label>
     <small style="color: #666; display: block; margin-bottom: 10px;">
@@ -919,6 +1190,33 @@ function parseDate(val) {
     return String(val).trim();
 }
     
+// ==========================================
+    // 🌗 LÓGICA DE MODO OSCURO
+    // ==========================================
+    window.toggleTheme = function() {
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        
+        // 1. Guardar la preferencia en el celular
+        localStorage.setItem('cong_pro_theme', isDark ? 'dark' : 'light');
+        
+        // 2. Cambiar el icono (Sol / Luna)
+        const btn = document.getElementById('btnTheme');
+        if(btn) btn.innerText = isDark ? '☀️' : '🌙';
+    }
+
+    // CARGAR TEMA AL ABRIR LA APP
+    const savedTheme = localStorage.getItem('cong_pro_theme');
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+        // Esperamos un instante para asegurarnos que el botón existe
+        setTimeout(() => {
+            const btn = document.getElementById('btnTheme');
+            if(btn) btn.innerText = '☀️';
+        }, 500);
+    }
+
+
     window.init = function() {
         $('#mEnter').onclick = attemptLogin;
         $('#mPwd').onkeydown = (e) => { if(e.key==='Enter') attemptLogin(); };
@@ -2365,5 +2663,11 @@ setTimeout(window.renderizarHistorialRapido, 500);
         </div>
     </div>
 </div>
+<style>
+    body.dark-mode * { color: #e2e8f0 !important; border-color: #334155 !important; }
+    body.dark-mode input, body.dark-mode select, body.dark-mode textarea { background: #020617 !important; color: #fff !important; }
+    body.dark-mode .btn, body.dark-mode .status-badge { color: inherit !important; }
+</style>
+
 </body>
 </html>
