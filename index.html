@@ -375,6 +375,59 @@
         color: #ffffff !important;            /* Número Blanco */
         border: 1px solid #475569 !important; /* Borde fino */
     }
+    /* ========================================================= */
+    /* 📄 CORRECCIÓN PARA VER HOJAS DE PAPEL EN MODO OSCURO 📄 */
+    /* ========================================================= */
+    
+    /* Forzamos que dentro de la hoja (.print-canvas) TODO sea negro */
+    body.dark-mode .print-canvas,
+    body.dark-mode .print-canvas * {
+        color: #000000 !important;       /* Letra Negra */
+        border-color: #000000 !important; /* Bordes Negros */
+    }
+
+    /* Aseguramos que las tablas dentro del papel también sean negras */
+    body.dark-mode .print-canvas .official-table th,
+    body.dark-mode .print-canvas .official-table td {
+        color: #000000 !important;
+        border-color: #000000 !important;
+    }
+/* ========================================================= */
+    /* 📄 CORRECCIÓN TOTAL PARA PDF EN MODO OSCURO 📄 */
+    /* ========================================================= */
+    
+    /* 1. La hoja completa: Fondo blanco y letra negra base */
+    body.dark-mode .print-canvas {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+    }
+
+    /* 2. ATAQUE DIRECTO A LA INFO PERSONAL (Cabecera) */
+    /* Aquí es donde está el Nombre, Grupo, Fechas, etc. */
+    body.dark-mode .print-canvas .s21-header-box,
+    body.dark-mode .print-canvas .s21-header-box div,
+    body.dark-mode .print-canvas .s21-header-box span,
+    body.dark-mode .print-canvas .s21-header-box b,
+    body.dark-mode .print-canvas .s21-header-box strong,
+    body.dark-mode .print-canvas .s21-header-box label {
+        color: #000000 !important; /* ¡NEGRO PURO! */
+        background-color: transparent !important; /* Sin fondo oscuro */
+        border-color: #000000 !important;
+    }
+
+    /* 3. Las Tablas y sus bordes */
+    body.dark-mode .print-canvas table,
+    body.dark-mode .print-canvas th,
+    body.dark-mode .print-canvas td {
+        color: #000000 !important;
+        border-color: #000000 !important;
+    }
+
+    /* 4. Seguridad extra: Cualquier texto dentro del papel */
+    body.dark-mode .print-canvas * {
+        color: #000000 !important;
+    }
+
 
     </style>
 </head>
@@ -527,7 +580,7 @@
             </div>
 
             <div class="admin-only" style="padding:15px; text-align:center; margin-top: 10px;">
-                <span style="font-size:0.7rem; color:#94a3b8; display:block; margin-bottom:10px;">v1.1.0 • Web/App</span>
+                <span style="font-size:0.7rem; color:#94a3b8; display:block; margin-bottom:10px;">v1.1.1 • Web/App</span>
                 
                 <button onclick="document.getElementById('modalSupport').style.display='flex'" 
                     style="
@@ -2143,22 +2196,110 @@ window.renderEstadoEspiritual = function() {
     window.previewS21 = function() { const m=$('#s21Mode').value; let l=[]; if(m==='individual'){const n=$('#s21Search').value; const p=state.personas.find(x=>x.nombre===n); if(p)l=[p];} else if(m==='group'){l=state.personas.filter(p=>p.grupo==$('#s21GroupSel').value && !p.sacado);} else if(m==='pr'){l=state.personas.filter(p=>p.pr&&!p.sacado);} else {l=state.personas.filter(p=>!p.sacado);} $('#preview-viewport').innerHTML=l.map(p=>getS21HTML(p,parseInt($('#s21Year').value))).join(''); }
     
     window.downloadPDFS21 = function() { 
-        const el = document.getElementById('preview-viewport');
-        if(!el.innerHTML) return alert("Ver primero");
-        el.style.background = 'white'; el.style.padding = '0';
-        html2pdf().set({margin:10, filename:'S21.pdf', image:{type:'jpeg',quality:0.98}, html2canvas:{scale:1.5}, jsPDF:{unit:'mm',format:'a4'}})
-        .from(el).save().then(() => { el.style.background = '#525252'; el.style.padding = '20px'; });
+    const el = document.getElementById('preview-viewport');
+    if(!el.innerHTML) return alert("Ver primero");
+
+    // 1. Preparamos el estilo visual (Fondo blanco para imprimir)
+    const oldBg = el.style.background;
+    const oldPad = el.style.padding;
+    el.style.background = 'white'; 
+    el.style.padding = '0';
+
+    const fileName = 'Tarjeta_S21.pdf';
+    const opt = {
+        margin: 10, 
+        filename: fileName, 
+        image: {type:'jpeg', quality:0.98}, 
+        html2canvas: {scale:1.5}, 
+        jsPDF: {unit:'mm', format:'a4'}
+    };
+
+    // 2. Detectamos si es App o Web
+    if (window.hasOwnProperty('Capacitor')) {
+        // MODO APP (Android)
+        html2pdf().set(opt).from(el).outputPdf('datauristring').then(async (pdfBase64) => {
+            try {
+                const base64Content = pdfBase64.split(',')[1];
+                const { Filesystem } = Capacitor.Plugins;
+                
+                await Filesystem.writeFile({
+                    path: fileName,
+                    data: base64Content,
+                    directory: 'DOCUMENTS'
+                });
+                
+                // Restauramos el estilo original
+                el.style.background = '#525252'; 
+                el.style.padding = '20px';
+                alert("✅ PDF guardado en Documentos");
+            } catch (err) {
+                alert("Error App: " + err.message);
+                // Restaurar estilo aunque falle
+                el.style.background = '#525252'; el.style.padding = '20px';
+            }
+        });
+    } else {
+        // MODO WEB (PC)
+        html2pdf().set(opt).from(el).save().then(() => { 
+            el.style.background = '#525252'; 
+            el.style.padding = '20px'; 
+        });
     }
+}
 
     window.renderS88Preview = function() { const sy=parseInt($('#s88Year').value); const build=(t)=>{let rows='',tA=0,tR=0; CICLO_S88.forEach(m=>{const y=(m>=9)?sy:sy+1, d=state.attendance[ymKey(y,m)]?.[t]||[0,0,0,0,0,0], re=d.filter(v=>v>0).length, as=d.reduce((a,b)=>a+b,0), pr=re>0?Math.round(as/re):''; tA+=as; tR+=re; rows+=`<tr><td>${MESES_NOM[m-1]}</td><td>${re||''}</td><td>${as||''}</td><td><b>${pr}</b></td></tr>`;}); return {h:rows,avg:tR>0?Math.round(tA/tR):''};}; const es=build('es'), fs=build('fs'); $('#s88-preview-viewport').innerHTML=`<div class="print-canvas"><div style="text-align:center; font-weight:800;">REGISTRO ASISTENCIA</div><br><b>REUNIÓN VIDA Y MINISTERIO</b><table class="official-table"><thead><tr><th>Mes</th><th>Reun</th><th>Total</th><th>Prom</th></tr></thead><tbody>${es.h}</tbody><tfoot><tr><td colspan="3" style="text-align:right">PROM. ANUAL</td><td>${es.avg}</td></tr></tfoot></table><br><b>REUNIÓN PÚBLICA</b><table class="official-table"><thead><tr><th>Mes</th><th>Reun</th><th>Total</th><th>Prom</th></tr></thead><tbody>${fs.h}</tbody><tfoot><tr><td colspan="3" style="text-align:right">PROM. ANUAL</td><td>${fs.avg}</td></tr></tfoot></table></div>`; }
     
     window.generatePDF = function() { 
-        const el = document.getElementById('s88-preview-viewport');
-        if(!el) return;
-        el.style.background = 'white'; el.style.padding = '0';
-        html2pdf().set({margin:10, filename:'S88.pdf', image:{type:'jpeg',quality:0.98}, html2canvas:{scale:1.5}, jsPDF:{unit:'mm',format:'a4'}})
-        .from(el).save().then(() => { el.style.background = '#525252'; el.style.padding = '20px'; });
+    const el = document.getElementById('s88-preview-viewport');
+    if(!el) return;
+
+    // Guardamos estilo original
+    const oldBg = el.style.background;
+    const oldPad = el.style.padding;
+    
+    // Ponemos fondo blanco para la foto
+    el.style.background = 'white'; 
+    el.style.padding = '0';
+
+    const fileName = 'Registro_S88.pdf';
+    const opt = { 
+        margin: 10, 
+        filename: fileName, 
+        image:{type:'jpeg', quality:0.98}, 
+        html2canvas:{scale:1.5}, 
+        jsPDF:{unit:'mm', format:'a4'} 
+    };
+
+    if (window.hasOwnProperty('Capacitor')) {
+        // --- MODO APP (ANDROID) ---
+        html2pdf().set(opt).from(el).outputPdf('datauristring').then(async (pdfBase64) => {
+            try {
+                const base64 = pdfBase64.split(',')[1];
+                const { Filesystem } = Capacitor.Plugins;
+                
+                await Filesystem.writeFile({
+                    path: fileName,
+                    data: base64,
+                    directory: 'DOCUMENTS'
+                });
+                
+                showToast("✅ S-88 guardado en Documentos");
+            } catch (e) {
+                alert("Error App: " + e.message);
+            } finally {
+                // Restauramos estilo
+                el.style.background = oldBg || '#525252'; 
+                el.style.padding = oldPad || '20px';
+            }
+        });
+    } else {
+        // --- MODO WEB (PC) ---
+        html2pdf().set(opt).from(el).save().then(() => { 
+            el.style.background = oldBg || '#525252'; 
+            el.style.padding = oldPad || '20px'; 
+        });
     }
+}
     
     window.renderResumenMensual = function(y, m) {
         const k=ymKey(y,m), act=state.activity[k]||{}, att=state.attendance[k]||{es:[],fs:[]};
@@ -2399,7 +2540,7 @@ setTimeout(window.renderizarHistorialRapido, 500);
         <div style="padding:20px; background:#f8fafc; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
             <div>
                 <h2 style="margin:0; color:#1e293b; font-size:1.4rem;">📘 Manual de Usuario</h2>
-                <span style="font-size:0.85rem; color:#64748b;">Guía completa v1.1.0</span>
+                <span style="font-size:0.85rem; color:#64748b;">Guía completa v1.1.1</span>
             </div>
             <button onclick="document.getElementById('modalManual').style.display='none'" style="background:none; border:none; font-size:32px; color:#94a3b8; cursor:pointer; line-height:1;">&times;</button>
         </div>
@@ -2648,7 +2789,7 @@ setTimeout(window.renderizarHistorialRapido, 500);
             <details style="margin-bottom:8px; border:1px solid #cbd5e1; border-radius:8px;">
                 <summary style="background:#f1f5f9; padding:10px; cursor:pointer; font-weight:bold;">ℹ️ D. Soporte y Apoyo</summary>
                 <div style="padding:15px; background:white; font-size:0.95em;">
-                    <p><b>Versión:</b> v1.1.0</p>
+                    <p><b>Versión:</b> v1.1.1</p>
                     <div style="margin-top:15px; padding:15px; background:#f0fdf4; border:1px solid #86efac; border-radius:8px;">
                         <h4 style="margin:0 0 5px 0; color:#15803d;">🤝 Apoyo Voluntario</h4>
                         <p style="margin:0; font-size:0.9em; color:#166534;">
@@ -2659,7 +2800,7 @@ setTimeout(window.renderizarHistorialRapido, 500);
                 </div>
             </details>
 
-            <p style="text-align:center; font-size:0.8em; margin-top:30px; color:#cbd5e1;">Congregación Pro - Manual v1.1.0</p>
+            <p style="text-align:center; font-size:0.8em; margin-top:30px; color:#cbd5e1;">Congregación Pro - Manual v1.1.1</p>
         </div>
     </div>
 </div>
