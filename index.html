@@ -427,8 +427,149 @@
     body.dark-mode .print-canvas * {
         color: #000000 !important;
     }
+    /* ========================================================= */
+    /* 🔒 MODO INVITADO (SOLO LECTURA) 🔒 */
+    /* ========================================================= */
 
+    /* 1. Ocultar botones de Guardar, Borrar, Añadir y Editar */
+    body.guest-mode .btn-save,       /* Asegúrate que tus botones de guardar tengan esta clase */
+    body.guest-mode .btn-delete,     /* O esta */
+    body.guest-mode .btn-add,        /* Botones flotantes de agregar (+) */
+    body.guest-mode button[onclick*="save"],   /* Oculta cualquier botón que llame a save */
+    body.guest-mode button[onclick*="delete"], /* Oculta cualquier botón que llame a delete */
+    body.guest-mode button[onclick*="update"] {
+        display: none !important;
+    }
 
+    /* 2. Bloquear todos los Inputs y Selects (No se pueden escribir ni cambiar) */
+    body.guest-mode input,
+    body.guest-mode select,
+    body.guest-mode textarea {
+        pointer-events: none; /* No permite hacer clic */
+        background-color: transparent !important; /* Que parezca solo texto */
+        border: none !important;
+    }
+
+    /* 3. EXCEPCIONES: Cosas que SÍ deben funcionar */
+    
+    /* El botón de búsqueda SÍ debe funcionar */
+    body.guest-mode #searchInput, 
+    body.guest-mode .search-bar input {
+        pointer-events: auto !important;
+        border: 1px solid #ccc !important;
+        background-color: white !important;
+    }
+
+    /* Los botones de navegación y "Ojos" (Ver) SÍ deben verse */
+    body.guest-mode .nav-btn,
+    body.guest-mode .btn-view,   /* El ojito para ver reportes */
+    body.guest-mode .tab-link {
+        display: block !important;
+        pointer-events: auto !important;
+    }
+
+    /* 4. IMPORTANTE: Soporte y Donación SÍ permitidos */
+    body.guest-mode #btn-support,
+    body.guest-mode .donate-section,
+    body.guest-mode a[href*="paypal"],
+    body.guest-mode .btn-about {
+        display: block !important;
+        pointer-events: auto !important;
+        opacity: 1 !important;
+    }
+
+   /* ========================================================= */
+    /* 🔒 MODO INVITADO (CORREGIDO: SIN PDF) 🔒 */
+    /* ========================================================= */
+
+    /* 1. OCULTAR BOTONES DE EDICIÓN, GUARDADO Y **DESCARGAS** */
+    body.guest-mode .btn-save, 
+    body.guest-mode .btn-delete,
+    body.guest-mode .btn-add,
+    body.guest-mode button[onclick*="save"], 
+    body.guest-mode button[onclick*="update"],
+    body.guest-mode button[onclick*="delete"],
+    /* 👇 AQUÍ ESTÁ EL CAMBIO: OCULTAMOS LOS PDF 👇 */
+    body.guest-mode button[onclick*="downloadPDF"], 
+    body.guest-mode button[onclick*="generatePDF"] {
+        display: none !important;
+    }
+
+    /* 2. BLOQUEO GENERAL (Por defecto, nada se toca) */
+    body.guest-mode input,
+    body.guest-mode select,
+    body.guest-mode textarea {
+        pointer-events: none !important;
+        border: none !important;
+        background: transparent !important;
+        color: inherit;
+    }
+
+    /* 3. ¡EXCEPCIONES! (Lo que SÍ se puede tocar para navegar) */
+    body.guest-mode #headerMonth, body.guest-mode #headerYear,      
+    body.guest-mode #actMonthSelect, body.guest-mode #actYearInput, 
+    body.guest-mode #selGInforme,                                   
+    body.guest-mode #asistMonthSelect, body.guest-mode #asistYearInput, 
+    body.guest-mode #precMes, body.guest-mode #precAno,             
+    body.guest-mode #s21Mode, body.guest-mode #s21Year,             
+    body.guest-mode #s21Search, body.guest-mode #s21GroupSel,       
+    body.guest-mode #s88Year,                                       
+    body.guest-mode #resMonth, body.guest-mode #resYear,            
+    body.guest-mode #qPersona, body.guest-mode #searchInput {       
+        
+        pointer-events: auto !important; 
+        border: 1px solid #ccc !important; 
+        background-color: var(--surface) !important; 
+        border-radius: 6px !important;
+        opacity: 1 !important;
+    }
+
+    /* 4. Permitir botones de "Ver" (Ojitos) y Navegación */
+    body.guest-mode .btn-view,
+    body.guest-mode button[onclick*="render"],
+    body.guest-mode button[onclick*="preview"], /* <--- ESTE ES EL BOTÓN "VER" (OJITO) */
+    body.guest-mode button[onclick*="Search"] {
+        pointer-events: auto !important;
+        display: inline-block !important;
+        cursor: pointer !important;
+    }
+
+    /* ========================================================= */
+    /* 🛠️ AJUSTES VISUALES PARA INVITADO (CONFIGURACIÓN) 🛠️ */
+    /* ========================================================= */
+    
+    /* 1. Ocultar lo que NO debe ver */
+    body.guest-mode #secShareKey,  /* Compartir Llave */
+    body.guest-mode #secRespaldo,  /* Respaldo Local */
+    body.guest-mode #secExcel,     /* Excel */
+    body.guest-mode #secAccesos {  /* Gestión de Claves */
+        display: none !important;
+    }
+
+    /* 2. Mostrar "Conexión Rápida" (que normalmente se oculta a los admins) */
+    body.guest-mode #smartConnectBox {
+        display: block !important;
+    }
+
+    /* =============================================== */
+    /* FIX: FONDO BLANCO PARA PDF (Ahorro de Tinta)    */
+    /* Fuerza que la hoja sea blanca en Modo Oscuro    */
+    /* =============================================== */
+    #modalTarjeta > div, 
+    #modalRegistro > div, 
+    #cardS21, 
+    #cardS88,
+    .hoja-pdf {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+    }
+    
+    /* Corrección para textos dentro de la tabla en modo oscuro */
+    #modalTarjeta table, #modalTarjeta td, #modalTarjeta th,
+    #modalRegistro table, #modalRegistro td, #modalRegistro th {
+        color: #000000 !important;
+        border-color: #000000 !important;
+    }
     </style>
 </head>
 <body>
@@ -439,7 +580,13 @@
     <div class="card" style="width:360px; max-width:90%; text-align:center; margin-bottom:0; padding: 40px 20px;">
         <div style="background:var(--primary); width:60px; height:60px; border-radius:16px; margin:0 auto 20px auto; display:flex; align-items:center; justify-content:center; color:white; font-size:1.8rem;">🔐</div>
         <h2 style="font-weight:800; margin-bottom:10px; color:var(--text-main);">Bienvenido</h2>
-        <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:30px;">Introduce tu clave de acceso.<br><small style="opacity:0.7;">(Clave inicial sugerida: 12345)</small></p>
+        <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:30px; line-height: 1.5;">
+        Introduce tu clave de acceso.<br><br>
+    <small style="opacity:0.9; display:block; font-size: 0.85em;">
+        🔑 <b>Administrador:</b> Clave inicial sugerida 12345.<br>
+        👤 <b>Encargado o Invitado:</b> Pídele la clave al administrador.
+    </small>
+</p>
         <input type="password" id="mPwd" placeholder="••••" style="text-align:center; font-size:2rem; letter-spacing:12px; margin-bottom:30px; font-weight:700; border-radius: 12px; padding: 15px;">
         <button class="btn primary" id="mEnter" onclick="window.attemptLogin()" style="width:100%; padding:16px; font-size:1rem;">ENTRAR AL SISTEMA</button>
         <p onclick="handleForgotPwd()" style="margin-top:20px; font-size:0.85rem; color:var(--primary); cursor:pointer; text-decoration:underline; font-weight:600;">
@@ -465,9 +612,10 @@
             <h3 style="margin:0; font-size: 1.2rem;">⚙️ Ajustes</h3>
             <button class="btn ghost" onclick="closeSettings()" style="padding:6px 12px; border-radius:50%; border:none; font-size:1.2rem;">✕</button>
         </div>
+        
         <div class="settings-body">
             
-<div class="settings-group">
+            <div class="settings-group">
                 <div style="padding:15px;">
                     <div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:10px;">☁️ Conexión y Datos</div>
                     
@@ -487,7 +635,7 @@
                         </p>
                     </div>
 
-                    <div class="admin-only" style="margin-top:15px; background:#f0f9ff; padding:15px; border-radius:10px; border:1px solid #bae6fd;">
+                    <div id="secShareKey" class="admin-only" style="margin-top:15px; background:#f0f9ff; padding:15px; border-radius:10px; border:1px solid #bae6fd;">
                         <label style="color:#0369a1; display:flex; align-items:center; gap:5px;">📤 Compartir Llave de Acceso</label>
                         <p style="font-size:0.75rem; color:#0c4a6e; margin-bottom:10px;">
                             Envía estos datos a los encargados para que se conecten a tu nube.
@@ -506,11 +654,10 @@
                             <button class="btn ghost" onclick="saveCloudCredentials()" style="width:100%;">Guardar Manualmente</button>
                         </div>
                     </details>
-
                 </div>
             </div>
 
-            <div class="settings-group">
+            <div id="secRespaldo" class="settings-group">
                 <div style="padding:15px;">
                     <div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:10px;">💾 Respaldo Local</div>
                     <div class="action-row">
@@ -519,8 +666,9 @@
                     </div>
                 </div>
             </div>
-            <div class="settings-group admin-only" style="margin-top: 15px; border: 1px solid #16a34a;">
-            <div style="padding:15px; background: #f0fdf4;">
+
+            <div id="secExcel" class="settings-group admin-only" style="margin-top: 15px; border: 1px solid #16a34a;">
+                <div style="padding:15px; background: #f0fdf4;">
                     <div style="font-size:0.8rem; font-weight:700; color:#15803d; text-transform:uppercase; margin-bottom:10px;">
                         📗 Migración Masiva (Excel)
                     </div>
@@ -538,18 +686,17 @@
                             <span style="font-size:1.5rem;">📂</span>
                             <small style="font-weight:bold;">2. Cargar Excel</small>
                             <input type="file" accept=".xlsx, .xls" onchange="importFromExcel(this)" 
-                                   style="position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%;">
+                                style="position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%;">
                         </div>
                     </div>
                 </div>
             </div>
 
-            <details class="settings-group admin-only">
+            <details id="secAccesos" class="settings-group admin-only">
                 <summary>🔐 Gestión de Accesos</summary>
                 <div class="settings-content">
                     <label>Cambiar Clave Administrador</label>
-                    <button class="btn warning" style="width:100%; margin-bottom:20px;" onclick="document.getElementById('modalPwd').style.display='flex'">🔑 Cambiar Clave Principal</button>
-                    
+                     <button class="btn warning" style="width:100%; margin-bottom:20px;" onclick="openPwdModal()">🔑 Cambiar Clave Principal</button>                    
                     <div style="border-top:1px solid var(--border-light); padding-top:15px; margin-top:10px;">
                         <label>Cantidad de Grupos</label>
                         <div style="display:flex; gap:10px; margin-bottom:15px;">
@@ -567,45 +714,44 @@
                     </div>
                 </div>
             </details>
+
             <div class="settings-group" style="margin-top: 15px;">
                 <div style="padding:15px;">
                     <div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:10px;">
                         🌐 Versión Web (iPhone/PC)
                     </div>
                     <div style="display:flex; gap:10px; align-items:center;">
-                         <p style="font-size:0.8rem; color:var(--text-muted); margin:0; flex:1;">Para usar en navegador sin instalar.</p>
-                         <button class="btn info" onclick="shareWebLink()" style="padding:8px 12px;">🔗 Compartir</button>
+                        <p style="font-size:0.8rem; color:var(--text-muted); margin:0; flex:1;">Para usar en navegador sin instalar.</p>
+                        <button class="btn info" onclick="shareWebLink()" style="padding:8px 12px;">🔗 Compartir</button>
                     </div>
                 </div>
             </div>
 
             <div class="admin-only" style="padding:15px; text-align:center; margin-top: 10px;">
-                <span style="font-size:0.7rem; color:#94a3b8; display:block; margin-bottom:10px;">v1.1.1 • Web/App</span>
+                <span style="font-size:0.7rem; color:#94a3b8; display:block; margin-bottom:10px;">v1.2.0 • Web/App</span>
                 
                 <button onclick="document.getElementById('modalSupport').style.display='flex'" 
                     style="
                         width: 100%;
-                        background-color: #e0e7ff; /* Fondo Azul Suave */
-                        color: #4338ca;            /* Letras Índigo Fuerte */
-                        border: 2px solid #c7d2fe; /* Borde sutil */
-                        padding: 15px 20px;        /* Mucho relleno (Doble tamaño) */
-                        font-size: 1.1rem;         /* Letra grande */
-                        font-weight: 800;          /* Letra gruesa */
-                        border-radius: 16px;       /* Bordes muy redondeados */
+                        background-color: #e0e7ff; 
+                        color: #4338ca;            
+                        border: 2px solid #c7d2fe; 
+                        padding: 15px 20px;        
+                        font-size: 1.1rem;         
+                        font-weight: 800;          
+                        border-radius: 16px;       
                         cursor: pointer;
-                        box-shadow: 0 4px 6px -1px rgba(67, 56, 202, 0.15); /* Sombrita elegante */
+                        box-shadow: 0 4px 6px -1px rgba(67, 56, 202, 0.15);
                         display: flex; align-items: center; justify-content: center; gap: 10px;
                         transition: transform 0.1s;
                     "
                     onmousedown="this.style.transform='scale(0.97)'" 
                     onmouseup="this.style.transform='scale(1)'">
-                    
                     <span style="font-size: 1.4rem;">☕</span>
                     Acerca de & Soporte
                 </button>
-            </div>        </div>
-    </div>
-</div>
+            </div>        
+        </div> </div> </div> ```
 
 <div id="modalSupport" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:10001; align-items:center; justify-content:center; padding: 20px;">
     <div style="background:white; width:100%; max-width:380px; border-radius:15px; padding:25px; position:relative; text-align:center; font-family: 'Inter', sans-serif;">
@@ -633,15 +779,29 @@
 </div>
 
 
-<div id="modalPwd" style="display:none;">
-    <div class="card" style="width:300px; margin-bottom:0; text-align: center;">
-        <h3>Cambiar Clave Admin</h3>
-        <input type="password" id="pNew" placeholder="Nueva clave" style="margin-bottom:15px; text-align: center;">
-        <button class="btn primary" onclick="updatePassword()" style="width:100%; margin-bottom:10px;">Guardar</button>
-        <button class="btn ghost" onclick="document.getElementById('modalPwd').style.display='none'" style="width:100%;">Cancelar</button>
+<div id="modalPwd" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:10002; align-items:center; justify-content:center;">
+    <div class="card" style="width:320px; text-align: center; padding: 25px;">
+        <h3 style="margin-top:0;">🔐 Gestión de Claves</h3>
+        
+        <label style="text-align:left; width:100%; font-size:0.8rem; font-weight:bold;">Administrador (Secretario)</label>
+        <input type="password" id="pNew" placeholder="Nueva clave (Opcional)" style="margin-bottom:20px; text-align: center;">
+        
+        <div style="text-align:left; border-top:1px dashed #ddd; padding-top:15px; margin-top:5px;">
+            <label style="color:#059669; font-size:0.8rem; font-weight:bold;">Invitado (Solo Lectura)</label>
+            
+            <div style="background:#f0fdf4; padding:8px; border-radius:6px; margin: 5px 0 10px 0; font-size:0.85rem; color:#166534; border:1px solid #bbf7d0;">
+                Clave Actual: <b id="lblShowGuest">...</b>
+            </div>
+
+            <input type="text" id="pGuestNew" placeholder="Escribe la NUEVA clave aquí" style="margin-bottom:20px; text-align: center; border:1px solid #059669; font-weight:bold; color:#059669;">
+        </div>
+
+        <div style="display:flex; gap:10px;">
+            <button class="btn ghost" onclick="document.getElementById('modalPwd').style.display='none'" style="flex:1;">Cancelar</button>
+            <button class="btn primary" onclick="updatePassword()" style="flex:1;">Guardar Cambios</button>
+        </div>
     </div>
 </div>
-
 <div id="app-content">
     <header class="top">
         <div style="display:flex; align-items:center; gap:12px;">
@@ -656,8 +816,11 @@
         </div>
         <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
         <div style="display:flex; gap:5px;">
-         <button class="btn ghost" onclick="toggleTheme()" id="btnTheme" style="padding:6px 10px; font-size:1.2rem;">🌙</button>
-         <button class="btn ghost" onclick="openSettings()">⚙️ Ajustes</button>
+            <button class="btn ghost" onclick="toggleTheme()" id="btnTheme" style="padding:6px 10px; font-size:1.2rem;" title="Cambiar Tema">🌙</button>
+            
+            <button class="btn ghost" onclick="document.getElementById('modalManual').style.display='flex'">📘 Guía</button>
+            
+            <button class="btn ghost" onclick="openSettings()">⚙️ Ajustes</button>
         </div>
 
             <div style="display:flex; gap:5px; align-items:center; background:#fff; padding:4px; border-radius:8px; border:1px solid var(--border); pointer-events: none; opacity: 0.6;">
@@ -802,7 +965,7 @@
             </div>
             <div>
                 <label>Año</label>
-                <input type="number" id="precAno" class="form-control" value="2026">
+                <select id="precAno" class="form-control" style="font-weight:bold;"></select>
             </div>
             <div style="display:flex; align-items:flex-end;">
                 <button class="btn primary" onclick="renderAllPrecursores()">📅 Ver Datos</button>
@@ -811,13 +974,14 @@
 
         <div class="table-container">
             <table class="table" id="tblPrecursores">
-            <thead>
-        <tr>
-            <th style="width: 40%;">Publicador</th>
-            <th style="text-align:center; width: 25%;">Total Año</th>
-            <th style="text-align:center; width: 35%;">Meta (600h)</th>
-        </tr>
-    </thead>
+           <thead>
+    <tr>
+        <th style="width: 30%;">Publicador</th>
+        <th style="text-align:center; width: 20%; color:#059669;">A la Fecha</th> <th style="text-align:center; width: 20%;">Total Año</th>
+        <th style="text-align:center; width: 30%;">Meta</th>
+    </tr>
+      </thead>
+           
     <tbody></tbody>
 </table></div></div>
             <div class="card" style="margin-top:20px;"><h3>🏃 Precursores Auxiliares (Mes Actual)</h3><div class="table-container"><table class="table" id="tblAuxiliares"><tbody></tbody></table></div></div>
@@ -830,7 +994,7 @@
                     <div><label>Modo</label><select id="s21Mode" onchange="toggleS21Inputs()"><option value="individual">Individual</option><option value="group">Por Grupo</option><option value="pr">Solo Precursores</option><option value="all">Todos</option></select></div>
                     <div id="s21InputIndiv"><label>Buscar Persona</label><input id="s21Search" list="pList" placeholder="Escribe nombre..."></div>
                     <div id="s21InputGroup" style="display:none;"><label>Grupo</label><select id="s21GroupSel" class="dynamic-group-select"></select></div>
-                    <div><label>Año Servicio</label><input type="number" id="s21Year"></div>
+                    <div><label>Año Servicio</label><select id="s21Year" style="font-weight:bold;"></select></div>
                     <div style="display:flex; align-items:flex-end; gap:10px;"><button class="btn primary" onclick="previewS21()">👁️ Ver</button><button class="btn success" onclick="downloadPDFS21()">📥 PDF</button></div>
                 </div>
                 <div id="preview-viewport"></div>
@@ -841,7 +1005,7 @@
             <div class="card">
                 <h3>📈 Registro de Asistencia</h3>
                 <div class="admin-tools-grid">
-                    <div><label>Año Servicio</label><input type="number" id="s88Year"></div>
+                 <div><label>Año Servicio</label><select id="s88Year" style="font-weight:bold;"></select></div>
                     <div style="display:flex; align-items:flex-end; gap:10px;"><button class="btn primary" onclick="renderS88Preview()">👁️ Ver</button><button class="btn success" onclick="generatePDF('s88')">📥 PDF</button></div>
                 </div>
                 <div id="s88-preview-viewport"></div>
@@ -905,6 +1069,29 @@
     let CURRENT_ROLE = 'ADMIN'; 
     let curY = new Date().getFullYear(), curM = new Date().getMonth()+1;
     let actY = curY, actM = curM, asistY = curY, asistM = curM;
+
+// --- FUNCIÓN PARA LLENAR AÑOS (2025 - 2026) ---
+    function populateSelects() {
+        const startYear = 2023; 
+        const currentYear = new Date().getFullYear(); 
+        const endYear = currentYear + 2; 
+        const selects = ['precAno', 's21Year', 's88Year'];
+
+        selects.forEach(id => {
+            const sel = document.getElementById(id);
+            if (sel) {
+                sel.innerHTML = '';
+                for (let y = startYear; y <= endYear; y++) {
+                    const opt = document.createElement('option');
+                    opt.value = y; // Valor interno: 2026
+                    opt.innerText = (y - 1) + " - " + y; // Visual: 2025 - 2026
+                    sel.appendChild(opt);
+                }
+                const m = new Date().getMonth(); 
+                sel.value = (m >= 8) ? currentYear + 1 : currentYear;
+            }
+        });
+    }
 
     // --- NUEVO: FUNCIÓN PARA COMPARTIR ENLACE WEB ---
     window.shareWebLink = function() {
@@ -1271,6 +1458,7 @@ function parseDate(val) {
 
 
     window.init = function() {
+        populateSelects(); // <--- ¡IMPORTANTE! Esto llena los huecos vacíos
         $('#mEnter').onclick = attemptLogin;
         $('#mPwd').onkeydown = (e) => { if(e.key==='Enter') attemptLogin(); };
         const mSels = [$('#headerMonth'), $('#actMonthSelect'), $('#resMonth'), $('#asistMonthSelect')];
@@ -1423,7 +1611,12 @@ function connectFirebase(apiKey, projectId) {
         });
     }
 
+
     window.save = async function() {
+        // ⛔ SEGURIDAD TOTAL: Si es invitado, matamos la función aquí mismo.
+    if (document.body.classList.contains('guest-mode')) {
+        return; 
+    }
         // 1. Siempre guardamos en la memoria del celular (Local)
         localStorage.setItem(DB_KEY, JSON.stringify(state));
         updateDatalist(); // Actualizamos lista del buscador
@@ -1485,6 +1678,25 @@ window.attemptLogin = function() {
         enterApp(); 
         return; 
     }
+// ---------------------------------------------------------
+    // 1.5. ACCESO DE INVITADO (DINÁMICO)
+    // ---------------------------------------------------------
+    // Leemos la clave guardada. Si no existe, por defecto será 'visita'
+    const guestKey = (window.state.config && window.state.config.guestPwd) ? window.state.config.guestPwd : 'visita';
+
+    if (pwd === guestKey) { 
+        console.log("🟢 Acceso concedido como Invitado");
+        
+        window.CURRENT_ROLE = 'GUEST'; 
+        document.body.classList.add('guest-mode'); 
+        
+        currentSession = { role: 'guest', group: null }; 
+        
+        enterApp(); 
+        alert("👁️ Modo Invitado: Solo Lectura");
+        return; 
+    }
+
 
     // 2. SI ES ENCARGADO (Buscamos su grupo)
     // -------------------------------------
@@ -1531,64 +1743,47 @@ window.forceUpdatePassword = function() {
     alert("✅ Clave configurada con éxito.");
 };
 
-// --- 4. FUNCIÓN DE ENTRADA AL SISTEMA (RESTAURADA) ---
+// --- 4. FUNCIÓN DE ENTRADA AL SISTEMA (VERSIÓN FINAL BLINDADA) ---
 function enterApp() {
     $('#modalAuth').style.display = 'none';
     $('#app-content').style.display = 'block';
-    document.body.className = (window.CURRENT_ROLE === 'ADMIN') ? 'role-admin' : 'role-restricted';
+
+    // 1. VISIBILIDAD DE PESTAÑAS
+    // Si es Admin o Invitado, le ponemos el traje de "role-admin" para que vea todo el menú
+    if (window.CURRENT_ROLE === 'ADMIN' || window.CURRENT_ROLE === 'GUEST') {
+        document.body.className = 'role-admin'; 
+    } else {
+        document.body.className = 'role-restricted'; 
+    }
+
+    // 2. ¡CORRECCIÓN CRÍTICA! 🔒
+    // Al hacer lo de arriba, se borró el modo invitado. Aquí lo forzamos de nuevo.
+    if (window.CURRENT_ROLE === 'GUEST') {
+        document.body.classList.add('guest-mode'); // <--- ESTO BLOQUEA LOS BOTONES OTRA VEZ
+    }
     
+    // 3. ETIQUETA SUPERIOR (BADGE)
     const badge = $('#roleBadge');
+    
     if (window.CURRENT_ROLE === 'ADMIN') {
         badge.innerText = 'Administrador';
         badge.style.background = '#e0e7ff';
         badge.style.color = '#4338ca';
-    if (window.CURRENT_ROLE === 'ADMIN') {
-        badge.innerText = 'Administrador';
-        badge.style.background = '#e0e7ff';
-        badge.style.color = '#4338ca';
+        addHelpButton(badge); 
 
-        // --- PEGA ESTO AQUÍ (CREA EL BOTÓN DE AYUDA) ---
-        let btnHelp = document.getElementById('btnAdminHelp');
-        if (!btnHelp) { // Si no existe, lo creamos
-            btnHelp = document.createElement('button');
-            btnHelp.id = 'btnAdminHelp';
-            // --- NUEVO ESTILO: ARMONIOSO Y REDONDEADO ---
-            btnHelp.innerHTML = '<span style="font-size:1.1em">📘</span> Guía';
-            
-            // Estilos CSS para que parezca una "Píldora" (igual que los otros badges)
-            btnHelp.style.cssText = `
-                margin-left: 10px;
-                background: #e0e7ff;       /* Azul muy suave */
-                color: #4338ca;            /* Letras color índigo */
-                border: 1px solid #c7d2fe; /* Borde fino */
-                padding: 4px 12px;         /* Relleno cómodo */
-                border-radius: 99px;       /* Bordes totalmente redondos */
-                font-weight: 700;          /* Letra negrita */
-                font-size: 0.75rem;        /* Tamaño pequeño y elegante */
-                cursor: pointer;
-                display: inline-flex;
-                align-items: center;
-                gap: 5px;
-                transition: all 0.2s;
-            `;
-
-            // Efecto Hover (al pasar el mouse se oscurece un poquito)
-            btnHelp.onmouseover = function() { this.style.background = '#c7d2fe'; };
-            btnHelp.onmouseout  = function() { this.style.background = '#e0e7ff'; };
-
-            btnHelp.onclick = function() { document.getElementById('modalManual').style.display = 'flex'; };
-            // Lo agregamos debajo del badge o donde prefieras. 
-            // Aquí lo pondremos en el encabezado si existe, o en el body temporalmente.
-            badge.parentNode.appendChild(btnHelp); 
-        }
-        // ------------------------------------------------
-    }    
+    } else if (window.CURRENT_ROLE === 'GUEST') {
+        badge.innerText = 'Invitado (Solo Lectura)';
+        badge.style.background = '#f3f4f6'; 
+        badge.style.color = '#4b5563';      
+        badge.style.border = '1px solid #d1d5db';
+        
     } else {
         const g = window.CURRENT_ROLE.replace('G', '');
         badge.innerText = `Encargado Grupo ${g}`;
         badge.style.background = '#d1fae5';
         badge.style.color = '#065f46';
     }
+    
     renderAll();
 }
 
@@ -1857,62 +2052,72 @@ window.editP = (id) => {
             }
         }
     };
+   
+    // --- FUNCIÓN PARA ABRIR EL MODAL Y MOSTRAR CLAVE ACTUAL ---
+window.openPwdModal = function() {
+    // 1. Buscamos la clave guardada (o 'visita' si es nueva instalación)
+    const currentGuest = (window.state.config && window.state.config.guestPwd) ? window.state.config.guestPwd : 'visita';
+    
+    // 2. La escribimos en la etiqueta <b> del modal
+    const label = document.getElementById('lblShowGuest');
+    if(label) label.innerText = currentGuest;
+    
+    // 3. Limpiamos los inputs para que estén vacíos y listos para escribir
+    document.getElementById('pNew').value = '';
+    document.getElementById('pGuestNew').value = '';
+
+    // 4. Mostramos la ventana
+    document.getElementById('modalPwd').style.display = 'flex';
+}
 // ... (código anterior: window.exportBackup) ...
 // };  <-- Cierra la función anterior
+// --- 3. FUNCIÓN DE CAMBIO DE CLAVE (MEJORADA PARA INVITADO) ---
+window.updatePassword = async function() {
+    console.log("🔵 Guardando claves...");
+    
+    const inputAdmin = document.getElementById('pNew');
+    const inputGuest = document.getElementById('pGuestNew');
+    
+    // Protección por si no existen los inputs en el HTML todavía
+    if (!inputAdmin || !inputGuest) return; 
+    
+    const newAdminPwd = inputAdmin.value.trim();
+    const newGuestPwd = inputGuest.value.trim();
 
-// --- FUNCIÓN DE CAMBIO DE CLAVE (VERSIÓN ROBUSTA) ---
-    window.updatePassword = async function() {
-        console.log("🔵 Iniciando cambio de clave...");
-        
-        // 1. Verificamos conexión
-        const isOnline = document.getElementById('headerStatus')?.classList.contains('sync');
-        const inputEl = document.getElementById('pNew');
-        if (!inputEl) return; 
-        
-        const newPwd = inputEl.value.trim();
+    if(!window.state.config) window.state.config = {};
 
-        if (newPwd && newPwd.length >= 4) {
-            // AVISO VISUAL: Cambiamos el botón para que sepas que está trabajando
-            const btn = document.querySelector('#modalPwd .btn.primary');
-            const originalText = btn.innerText;
-            btn.innerText = "⏳ Guardando en Nube...";
-            btn.disabled = true;
+    let huboCambios = false;
 
-            try {
-                // 2. Actualizamos la memoria local primero
-                if(!window.state) window.state = {};
-                if(!window.state.config) window.state.config = {};
-                window.state.config.pwd = newPwd;
-
-                // 3. Forzamos la subida y ESPERAMOS (await)
-                // Esto garantiza que no se cierre hasta que Firebase diga "OK"
-                if (typeof window.save === 'function') {
-                    await window.save(); 
-                }
-
-                // 4. Éxito confirmado
-                inputEl.value = ''; 
-                document.getElementById('modalPwd').style.display = 'none';
-                
-                if(isOnline) {
-                    alert("✅ ¡ÉXITO!\nLa clave en la Nube ahora es: " + newPwd + "\n\nLa App se ha sincronizado correctamente.");
-                } else {
-                    alert("⚠️ AVISO: Guardado solo en este celular (Offline).\nConéctate a internet pronto para que la Nube se entere.");
-                }
-
-            } catch (error) {
-                console.error(error);
-                alert("❌ ERROR: La Nube rechazó el cambio.\n" + error.message);
-                // Si falla, revertimos el cambio visualmente para que lo intentes de nuevo
-            } finally {
-                btn.innerText = originalText;
-                btn.disabled = false;
-            }
-
-        } else {
-            alert("⚠️ La clave es muy corta. Mínimo 4 caracteres.");
-        }
+    // 1. Guardar Clave Admin (Solo si escribieron algo válido)
+    if (newAdminPwd.length >= 4) {
+        window.state.config.pwd = newAdminPwd;
+        huboCambios = true;
+    } else if (newAdminPwd.length > 0 && newAdminPwd.length < 4) {
+        return alert("⚠️ La clave de Admin es muy corta (mínimo 4).");
     }
+
+    // 2. Guardar Clave Invitado (Solo si escribieron algo)
+    if (newGuestPwd.length > 0) {
+        window.state.config.guestPwd = newGuestPwd;
+        huboCambios = true;
+    }
+
+    // 3. Si no escribieron nada
+    if (!huboCambios) {
+        return alert("⚠️ Escribe al menos una clave nueva para guardar.");
+    }
+
+    // 4. Guardar en Nube y Local
+    await window.save();
+    
+    alert("✅ Claves actualizadas correctamente.");
+    
+    // Limpiar y cerrar
+    inputAdmin.value = '';
+    inputGuest.value = '';
+    document.getElementById('modalPwd').style.display = 'none';
+};
+
 // window.renderSacados = function(){ ... (Esto NO lo borres, es lo que sigue)
     window.renderSacados=function(){
         const tb=$('#tblSacados tbody');if(!tb)return;tb.innerHTML='';
@@ -1922,32 +2127,38 @@ window.editP = (id) => {
     }
     
 // ==========================================
-// FUNCIÓN MAESTRA: Actualiza Regulares y Auxiliares a la vez
+// FUNCIÓN MAESTRA: Lee el botón "Ver Datos"
 // ==========================================
 window.renderAllPrecursores = function() {
-    // 1. Leemos los selectores NUEVOS
-    let y = parseInt(document.getElementById('precAno').value);
-    let m = parseInt(document.getElementById('precMes').value);
+    // 1. LEER lo que el usuario seleccionó en las cajitas
+    const elAno = document.getElementById('precAno');
+    const elMes = document.getElementById('precMes');
     
-    // Si están vacíos (primera carga), usamos la fecha real de hoy
-    if (!y || isNaN(m)) {
+    // Convertir a números
+    let y = parseInt(elAno.value);
+    let m = parseInt(elMes.value);
+
+    // 2. VALIDAR (Si están vacíos o son inválidos, usar fecha de hoy)
+    if (!y || isNaN(y)) { 
         const d = new Date();
-        y = d.getFullYear();
+        y = d.getFullYear(); 
+        elAno.value = y; // Autocompletar visualmente
+    }
+    if (isNaN(m)) {
+        const d = new Date();
         m = d.getMonth();
-        // Seteamos los valores en los inputs para que se vean
-        document.getElementById('precAno').value = y;
-        document.getElementById('precMes').value = m;
+        elMes.value = m; // Autocompletar visualmente
     }
 
-    // 2. Ejecutamos las dos funciones con esa fecha
+    // 3. EJECUTAR la búsqueda con los datos correctos
+    console.log("Buscando datos para:", y, m); 
     window.renderPrecursores(y, m);
     
-    // Si tienes una función para auxiliares, la llamamos también:
+    // Si tienes auxiliares, actualizarlos también
     if(window.renderAuxiliares) window.renderAuxiliares(y, m);
 };
-
-// ==========================================
-// PRECURSORES REGULARES (Adaptado al Selector)
+ // ==========================================
+// PRECURSORES REGULARES (V6.1 FINAL: Lógica Año Corregida)
 // ==========================================
 window.renderPrecursores = function(yearIn, monthIn) {
     const tb = $('#tblPrecursores tbody');
@@ -1955,53 +2166,95 @@ window.renderPrecursores = function(yearIn, monthIn) {
     tb.innerHTML = '';
 
     const META_ANUAL = 600;
-    const RITMO_MES = 50; 
+    const TOPE_SUMA_MENSUAL = 55;
+
+    // 1. Determinar fechas
+    let curY = parseInt(yearIn);
+    let curM = parseInt(monthIn);
     
-    // --- AQUÍ ESTÁ EL CAMBIO IMPORTANTE ---
-    // Usamos los valores que nos llegan (o hoy si no llegan)
-    let curY = yearIn;
-    let curM = monthIn;
-    
-    if (curY === undefined) { 
+    // Si viene vacío, usamos fecha actual
+    if (!curY || isNaN(curY)) { 
         const d = new Date(); 
         curY = d.getFullYear(); 
         curM = d.getMonth(); 
     }
-    // --------------------------------------
 
-    const serviceYear = (curM >= 8) ? curY + 1 : curY;
+    // ✅ CORRECCIÓN CLAVE: El selector ya nos da el año de servicio (ej: 2026)
+    // No le sumamos nada.
+    const serviceYear = curY; 
+    
+    // Calcular índice límite para la columna "A la Fecha"
+    // (Sep=0, Oct=1, ... Ago=11)
+    let targetIndex = (curM >= 8) ? (curM - 8) : (curM + 4);
 
-    // Calcular ritmo
+    // Meta ideal al día de hoy
     let mesServicioActual = (curM >= 8) ? (curM - 7) : (curM + 5);
-    const metaIdealHoy = mesServicioActual * RITMO_MES;
+    const metaIdealHoy = mesServicioActual * 50; 
 
     const list = state.personas.filter(p => p.pr && !p.sacado).sort((a,b) => a.nombre.localeCompare(b.nombre));
     const cEl = $('#cPre'); if(cEl) cEl.innerText = `(${list.length})`;
 
     list.forEach(p => {
-        let horasCampo = 0;
-        let horasLDC = 0;
+        let horasTotalAnual = 0;
+        let horasHastaFecha = 0;
+        
+        // Auxiliares visuales
+        let anualCampo = 0;
+        let anualCredito = 0;
 
         const cicloMeses = [9,10,11,12,1,2,3,4,5,6,7,8];
-        cicloMeses.forEach(m => {
+        
+        cicloMeses.forEach((m, index) => {
+            // Lógica de año: Sep-Dic son del año anterior (serviceYear - 1)
             const y = (m >= 9) ? serviceYear - 1 : serviceYear;
             const key = `${y}-${String(m).padStart(2, '0')}`;
             
+            let hCampoMes = 0;
+            let hCreditoMes = 0; 
+            let hCreditoAplicable = 0;
+
             if (state.activity[key] && state.activity[key][p.id]) {
                 const registro = state.activity[key][p.id];
-                horasCampo += (Number(registro.horas) || 0);
+                hCampoMes = (Number(registro.horas) || 0);
                 
-                const textoNota = registro.nota || registro.notas || "";
-                if (textoNota && typeof textoNota === 'string') {
-                    const match = textoNota.match(/(\d+)/);
-                    if (match) horasLDC += parseInt(match[0], 10);
+                const textoNota = (registro.nota || registro.notas || "").toLowerCase();
+                const regexNum = /(\d+(?:[\.,]\d+)?)\s*(?:ldc|escuela)|(?:ldc|escuela)\s*:?\s*(\d+(?:[\.,]\d+)?)/;
+                const match = textoNota.match(regexNum);
+
+                if (match) {
+                    let numRaw = match[1] || match[2];
+                    hCreditoMes = parseFloat(numRaw.replace(',', '.'));
+                }
+
+                // Norma 55h
+                let espacioDisponible = TOPE_SUMA_MENSUAL - hCampoMes;
+                if (espacioDisponible < 0) espacioDisponible = 0;
+                hCreditoAplicable = (hCreditoMes > espacioDisponible) ? espacioDisponible : hCreditoMes;
+
+                const sumaMes = hCampoMes + hCreditoAplicable;
+
+                // Sumar al total anual
+                horasTotalAnual += sumaMes;
+                anualCampo += hCampoMes;
+                anualCredito += hCreditoAplicable;
+
+                // Sumar a la fecha (solo si el mes ya pasó o es el actual)
+                if (index <= targetIndex) {
+                    horasHastaFecha += sumaMes;
                 }
             }
         });
 
-        const totalGeneral = horasCampo + horasLDC;
-        let faltan = META_ANUAL - totalGeneral;
-        let diferenciaRitmo = totalGeneral - metaIdealHoy;
+        // Redondeos
+        horasTotalAnual = Math.round(horasTotalAnual * 10) / 10;
+        horasHastaFecha = Math.round(horasHastaFecha * 10) / 10;
+
+        // Ritmo
+        let faltan = META_ANUAL - horasTotalAnual;
+        if (faltan < 0) faltan = 0; else faltan = Math.round(faltan * 10) / 10;
+
+        let diferenciaRitmo = horasTotalAnual - metaIdealHoy;
+        diferenciaRitmo = Math.round(diferenciaRitmo * 10) / 10;
         
         let ritmoHTML = '';
         if (diferenciaRitmo >= 0) {
@@ -2012,25 +2265,18 @@ window.renderPrecursores = function(yearIn, monthIn) {
 
         let etiquetaHTML = '';
         if (faltan <= 0) {
-            etiquetaHTML = `
-                <div style="background:#dcfce7; color:#166534; padding:4px 8px; border-radius:12px; border:1px solid #bbf7d0; display:inline-flex; align-items:center; gap:3px;">
-                    <span>🎉</span> <span style="font-weight:800; font-size:0.75rem;">LISTO</span>
-                </div>`;
+            etiquetaHTML = `<div style="background:#dcfce7; color:#166534; padding:4px 8px; border-radius:12px; border:1px solid #bbf7d0; display:inline-flex; align-items:center; gap:3px;"><span>🎉</span> <span style="font-weight:800; font-size:0.75rem;">CUMPLIDO</span></div>`;
             ritmoHTML = ''; 
         } else {
-            etiquetaHTML = `
-                <div style="background:#fff7ed; color:#c2410c; padding:3px 8px; border-radius:12px; border:1px solid #fdba74; display:inline-block;">
-                    <span style="font-size:0.65rem; font-weight:600;">FALTAN</span>
-                    <span style="font-size:0.9rem; font-weight:800;">${faltan}</span>
-                </div>`;
+            etiquetaHTML = `<div style="background:#fff7ed; color:#c2410c; padding:3px 8px; border-radius:12px; border:1px solid #fdba74; display:inline-block;"><span style="font-size:0.65rem; font-weight:600;">FALTAN</span> <span style="font-size:0.9rem; font-weight:800;">${faltan}</span></div>`;
         }
 
-        let detalleHorasHTML = `<div style="font-size:1.3rem; font-weight:800; color:#374151;">${totalGeneral}</div>`;
-        if (horasLDC > 0) {
-            detalleHorasHTML += `<div style="font-size:0.7rem; color:#2563eb; background:#eff6ff; padding:2px 6px; border-radius:4px; display:inline-block; margin-top:2px; border:1px solid #bfdbfe;">Inc. ${horasLDC} LDC</div>`;
-        } else {
-             detalleHorasHTML += `<div style="font-size:0.7rem; color:#9ca3af;">Total</div>`;
+        let detalleTotalHTML = `<div style="font-size:1.1rem; font-weight:800; color:#374151;">${horasTotalAnual}</div>`;
+        if (anualCredito > 0) {
+            detalleTotalHTML += `<div style="font-size:0.65rem; color:#2563eb;">(C:${Math.round(anualCampo)}+L:${Math.round(anualCredito)})</div>`;
         }
+
+        let detalleHastaFechaHTML = `<div style="font-size:1.2rem; font-weight:800; color:#059669;">${horasHastaFecha}</div>`;
 
         tb.innerHTML += `
             <tr style="vertical-align: middle;">
@@ -2038,7 +2284,8 @@ window.renderPrecursores = function(yearIn, monthIn) {
                     <div style="font-weight:700; font-size:0.95rem; color:#1f2937;">${p.nombre}</div>
                     <div style="font-size:0.7rem; color:#6b7280;">Grupo ${p.grupo}</div>
                 </td>
-                <td style="text-align:center; vertical-align:middle; background-color:#f9fafb;">${detalleHorasHTML}</td>
+                <td style="text-align:center; vertical-align:middle; background-color:#ecfdf5;">${detalleHastaFechaHTML}</td>
+                <td style="text-align:center; vertical-align:middle; background-color:#f9fafb;">${detalleTotalHTML}</td>
                 <td style="text-align:center; vertical-align:middle; padding:8px 4px;">${etiquetaHTML}${ritmoHTML}</td>
             </tr>`;
     });
@@ -2192,7 +2439,44 @@ window.renderEstadoEspiritual = function() {
         const cEl = $('#cIna'); if(cEl) cEl.innerText = `(${countIna})`;
     }
     window.toggleS21Inputs = function() { const m=$('#s21Mode').value; $('#s21InputIndiv').style.display=(m==='individual')?'block':'none'; $('#s21InputGroup').style.display=(m==='group')?'block':'none'; $('#preview-viewport').innerHTML=''; }
-    window.getS21HTML = function(p,sy) { let rows='',tH=0; CICLO_S88.forEach(m=>{ const y=(m>=9)?sy:sy+1, r=state.activity[ymKey(y,m)]?.[p.id]||{horas:0,est:0,pa:false,part:false}; tH+=(r.horas||0); rows+=`<tr><td>${MESES_NOM[m-1]}</td><td>${(r.horas||r.part)?'[X]':''}</td><td>${r.est||''}</td><td>${r.pa?'[X]':''}</td><td>${r.horas||''}</td><td></td></tr>`; }); const privs = [p.anciano?'Anciano':'', p.sm?'SM':'', p.pr?'PR':'', p.pe?'PE':''].filter(Boolean).join(', '); return `<div class="print-canvas"><div style="text-align:center; font-weight:800; font-size:12pt; margin-bottom:10px;">REGISTRO DE PUBLICADOR</div><div class="s21-header-box"><div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span><b>Nombre:</b> ${p.nombre}</span><span><b>Grupo:</b> ${p.grupo}</span></div><div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span><b>F. Nacimiento:</b> ${p.nac||'-'}</span><span><b>F. Bautismo:</b> ${p.bau||'-'}</span></div><div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span><b>Sexo:</b> ${p.sexo}</span><span><b>Esperanza:</b> ${p.esp}</span></div><div style="margin-top:5px; border-top:1px dashed #ccc; padding-top:5px;"><b>Privilegios:</b> ${privs||'Publicador'}</div></div><table class="official-table"><thead><tr><th style="width:20%">Año ${sy}-${sy+1}</th><th>Partic.</th><th>Est</th><th>P. Aux</th><th>Horas</th><th>Notas</th></tr></thead><tbody>${rows}</tbody><tfoot><tr><td colspan="4" style="text-align:right; font-weight:bold;">Total Horas:</td><td>${tH}</td><td></td></tr></tfoot></table></div>`; }
+
+    window.getS21HTML = function(p, sy) { 
+    let rows = '', tH = 0; 
+    CICLO_S88.forEach(m => { 
+        const y = (m >= 9) ? sy - 1 : sy; 
+        // Recuperamos nota o notas, y ponemos un string vacío por defecto
+        const r = state.activity[ymKey(y, m)]?.[p.id] || {horas: 0, est: 0, pa: false, part: false, nota: ''}; 
+        tH += (r.horas || 0); 
+        
+        rows += `<tr>
+            <td>${MESES_NOM[m - 1]}</td>
+            <td>${(r.horas || r.part) ? '[X]' : ''}</td>
+            <td>${r.est || ''}</td>
+            <td>${r.pa ? '[X]' : ''}</td>
+            <td>${r.horas || ''}</td>
+            <td style="font-size:0.75rem; color:#374151;">${r.nota || r.notas || ''}</td> </tr>`; 
+    }); 
+
+    const privs = [p.anciano ? 'Anciano' : '', p.sm ? 'SM' : '', p.pr ? 'PR' : '', p.pe ? 'PE' : ''].filter(Boolean).join(', '); 
+    
+    return `<div class="print-canvas">
+        <div style="text-align:center; font-weight:800; font-size:12pt; margin-bottom:10px;">REGISTRO DE PUBLICADOR</div>
+        <div class="s21-header-box">
+            <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span><b>Nombre:</b> ${p.nombre}</span><span><b>Grupo:</b> ${p.grupo}</span></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span><b>F. Nacimiento:</b> ${p.nac || '-'}</span><span><b>F. Bautismo:</b> ${p.bau || '-'}</span></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span><b>Sexo:</b> ${p.sexo}</span><span><b>Esperanza:</b> ${p.esp}</span></div>
+            <div style="margin-top:5px; border-top:1px dashed #ccc; padding-top:5px;"><b>Privilegios:</b> ${privs || 'Publicador'}</div>
+        </div>
+        <table class="official-table">
+            <thead>
+                <tr><th style="width:20%">Año ${sy - 1}-${sy}</th><th>Partic.</th><th>Est</th><th>P. Aux</th><th>Horas</th><th>Notas</th></tr>
+            </thead>
+            <tbody>${rows}</tbody>
+            <tfoot><tr><td colspan="4" style="text-align:right; font-weight:bold;">Total Horas:</td><td>${tH}</td><td></td></tr></tfoot>
+        </table>
+    </div>`; 
+};
+
     window.previewS21 = function() { const m=$('#s21Mode').value; let l=[]; if(m==='individual'){const n=$('#s21Search').value; const p=state.personas.find(x=>x.nombre===n); if(p)l=[p];} else if(m==='group'){l=state.personas.filter(p=>p.grupo==$('#s21GroupSel').value && !p.sacado);} else if(m==='pr'){l=state.personas.filter(p=>p.pr&&!p.sacado);} else {l=state.personas.filter(p=>!p.sacado);} $('#preview-viewport').innerHTML=l.map(p=>getS21HTML(p,parseInt($('#s21Year').value))).join(''); }
     
     window.downloadPDFS21 = function() { 
@@ -2247,8 +2531,30 @@ window.renderEstadoEspiritual = function() {
     }
 }
 
-    window.renderS88Preview = function() { const sy=parseInt($('#s88Year').value); const build=(t)=>{let rows='',tA=0,tR=0; CICLO_S88.forEach(m=>{const y=(m>=9)?sy:sy+1, d=state.attendance[ymKey(y,m)]?.[t]||[0,0,0,0,0,0], re=d.filter(v=>v>0).length, as=d.reduce((a,b)=>a+b,0), pr=re>0?Math.round(as/re):''; tA+=as; tR+=re; rows+=`<tr><td>${MESES_NOM[m-1]}</td><td>${re||''}</td><td>${as||''}</td><td><b>${pr}</b></td></tr>`;}); return {h:rows,avg:tR>0?Math.round(tA/tR):''};}; const es=build('es'), fs=build('fs'); $('#s88-preview-viewport').innerHTML=`<div class="print-canvas"><div style="text-align:center; font-weight:800;">REGISTRO ASISTENCIA</div><br><b>REUNIÓN VIDA Y MINISTERIO</b><table class="official-table"><thead><tr><th>Mes</th><th>Reun</th><th>Total</th><th>Prom</th></tr></thead><tbody>${es.h}</tbody><tfoot><tr><td colspan="3" style="text-align:right">PROM. ANUAL</td><td>${es.avg}</td></tr></tfoot></table><br><b>REUNIÓN PÚBLICA</b><table class="official-table"><thead><tr><th>Mes</th><th>Reun</th><th>Total</th><th>Prom</th></tr></thead><tbody>${fs.h}</tbody><tfoot><tr><td colspan="3" style="text-align:right">PROM. ANUAL</td><td>${fs.avg}</td></tr></tfoot></table></div>`; }
-    
+window.renderS88Preview = function() { 
+        const sy = parseInt($('#s88Year').value); 
+        const build = (t) => {
+            let rows = '', tA = 0, tR = 0; 
+            CICLO_S88.forEach(m => {
+                const y = (m >= 9) ? sy - 1 : sy; // Corrección de Año
+                const d = state.attendance[ymKey(y, m)]?.[t] || [0, 0, 0, 0, 0, 0]; 
+                const re = d.filter(v => v > 0).length; 
+                const as = d.reduce((a, b) => a + b, 0); 
+                const pr = re > 0 ? Math.round(as / re) : ''; 
+                tA += as; tR += re; 
+                rows += `<tr><td>${MESES_NOM[m - 1]}</td><td>${re || ''}</td><td>${as || ''}</td><td><b>${pr}</b></td></tr>`;
+            }); 
+            return {h: rows, avg: tR > 0 ? Math.round(tA / tR) : ''};
+        }; 
+        const es = build('es'), fs = build('fs'); 
+        $('#s88-preview-viewport').innerHTML = `<div class="print-canvas">
+            <div style="text-align:center; font-weight:800;">REGISTRO ASISTENCIA ${sy-1}-${sy}</div><br>
+            <b>REUNIÓN VIDA Y MINISTERIO</b>
+            <table class="official-table"><thead><tr><th>Mes</th><th>Reun</th><th>Total</th><th>Prom</th></tr></thead><tbody>${es.h}</tbody><tfoot><tr><td colspan="3" style="text-align:right">PROM. ANUAL</td><td>${es.avg}</td></tr></tfoot></table>
+            <br><b>REUNIÓN PÚBLICA</b>
+            <table class="official-table"><thead><tr><th>Mes</th><th>Reun</th><th>Total</th><th>Prom</th></tr></thead><tbody>${fs.h}</tbody><tfoot><tr><td colspan="3" style="text-align:right">PROM. ANUAL</td><td>${fs.avg}</td></tr></tfoot></table>
+        </div>`; 
+    };    
     window.generatePDF = function() { 
     const el = document.getElementById('s88-preview-viewport');
     if(!el) return;
@@ -2534,273 +2840,212 @@ window.resetPForm = function() {
 setTimeout(window.renderizarHistorialRapido, 500);
 
 </script>
-<div id="modalManual" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15, 23, 42, 0.7); backdrop-filter:blur(4px); z-index:10000; align-items:center; justify-content:center;">
-    <div style="background:white; width:95%; max-width:700px; height:90vh; border-radius:16px; display:flex; flex-direction:column; box-shadow:0 25px 50px rgba(0,0,0,0.5); overflow:hidden; animation: fadeIn 0.3s ease;">
+<div id="modalManual" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15, 23, 42, 0.95); backdrop-filter:blur(5px); z-index:10000; align-items:center; justify-content:center;">
+    <div style="background:var(--surface); width:95%; max-width:750px; height:90vh; border-radius:24px; display:flex; flex-direction:column; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); overflow:hidden; border:1px solid var(--border-light); font-family:'Inter', sans-serif;">
         
-        <div style="padding:20px; background:#f8fafc; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
+        <div style="padding:25px; background:var(--bg-body); border-bottom:1px solid var(--border-light); display:flex; justify-content:space-between; align-items:center;">
             <div>
-                <h2 style="margin:0; color:#1e293b; font-size:1.4rem;">📘 Manual de Usuario</h2>
-                <span style="font-size:0.85rem; color:#64748b;">Guía completa v1.1.1</span>
+                <h2 style="margin:0; font-size:1.6rem; color:var(--text-main); font-weight:800; display:flex; align-items:center; gap:10px;">
+                    🤔 Centro de Ayuda
+                </h2>
+                <span style="font-size:0.9rem; color:var(--text-muted); margin-top:5px; display:block;">Todo lo que necesitas saber para usar la App.</span>
             </div>
-            <button onclick="document.getElementById('modalManual').style.display='none'" style="background:none; border:none; font-size:32px; color:#94a3b8; cursor:pointer; line-height:1;">&times;</button>
+            <button onclick="document.getElementById('modalManual').style.display='none'" style="background:none; border:none; font-size:32px; color:var(--text-muted); cursor:pointer;">&times;</button>
         </div>
 
-        <div style="padding:0 20px 20px 20px; overflow-y:auto; line-height:1.6; color:#334155; font-family:sans-serif;">
-            
-            <div style="margin-top:20px; margin-bottom:15px; background:#eff6ff; padding:15px; border-radius:8px; border-left:4px solid #3b82f6;">
-                <h3 style="margin:0 0 10px 0; color:#1d4ed8; font-size:1.1em;">🔝 Barra Superior</h3>
-                <p style="margin:0; font-size:0.95em;">
-                    <b>📅 Selector de Fecha:</b> 
-                    <br>• <i>Mes Actual:</i> Para trabajar hoy.
-                    <br>• <i>Mes Pasado:</i> Para historia (totales ajustados automáticamente).
-                    <br><b>🔒 Candado:</b> Bloquea la pantalla.
-                </p>
-            </div>
+        <div style="padding:0; overflow-y:auto; flex:1; background:var(--surface);">
+            <div style="padding:25px; display:flex; flex-direction:column; gap:30px;">
 
-            <hr style="border:0; border-top:1px solid #e2e8f0; margin:20px 0;">
-         
-            <details style="margin-bottom:10px; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;">
-                <summary style="background:white; padding:12px; font-weight:bold; cursor:pointer; list-style:none; color:#0f172a;">
-                    🔌 Interruptor Online / Offline
-                </summary>
-                <div style="padding:15px; background:#f8fafc; border-top:1px solid #e2e8f0; font-size:0.95em;">
-                    <p style="margin-top:0;">En la parte superior de la pantalla verás un indicador de estado (🟢 o ⚪). Puedes tocarlo para cambiar de modo:</p>
+                <div>
+                    <label style="font-size:0.75rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:15px; display:flex; align-items:center; gap:8px;">
+                        🎨 Apariencia y Seguridad
+                    </label>
+
+                    <details style="margin-bottom:10px; border:1px solid var(--border-light); border-radius:12px; background:var(--surface); overflow:hidden;">
+                        <summary style="padding:15px; cursor:pointer; font-weight:600; color:var(--text-main); display:flex; align-items:center; gap:12px;">
+                            <span style="font-size:1.2rem;">🌙</span> ¿Cómo cambio entre Modo Claro y Oscuro?
+                        </summary>
+                        <div style="padding:15px 20px; border-top:1px solid var(--border-light); font-size:0.95em; color:var(--text-muted); line-height:1.6;">
+                            Es muy sencillo. En la barra superior de la pantalla principal, verás un botón con una <b>Luna</b> (🌙) o un <b>Sol</b> (☀️). Solo tócalo y la App cambiará instantáneamente de color para descansar tu vista.
+                        </div>
+                    </details>
+
+                    <details style="margin-bottom:10px; border:1px solid var(--border-light); border-radius:12px; background:var(--surface); overflow:hidden;">
+                        <summary style="padding:15px; cursor:pointer; font-weight:600; color:var(--text-main); display:flex; align-items:center; gap:12px;">
+                            <span style="font-size:1.2rem;">🔐</span> ¿Cómo cambio mi clave o la del invitado?
+                        </summary>
+                        <div style="padding:15px 20px; border-top:1px solid var(--border-light); font-size:0.95em; color:var(--text-muted); line-height:1.6;">
+                            Ve al botón <b>⚙️ Ajustes</b> (arriba a la derecha).
+                            <br>Baja hasta la sección <b>"🔐 Gestión de Accesos"</b> y pulsa el botón naranja <b>"Cambiar Clave Principal"</b>.
+                            <br><br>
+                            Allí verás dos opciones:
+                            <ul style="margin-top:5px; padding-left:20px;">
+                                <li style="margin-bottom:5px;"><b>Administrador:</b> Es tu clave personal (Secretario).</li>
+                                <li><b>Invitado (Solo Lectura):</b> Aquí defines la clave que usarán los ancianos para entrar a ver la información sin poder borrar nada.</li>
+                            </ul>
+                        </div>
+                    </details>
+                </div>
+
+                <div>
+                    <label style="font-size:0.75rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:15px; display:flex; align-items:center; gap:8px;">
+                        👥 Trabajo en Equipo
+                    </label>
+
+                    <details style="margin-bottom:12px; border:1px solid #10b981; border-radius:12px; overflow:hidden;">
+                        <summary style="background:#ecfdf5; padding:15px; cursor:pointer; font-weight:600; color:#065f46; display:flex; align-items:center; gap:12px;">
+                            <span style="background:#10b981; color:white; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center;">?</span>
+                            ¿Cómo invito a otros ancianos a ver los datos?
+                        </summary>
+                        <div style="padding:20px; background:white; border-top:1px solid #10b981; color:#334155; line-height:1.6;">
+                            <p style="margin-top:0;">Puedes dar acceso al Cuerpo de Ancianos para que consulten tarjetas e informes <strong>sin riesgo</strong> (Modo Solo Lectura).</p>
+                            
+                            <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:15px;">
+                                <strong>Pasos para conectarlos:</strong>
+                                <ol style="margin:10px 0 0 20px; padding:0;">
+                                    <li style="margin-bottom:8px;">Diles que descarguen esta misma App.</li>
+                                    <li style="margin-bottom:8px;">
+                                        <b>Método Rápido:</b> En tu celular ve a Ajustes > "Compartir Llave" y envíales el código por WhatsApp. Ellos deben pegarlo en Ajustes > "Conexión Rápida".
+                                    </li>
+                                    <li>
+                                        Finalmente, dales la <b>Clave de Invitado</b> que configuraste. Al entrar con ella, solo podrán ver, no tocar.
+                                    </li>
+                                </ol>
+                            </div>
+                        </div>
+                    </details>
+
+                    <details style="margin-bottom:12px; border:1px solid #3b82f6; border-radius:12px; overflow:hidden;">
+                        <summary style="background:#eff6ff; padding:15px; cursor:pointer; font-weight:600; color:#1e40af; display:flex; align-items:center; gap:12px;">
+                            <span style="background:#3b82f6; color:white; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center;">?</span>
+                            ¿Cómo me ayudan los Encargados de Grupo?
+                        </summary>
+                        <div style="padding:20px; background:white; border-top:1px solid #3b82f6; color:#334155; line-height:1.6;">
+                            <p style="margin-top:0;">Los encargados pueden recoger los informes de su propio grupo y enviártelos automáticamente.</p>
+                            <ul style="padding-left:20px;">
+                                <li style="margin-bottom:10px;">
+                                    <strong>Opción A (Online):</strong> Si tienen internet, dales la "Llave de Acceso" y su clave de grupo (ej: <code>grupo1</code>). Lo que anoten en su celular aparecerá en el tuyo al instante.
+                                </li>
+                                <li>
+                                    <strong>Opción B (Offline):</strong> Si no tienen internet, ellos llenan los datos y la App genera un archivo (Respaldo) que te envían por WhatsApp. Tú solo usas "Restaurar" para cargar esos datos.
+                                </li>
+                            </ul>
+                        </div>
+                    </details>
+                </div>
+
+                <div>
+                    <label style="font-size:0.75rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:15px; display:flex; align-items:center; gap:8px;">
+                        🚀 Tareas Comunes
+                    </label>
+
+                    <details style="margin-bottom:8px; border:1px solid var(--border-light); border-radius:12px; background:var(--surface);">
+                        <summary style="padding:15px; cursor:pointer; font-weight:600; color:var(--text-main);">📝 ¿Cómo registro los informes del mes?</summary>
+                        <div style="padding:15px 20px; border-top:1px solid var(--border-light); font-size:0.95em; color:var(--text-muted);">
+                            Ve a la pestaña <b>3. Informes</b>. El sistema tiene <b>Autoguardado</b>: basta con escribir el número y tocar fuera de la casilla.
+                            <br><br>
+                            <b>Significado de las casillas:</b>
+                            <br>☑️ <b>Part:</b> Participó en el ministerio.
+                            <br>☑️ <b>P. Aux:</b> Cumplió el requisito de Precursor Auxiliar.
+                            <br>✏️ <b>Notas:</b> Úsalo para horas de crédito (LDC) o notas breves.
+                        </div>
+                    </details>
+
+                    <details style="margin-bottom:8px; border:1px solid var(--border-light); border-radius:12px; background:var(--surface);">
+                        <summary style="padding:15px; cursor:pointer; font-weight:600; color:var(--text-main);">🏆 ¿Cómo entiendo la Tabla de Precursores (LDC)?</summary>
+                        <div style="padding:15px 20px; border-top:1px solid var(--border-light); font-size:0.95em; color:var(--text-muted);">
+                            En la pestaña <b>5. Precursores</b>, el sistema hace los cálculos por ti:
+                            <ul style="margin-top:5px; padding-left:20px; line-height:1.6;">
+                                <li><b>Columna Verde (A la Fecha):</b> Suma lo acumulado solo hasta el mes actual.</li>
+                                <li><b>Crédito LDC Inteligente:</b> Escribe en notas "LDC 20" y el sistema lo detecta.</li>
+                                <li><b>Regla 55h:</b> Si se pasa de 55h (Campo + Crédito), el sistema recorta el excedente automáticamente.</li>
+                                <li><b>Estado:</b> Te avisa si va "👍 Bien" o lleva "⚠️ Atraso" en su meta.</li>
+                            </ul>
+                        </div>
+                    </details>
+
+                    <details style="margin-bottom:8px; border:1px solid var(--border-light); border-radius:12px; background:var(--surface);">
+                        <summary style="padding:15px; cursor:pointer; font-weight:600; color:var(--text-main);">👤 ¿Cómo agrego o edito un publicador?</summary>
+                        <div style="padding:15px 20px; border-top:1px solid var(--border-light); font-size:0.95em; color:var(--text-muted);">
+                            Ve a la pestaña <b>1. Gestión</b>.
+                            <br>Para <b>crear</b>: Llena los datos y pulsa "Guardar".
+                            <br>Para <b>editar</b>: Usa el buscador (abajo) o ve a la Lista General y toca el lápiz ✏️.
+                        </div>
+                    </details>
                     
-                    <ul style="padding-left:20px; margin-bottom:15px;">
-                        <li style="margin-bottom:5px;">
-                            <b>🟢 Modo Online (Conectado):</b> Todo lo que hagas se guarda automáticamente en la Nube. Es lo ideal para que el Administrador vea los datos al instante.
-                        </li>
-                        <li>
-                            <b>⚪ Modo Offline (Local):</b> La App se desconecta de internet. Los datos se guardan <b>solo en tu celular</b>. Útil si no tienes datos móviles o la señal es mala.
-                        </li>
-                    </ul>
+                    <details style="margin-bottom:8px; border:1px solid var(--border-light); border-radius:12px; background:var(--surface);">
+                        <summary style="padding:15px; cursor:pointer; font-weight:600; color:var(--text-main);">🖨️ ¿Cómo descargo las Tarjetas (PDF)?</summary>
+                        <div style="padding:15px 20px; border-top:1px solid var(--border-light); font-size:0.95em; color:var(--text-muted);">
+                            Ve a la pestaña <b>6 (Tarjeta S-21)</b> o <b>7 (Registro S-88)</b>.
+                            <ol style="margin-top:10px; padding-left:20px;">
+                                <li>Selecciona la persona y el año <b>"2025 - 2026"</b>.</li>
+                                <li>Pulsa el botón azul 👁️ <b>Ver</b>.</li>
+                                <li>Pulsa el botón verde 📥 <b>PDF</b> para descargar.</li>
+                            </ol>
+                            <i>Nota: Siempre sale con fondo blanco para ahorrar tinta.</i>
+                        </div>
+                    </details>
 
-                    <div style="background:#e0f2fe; border:1px solid #7dd3fc; border-radius:6px; padding:10px;">
-                        <strong style="color:#0369a1;">💡 Importante:</strong>
-                        <p style="margin:5px 0 0 0; font-size:0.9em; color:#0c4a6e;">
-                            Cuando vuelvas a tener internet, toca el indicador <b>⚪ Offline</b> para reconectar. La App subirá automáticamente todo lo que trabajaste mientras estabas desconectado.
-                        </p>
-                    </div>
+                    <details style="margin-bottom:8px; border:1px solid var(--border-light); border-radius:12px; background:var(--surface);">
+                        <summary style="padding:15px; cursor:pointer; font-weight:600; color:var(--text-main);">🚫 ¿Cómo elimino a alguien (Bajas)?</summary>
+                        <div style="padding:15px 20px; border-top:1px solid var(--border-light); font-size:0.95em; color:var(--text-muted);">
+                            Busca a la persona en la pestaña <b>1. Gestión</b> y pon una fecha en el campo <b>"Fecha Sacado"</b>. El sistema lo moverá a la papelera (Sección 9).
+                        </div>
+                    </details>
                 </div>
-            </details>
-            
-           <details open style="margin-bottom:15px; border:1px solid #cbd5e1; border-radius:8px; overflow:hidden;">
-    <summary style="background:#f1f5f9; padding:12px; cursor:pointer; font-weight:bold; color:#334155; list-style:none;">
-        👥 0. Cómo Colaborar con Encargados de Grupo
-    </summary>
 
-    <div style="padding:15px; background:#fff; border-top:1px solid #cbd5e1; font-size:0.95em; color:#334155;">
-        
-        <p style="margin-bottom:15px; line-height: 1.5;">
-            <strong style="color:#0ea5e9;">¡Delegue trabajo fácilmente!</strong><br>
-            Esta App permite que los encargados de grupo le ayuden. Ellos pueden usar la App con un rol limitado para ver y llenar informes <strong>solo de su propio grupo</strong>.
-        </p>
+                <div>
+                    <label style="font-size:0.75rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:15px; display:flex; align-items:center; gap:8px;">
+                        ⚙️ Configuración Avanzada
+                    </label>
 
-        <p style="margin-bottom:15px; font-style: italic;">
-            Si el encargado también descarga la App Congregación Pro, pueden compartir datos de dos formas:
-        </p>
+                    <details style="margin-bottom:8px; border:1px solid #cbd5e1; border-radius:12px; background:var(--surface);">
+                        <summary style="background:#f8fafc; color:#1e293b; padding:15px; cursor:pointer; font-weight:bold; display:flex; align-items:center; gap:10px;">
+                            ☁️ Configuración de la Nube (Tutorial Técnico)
+                        </summary>
+                        <div style="padding:20px; border-top:1px solid #cbd5e1; font-size:0.9em; line-height:1.6; color:#334155;">
+                            <p style="margin-top:0;">Para sincronizar, necesitas una base de datos gratuita en <b>Firebase de Google</b>:</p>
+                            <ol style="padding-left:20px; margin-bottom:0;">
+                                <li style="margin-bottom:8px;">Entra a <a href="https://console.firebase.google.com" target="_blank" style="color:var(--primary);">console.firebase.google.com</a>.</li>
+                                <li style="margin-bottom:8px;">Crea un proyecto y una base de datos <b>Firestore</b>.</li>
+                                <li style="margin-bottom:8px;">Copia el <code>apiKey</code> y el <code>projectId</code>.</li>
+                                <li>Pégalos en los Ajustes de esta App.</li>
+                            </ol>
+                            <p style="margin-bottom:0; margin-top:10px; color:#166534; font-weight:bold;">Una vez configurado, usa la "Llave Rápida" para conectar a los demás hermanos fácilmente.</p>
+                        </div>
+                    </details>
 
-        <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:15px; margin-bottom:15px;">
-            <strong style="color:#15803d; display:block; margin-bottom:8px; font-size:1.1em;">
-                🚀 OPCIÓN A: Conexión en Línea (Recomendado)
-            </strong>
-            <small style="display:block; margin-bottom:10px; color:#166534;">
-                Los datos se envían por internet automáticamente.
-            </small>
-            <ol style="padding-left:20px; margin:0; line-height: 1.6;">
-                <li style="margin-bottom:8px;">
-                    <strong>Usted (Admin):</strong> Vaya a Configuración y haga click en el botón <span style="background:#6c757d; color:white; padding:2px 6px; border-radius:4px; font-size:0.9em;">Copiar solo Llave</span>. Envíe ese código por WhatsApp al encargado.
-                </li>
-                <li>
-                    <strong>El Encargado:</strong> Debe ir a Configuración en su App, pegar el código en la casilla <em>"Pegue aquí la llave de acceso"</em> y hacer click en <span style="background:#0d6efd; color:white; padding:2px 6px; border-radius:4px; font-size:0.9em;">Conectar</span>.
-                </li>
-            </ol>
-            <div style="margin-top:10px; font-weight:bold; color:#15803d; border-top: 1px dashed #bbf7d0; padding-top:5px;">
-                ✅ Listo: Lo que el encargado anote en su celular, le aparecerá a usted al instante.
-            </div>
-        </div>
-
-        <div style="background:#fff7ed; border:1px solid #fdba74; border-radius:8px; padding:15px;">
-            <strong style="color:#c2410c; display:block; margin-bottom:8px; font-size:1.1em;">
-                📂 OPCIÓN B: Sin Internet (Archivos JSON)
-            </strong>
-            <small style="display:block; margin-bottom:10px; color:#9a3412;">
-                Use esta opción si prefieren trabajar sin conexión (Offline).
-            </small>
-            <ol style="padding-left:20px; margin:0; line-height: 1.6;">
-                <li style="margin-bottom:8px;">
-                    <strong>El Encargado:</strong> Llena los informes en su App. Al terminar, va a Configuración y crea una <strong>Copia de Seguridad</strong>. Se descargará un archivo (JSON) que debe enviarle a usted por el medio que desee (WhatsApp, correo, etc.).
-                </li>
-                <li>
-                    <strong>Usted (Admin):</strong> Recibe el archivo, va a Configuración en su App, hace click en <span style="background:#ffc107; color:black; padding:2px 6px; border-radius:4px; font-size:0.9em;">Restaurar</span> y busca el archivo que le envió el encargado.
-                </li>
-            </ol>
-            <div style="margin-top:10px; font-size:0.9em; color:#c2410c; background:rgba(255,255,255,0.6); padding:8px; border-radius:4px;">
-                ⚠️ <strong>Nota:</strong> Al restaurar, su base de datos se actualizará con la información nueva que contiene el archivo.
-            </div>
-        </div>
-
-    </div>
-</details>
-            <details style="margin-bottom:10px; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;">
-                <summary style="background:white; padding:12px; font-weight:bold; cursor:pointer; list-style:none;">1️⃣ Gestión de Miembros</summary>
-                <div style="padding:15px; background:#f8fafc; border-top:1px solid #e2e8f0; font-size:0.95em;">
-    
-    <ul style="padding-left:20px; margin-top:0; margin-bottom:10px;">
-        <li><b>Crear/Editar:</b> Nombre, Grupo, Nacimiento, Bautismo.</li>
-    </ul>
-
-    <div style="background:#fff7ed; border:1px solid #fdba74; border-radius:6px; padding:10px; margin-bottom:10px;">
-         <strong style="color:#c2410c; display:block; margin-bottom:5px;">⭐ CASILLA "INICIO/REACTIVACIÓN"</strong>
-         <div style="color:#9a3412; font-size:0.9em;">
-            <div>✅ <b>Déjala VACÍA:</b> Si es antiguo.</div>
-            <div>✅ <b>Pon FECHA:</b> Si es Nuevo o se Mudó.</div>
-         </div>
-    </div>
-
-    <div style="background:#e0f2fe; border:1px solid #7dd3fc; border-radius:6px; padding:10px;">
-        <strong style="color:#0369a1; display:block; margin-bottom:5px;">
-            <i class="bi bi-magic"></i> NUEVO: Carga Rápida
-        </strong>
-        <div style="color:#0c4a6e; font-size:0.9em;">
-            Al registrar, marque las casillas <b>(Sept, Oct...)</b> al final.<br>
-            ✨ <em>Resultado:</em> Se guarda como <span style="background:#22c55e; color:white; padding:1px 5px; border-radius:3px;">Regular</span> automáticamente.
-        </div>
-    </div>
-
-</div>
-            </details>
-
-            <details style="margin-bottom:10px; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;">
-                <summary style="background:white; padding:12px; font-weight:bold; cursor:pointer; list-style:none;">2️⃣ Lista General</summary>
-                <div style="padding:15px; background:#f8fafc; border-top:1px solid #e2e8f0; font-size:0.95em;">
-                    Usa el buscador y toca el <b>lápiz (✏️)</b> para editar.
+                    <details style="margin-bottom:8px; border:1px solid var(--border-light); border-radius:12px; background:var(--surface);">
+                        <summary style="padding:15px; cursor:pointer; font-weight:600; color:var(--text-main);">🔌 Offline y Online</summary>
+                        <div style="padding:15px 20px; border-top:1px solid var(--border-light); font-size:0.95em; color:var(--text-muted);">
+                            <b>Modo Offline:</b> Toca el indicador superior (🟢/⚪) para desconectar la App de internet si estás en una zona sin señal. Los datos se guardan en el celular hasta que vuelvas a conectarte.
+                        </div>
+                    </details>
                 </div>
-            </details>
 
-            <details style="margin-bottom:10px; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;">
-                <summary style="background:white; padding:12px; font-weight:bold; cursor:pointer; list-style:none;">3️⃣ Informes</summary>
-                <div style="padding:15px; background:#f8fafc; border-top:1px solid #e2e8f0; font-size:0.95em;">
-                    • <b>Autoguardado:</b> Escribe y toca fuera.<br>
-                    • <b>Checks:</b> ☑️ P (Regular), ☑️ A (Auxiliar), ☑️ S/M (Participó).
-                </div>
-            </details>
-
-            <details style="margin-bottom:10px; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;">
-                <summary style="background:white; padding:12px; font-weight:bold; cursor:pointer; list-style:none;">4️⃣ Asistencia</summary>
-                <div style="padding:15px; background:#f8fafc; border-top:1px solid #e2e8f0; font-size:0.95em;">
-                    Ingresa totales. El promedio es automático.
-                </div>
-            </details>
-
-            <details style="margin-bottom:10px; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;">
-                <summary style="background:white; padding:12px; font-weight:bold; cursor:pointer; list-style:none;">5️⃣ Precursores</summary>
-                <div style="padding:15px; background:#f8fafc; border-top:1px solid #e2e8f0; font-size:0.95em;">
-                    Control de Horas vs. Meta y Acumulado Anual.
-                </div>
-            </details>
-
-            <details style="margin-bottom:10px; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;">
-                <summary style="background:white; padding:12px; font-weight:bold; cursor:pointer; list-style:none;">6️⃣ Tarjeta de Publicador</summary>
-                <div style="padding:15px; background:#f8fafc; border-top:1px solid #e2e8f0; font-size:0.95em;">
-                    Tabla anual (Sep-Ago). Botón para generar <b>PDF</b>.
-                </div>
-            </details>
-
-            <details style="margin-bottom:10px; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;">
-                <summary style="background:white; padding:12px; font-weight:bold; cursor:pointer; list-style:none;">7️⃣ Grupos</summary>
-                <div style="padding:15px; background:#f8fafc; border-top:1px solid #e2e8f0; font-size:0.95em;">
-                    Listado y totales de actividad por grupo.
-                </div>
-            </details>
-
-            <details style="margin-bottom:10px; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;">
-                <summary style="background:white; padding:12px; font-weight:bold; cursor:pointer; list-style:none;">8️⃣ Resumen (Dashboard)</summary>
-                <div style="padding:15px; background:#f8fafc; border-top:1px solid #e2e8f0; font-size:0.95em;">
-                    Totales y Promedios.
-                    <br><b>⚠️ Alertas:</b>
-                    <br>• <b>Irregulares:</b> Deben informes.
-                    <br>• <b>Inactivos:</b> 6 meses sin informar.
-                </div>
-            </details>
-
-             <details style="margin-bottom:10px; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;">
-                <summary style="background:white; padding:12px; font-weight:bold; cursor:pointer; list-style:none;">9️⃣ Sacados</summary>
-                <div style="padding:15px; background:#f8fafc; border-top:1px solid #e2e8f0; font-size:0.95em;">
-                    Papelera de reciclaje. Puedes restaurar.
-                </div>
-            </details>
-
-             <details style="margin-bottom:10px; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden;">
-                <summary style="background:white; padding:12px; font-weight:bold; cursor:pointer; list-style:none;">🔟 Inactivos</summary>
-                <div style="padding:15px; background:#f8fafc; border-top:1px solid #e2e8f0; font-size:0.95em;">
-                    Lista de seguimiento pastoral (6+ meses).
-                </div>
-            </details>
-
-            <hr style="border:0; border-top:1px solid #e2e8f0; margin:20px 0;">
-
-            <h3 style="margin-bottom:15px; color:#1e293b;">⚙️ Sección 11: Configuración</h3>
-
-            <details style="margin-bottom:8px; border:1px solid #cbd5e1; border-radius:8px;">
-                <summary style="background:#f1f5f9; padding:10px; cursor:pointer; font-weight:bold;">📂 A. Datos (Backups)</summary>
-                <div style="padding:15px; background:white; font-size:0.95em;">
-                    <ul style="padding-left:20px;">
-                        <li><b>📥 Exportar:</b> Descarga `.json`. Hazlo <b>mensualmente</b>.</li>
-                        <li><b>📤 Importar:</b> Solo para restaurar.</li>
-                        <li><b>🗑️ Borrar Todo:</b> Deja la App de fábrica.</li>
-                    </ul>
-                </div>
-            </details>
-
-            <details style="margin-bottom:8px; border:1px solid #cbd5e1; border-radius:8px;">
-                <summary style="background:#eff6ff; color:#1d4ed8; padding:10px; cursor:pointer; font-weight:bold; border:1px solid #bfdbfe;">☁️ B. Conexión Web (TUTORIAL TÉCNICO)</summary>
-                <div style="padding:15px; background:white; font-size:0.95em;">
-                    <p style="margin-top:0;"><b>Estado:</b> Indica si estás conectado al servidor.</p>
+                <div>
+                    <label style="font-size:0.75rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:15px; display:flex; align-items:center; gap:8px;">
+                        💙 Colaboración
+                    </label>
                     
-                    <div style="background:#f8fafc; padding:12px; border-radius:8px; border:1px solid #e2e8f0; margin-top:10px;">
-                        <h4 style="margin:0 0 10px 0; color:#0f172a;">🛠️ Cómo configurar tu Nube (Firebase)</h4>
-                        <p style="margin:0 0 10px 0; font-size:0.9em;">Esta App usa Google Firebase (Gratis) para sincronizar datos. Sigue estos pasos para obtener tus claves:</p>
-                        
-                        <ol style="padding-left:20px; margin:0; font-size:0.9em; color:#334155; line-height:1.5;">
-                            <li style="margin-bottom:5px;">Entra a <a href="https://console.firebase.google.com" target="_blank" style="color:#2563eb;">console.firebase.google.com</a> con tu cuenta Google.</li>
-                            <li style="margin-bottom:5px;">Click en <b>"Agregar proyecto"</b>. Ponle nombre (ej: <code>CongregacionDB</code>). Dale Continuar y <b>desactiva</b> Google Analytics. Crea el proyecto.</li>
-                            <li style="margin-bottom:5px;">En el menú lateral, ve a <b>"Compilación"</b> > <b>"Firestore Database"</b> y click en <b>"Crear base de datos"</b>.</li>
-                            <li style="margin-bottom:5px;">Elige ubicación cercana y click en <b>"Habilitar"</b>.</li>
-                            <li style="margin-bottom:5px;">Ve a la pestaña <b>"Reglas"</b> (arriba). Cambia <code>false</code> por <code>true</code> en la línea de <i>allow read, write</i> (para empezar) y dale <b>"Publicar"</b>.</li>
-                            <li style="margin-bottom:5px;">Vuelve al <b>"Resumen del proyecto"</b> (la casita 🏠 arriba izq).</li>
-                            <li style="margin-bottom:5px;">Click en el ícono redondo <b>Web (</>)</b>. Pon un apodo y click <b>"Registrar app"</b>.</li>
-                            <li style="margin-bottom:5px;">Aparecerá un código. Solo copia el <code>apiKey</code> y el <code>projectId</code>.</li>
-                            <li><b>¡Listo!</b> Pega esos 2 datos en la configuración de esta App para conectarte.</li>
-                        </ol>
-                    </div>
-
-                    <p style="margin-top:15px; font-size:0.9em;"><b>Nota:</b> Si ya tienes claves, solo ingresa tu ID de Conexión y pulsa <b>Sincronizar</b>.</p>
+                    <details style="margin-bottom:8px; border:1px solid #bfdbfe; border-radius:12px; background:var(--surface);">
+                        <summary style="background:#eff6ff; color:#1e40af; padding:15px; cursor:pointer; font-weight:bold; display:flex; align-items:center; gap:10px;">
+                            ☕ ¿La App es gratis? ¿Cómo puedo apoyar?
+                        </summary>
+                        <div style="padding:20px; border-top:1px solid #bfdbfe; font-size:0.95em; line-height:1.6; color:#1e3a8a;">
+                            <p style="margin-top:0;">Sí, <b>esta App es 100% gratuita</b>.</p>
+                            <p>Sin embargo, mantener el sistema y las actualizaciones requiere recursos. Si deseas apoyar voluntariamente con el mantenimiento técnico, puedes encontrar las opciones en:</p>
+                            <p style="font-weight:bold;">Ajustes ⚙️ > Botón "Acerca de & Soporte".</p>
+                            <p style="margin-bottom:0;">¡Muchas gracias!</p>
+                        </div>
+                    </details>
                 </div>
-            </details>
 
-            <details style="margin-bottom:8px; border:1px solid #cbd5e1; border-radius:8px;">
-                <summary style="background:#f1f5f9; padding:10px; cursor:pointer; font-weight:bold;">🔐 C. Claves</summary>
-                <div style="padding:15px; background:white; font-size:0.95em;">
-                    Cambia la <b>Clave Maestra</b> o gestiona claves de acceso.
-                </div>
-            </details>
+            </div>
 
-            <details style="margin-bottom:8px; border:1px solid #cbd5e1; border-radius:8px;">
-                <summary style="background:#f1f5f9; padding:10px; cursor:pointer; font-weight:bold;">ℹ️ D. Soporte y Apoyo</summary>
-                <div style="padding:15px; background:white; font-size:0.95em;">
-                    <p><b>Versión:</b> v1.1.1</p>
-                    <div style="margin-top:15px; padding:15px; background:#f0fdf4; border:1px solid #86efac; border-radius:8px;">
-                        <h4 style="margin:0 0 5px 0; color:#15803d;">🤝 Apoyo Voluntario</h4>
-                        <p style="margin:0; font-size:0.9em; color:#166534;">
-                            Esta App es gratuita. Mantener el servidor requiere recursos.
-                            <br>Si deseas, puedes contribuir voluntariamente para el mantenimiento técnico del sistema.
-                        </p>
-                    </div>
-                </div>
-            </details>
-
-            <p style="text-align:center; font-size:0.8em; margin-top:30px; color:#cbd5e1;">Congregación Pro - Manual v1.1.1</p>
+            <div style="padding:20px; text-align:center; color:var(--text-muted); border-top:1px solid var(--border-light); background:var(--surface);">
+                <span style="font-size:0.8em;">Congregación Pro - Manual v1.2.0</span>
+            </div>
         </div>
     </div>
 </div>
