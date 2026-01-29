@@ -1817,22 +1817,24 @@ window.renderActividad = function() {
     if(!tb) return;
     tb.innerHTML = '';
     
-   // 2. LÓGICA DE CANDADO CON PERIODO DE GRACIA (15 DÍAS)
+   // 2. LÓGICA DE CONTROL (AÑO FUTURO + MES DE GRACIA)
         const hoy = new Date();
+        const anioActualReal = hoy.getFullYear();
         const diaDelMes = hoy.getDate(); 
-        
-        const fechaSeleccionada = new Date(actY, actM - 1, 1);
-        const fechaActual = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
-        
-        // Calculamos la diferencia de meses
         const difMeses = (hoy.getFullYear() - actY) * 12 + (hoy.getMonth() - (actM - 1));
         
         let esPasado = false;
-        if (difMeses > 1) {
-            esPasado = true; // Meses muy antiguos siempre bloqueados
-        } else if (difMeses === 1) {
-            // Si es el mes pasado, solo bloqueamos después del día 15
-            if (diaDelMes > 15) esPasado = true;
+        let mensajeError = ""; // Aquí guardaremos el motivo real
+
+        if (actY > anioActualReal) {
+            esPasado = true;
+            mensajeError = "🚫 INFORME FUTURO: Este año aún no ha comenzado.";
+        } else if (difMeses > 1) {
+            esPasado = true;
+            mensajeError = "🔒 MES CERRADO: Este es un informe antiguo.";
+        } else if (difMeses === 1 && diaDelMes > 20) {
+            esPasado = true;
+            mensajeError = "⏰ PLAZO VENCIDO: Los 20 días de gracia han terminado.";
         }
     
     // ESTADO DEL CANDADO: Bloqueado si es pasado Y no hemos pulsado el botón de desbloquear
@@ -1857,10 +1859,14 @@ window.renderActividad = function() {
                 </div>`;
         } else {
             lockBanner.innerHTML = `
-                <div style="background:#eff6ff; color:#1e3a8a; padding:10px; border-radius:8px; border:1px solid #bfdbfe; display:flex; justify-content:space-between; align-items:center;">
-                    <span>🔒 <b>MES CERRADO:</b> Para editar este informe antiguo, debes desbloquearlo.</span>
-                    <button class="btn warning" onclick="window.forceUnlock=true; renderActividad();" style="font-size:0.8rem;">🔓 Desbloquear</button>
-                </div>`;
+                    <div style="background: var(--bg-card); color: var(--text-main); padding: 12px; border-radius: 10px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-sm); margin-bottom: 10px;">
+                        <span style="display: flex; align-items: center; gap: 8px;">
+                            ${mensajeError}
+                        </span>
+                        <button class="btn warning" onclick="window.forceUnlock=true; renderActividad();" style="font-size: 0.8rem; padding: 6px 12px;">
+                            🔓 Desbloquear
+                        </button>
+                    </div>`;
         }
         lockBanner.style.display = 'block';
     } else {
@@ -2355,20 +2361,21 @@ window.renderPrecursores = function(yearIn, monthIn) {
             </td>
             
             <td style="text-align:center;">
-                <div style="font-weight:800; font-size:1.1rem; color:#334155;">${Math.round(totalSincronizado)}</div>
-                <div style="font-size:0.65rem; color:#64748b;">(C:${Math.round(detalleCampo)} + L:${Math.round(detalleLDC)})</div>
+             <div style="font-weight:800; font-size:1.1rem; color: var(--text-main);">${Math.round(totalSincronizado)}</div>
+             <div style="font-size:0.65rem; color: var(--text-muted);">(C:${Math.round(detalleCampo)} + L:${Math.round(detalleLDC)})</div>
             </td>
 
-            <td style="text-align:right; padding:8px;">
-                 <div style="background:${statusBg}; color:${statusColor}; border:1px solid ${statusColor}30; padding:4px 8px; border-radius:8px; display:inline-block; text-align:right; width:100%;">
-                    <div style="font-size:0.65rem; font-weight:700; opacity:0.7; color:#334155;">Debería llevar: ${metaIdeal}</div>
-                    <div style="font-weight:700; font-size:0.85rem;">${statusIcon} ${statusText}</div>
-                 </div>
-            </td>
-
-            <td style="text-align:center; padding:8px; border-left:1px dashed #e2e8f0; vertical-align:middle;">
-                ${htmlMetaAnual}
-            </td>
+           <td style="text-align:right; padding:8px;">
+           <div style="background: var(--bg-body); color:${statusColor}; border:1px solid ${statusColor}60; padding:6px; border-radius:10px;">
+           <div style="font-size:0.65rem; font-weight:700; opacity:0.8; color: var(--text-muted);">Debería llevar: ${metaIdeal}</div>
+           <div style="font-weight:700; font-size:0.85rem;">${statusIcon} ${statusText}</div>
+        </div>
+     </td>
+       <td style="text-align:center; padding:8px; border-left:1px dashed var(--border-color); vertical-align:middle;">
+    <div style="font-size:0.65rem; color: var(--text-muted); font-weight:700; text-transform:uppercase;">Faltan</div>
+    <div style="font-weight:800; font-size:1.1rem; color: var(--text-main);">${600 - Math.round(totalSincronizado)}</div>
+    <div style="font-size:0.65rem; color: var(--text-muted);">de 600</div>
+</td>
         </tr>`;
     });
 
@@ -2972,7 +2979,7 @@ setTimeout(window.renderizarHistorialRapido, 500);
                             En la pestaña <b>5. Precursores</b>, el sistema hace los cálculos por ti: 
                             <ul style="margin-top:5px; padding-left:20px; line-height:1.6;">
                                 <li><b>Regulares:</b> Muestra el progreso hacia la meta anual de 600 horas. Calcula automáticamente el atraso o adelanto según el mes de servicio.</li>
-                                <li><b>Crédito LDC:</b> Escribe en notas "LDC 10" y el sistema sumará esas horas al total del precursor.</li>
+                                <li><b>Crédito LDC:</b> Escribe en notas "LDC 10" o "ESCUELA", no importa si lo pones en mayúsculas o minúsculas el sistema sumará esas horas al total del precursor.</li>
                                 <li><b>Estado:</b> Te avisa si va "👍 Bien" o lleva "⚠️ Atraso" en su meta.</li>
                             </ul>
                         </div>
@@ -3066,4 +3073,3 @@ setTimeout(window.renderizarHistorialRapido, 500);
 
 </body>
 </html>
-
