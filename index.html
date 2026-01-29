@@ -727,7 +727,7 @@
                 </div>
             </div>
 
-            <div class="admin-only" style="padding:15px; text-align:center; margin-top: 10px;">
+            <div style="padding:15px; text-align:center; margin-top: 10px;">
                 <span style="font-size:0.7rem; color:#94a3b8; display:block; margin-bottom:10px;">v1.2.0 • Web/App</span>
                 
                 <button onclick="document.getElementById('modalSupport').style.display='flex'" 
@@ -984,7 +984,6 @@
            
     <tbody></tbody>
 </table></div></div>
-            <div class="card" style="margin-top:20px;"><h3>🏃 Precursores Auxiliares (Mes Actual)</h3><div class="table-container"><table class="table" id="tblAuxiliares"><tbody></tbody></table></div></div>
         </section>
 
         <section id="tarjeta" class="tab admin-only">
@@ -1799,65 +1798,129 @@ function enterApp() {
         updateDatalist();
     }
 
-    // --- FUNCIÓN DE INFORMES BLINDADA (SOLO SU GRUPO) ---
-    window.renderActividad = function() {
-        // 1. OBTENEMOS EL SELECTOR DE GRUPOS
-        const selector = document.querySelector('#selGInforme');
-        let g = selector ? selector.value : '1';
+   // Variable global para controlar el desbloqueo temporal
+window.forceUnlock = false;
 
-        // 🔒 CANDADO DE SEGURIDAD
-        // Si detectamos que es un Encargado, ignoramos el selector y forzamos SU grupo
-        if (currentSession.role === 'group') {
-            g = currentSession.group; 
-            
-            // Visualmente bloqueamos el selector para que sepa que no puede cambiar
-            if (selector) {
-                selector.value = g;
-                selector.disabled = true;       // Se pone gris (Desactivado)
-                selector.style.opacity = "0.7"; // Efecto visual
-                selector.title = "🔒 Solo puedes ver tu grupo";
-            }
+window.renderActividad = function() {
+    // 1. OBTENER GRUPO Y PERMISOS
+    const selector = document.querySelector('#selGInforme');
+    let g = selector ? selector.value : '1';
+
+    if (currentSession.role === 'group') {
+        g = currentSession.group; 
+        if (selector) { selector.value = g; selector.disabled = true; selector.style.opacity = "0.7"; }
+    } else {
+        if (selector) { selector.disabled = false; selector.style.opacity = "1"; }
+    }
+
+    const tb = document.querySelector('#tblActividad tbody');
+    if(!tb) return;
+    tb.innerHTML = '';
+    
+   // 2. LÓGICA DE CANDADO CON PERIODO DE GRACIA (15 DÍAS)
+        const hoy = new Date();
+        const diaDelMes = hoy.getDate(); 
+        
+        const fechaSeleccionada = new Date(actY, actM - 1, 1);
+        const fechaActual = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+        
+        // Calculamos la diferencia de meses
+        const difMeses = (hoy.getFullYear() - actY) * 12 + (hoy.getMonth() - (actM - 1));
+        
+        let esPasado = false;
+        if (difMeses > 1) {
+            esPasado = true; // Meses muy antiguos siempre bloqueados
+        } else if (difMeses === 1) {
+            // Si es el mes pasado, solo bloqueamos después del día 15
+            if (diaDelMes > 15) esPasado = true;
+        }
+    
+    // ESTADO DEL CANDADO: Bloqueado si es pasado Y no hemos pulsado el botón de desbloquear
+// BLOQUEO: Solo si es pasado Y no estamos en el periodo de gracia, ni se ha desbloqueado manualmente
+        const isLocked = esPasado && !window.forceUnlock;
+    // 3. ACTUALIZAR INTERFAZ (Botón de Desbloqueo)
+    // Buscamos si ya existe el aviso, si no lo creamos
+    let lockBanner = document.getElementById('lockBanner');
+    if (!lockBanner) {
+        lockBanner = document.createElement('div');
+        lockBanner.id = 'lockBanner';
+        lockBanner.style.marginBottom = '15px';
+        selector.parentElement.parentElement.after(lockBanner); // Insertar debajo de los filtros
+    }
+
+    if (esPasado) {
+        if (window.forceUnlock) {
+            lockBanner.innerHTML = `
+                <div style="background:#fef3c7; color:#92400e; padding:10px; border-radius:8px; border:1px solid #fcd34d; display:flex; justify-content:space-between; align-items:center;">
+                    <span>🔓 <b>EDICIÓN HABILITADA:</b> Ten cuidado, estás modificando el historial.</span>
+                    <button class="btn ghost" onclick="window.forceUnlock=false; renderActividad();" style="font-size:0.8rem; background:white;">Bloquear</button>
+                </div>`;
         } else {
-            // Si es Admin, liberamos el selector
-            if (selector) {
-                selector.disabled = false;
-                selector.style.opacity = "1";
-            }
+            lockBanner.innerHTML = `
+                <div style="background:#eff6ff; color:#1e3a8a; padding:10px; border-radius:8px; border:1px solid #bfdbfe; display:flex; justify-content:space-between; align-items:center;">
+                    <span>🔒 <b>MES CERRADO:</b> Para editar este informe antiguo, debes desbloquearlo.</span>
+                    <button class="btn warning" onclick="window.forceUnlock=true; renderActividad();" style="font-size:0.8rem;">🔓 Desbloquear</button>
+                </div>`;
         }
+        lockBanner.style.display = 'block';
+    } else {
+        lockBanner.style.display = 'none';
+        window.forceUnlock = false; // Resetear si volvemos al mes actual
+    }
 
-        // 2. RENDERIZAMOS LA TABLA (IGUAL QUE ANTES)
-        const tb = document.querySelector('#tblActividad tbody');
-        if(!tb) return;
-        
-        tb.innerHTML = '';
-        const k = ymKey(actY, actM); // Llave de fecha (ej: 2026-01)
-        
-        // Filtramos la lista usando la variable 'g' que ya está asegurada
-        const list = state.personas.filter(p => p.grupo == g && !p.sacado).sort((a,b)=>a.nombre.localeCompare(b.nombre));
-        
-        const cEl = document.getElementById('cAct'); 
-        if(cEl) cEl.innerText = `(${list.length})`;
-        
-        if(list.length === 0) { 
-            tb.innerHTML = `<tr><td colspan="6" style="padding:25px; text-align:center; color:#6b7280;">No hay miembros en el Grupo ${g}.</td></tr>`; 
-            return; 
-        }
+    // 4. GENERAR TABLA
+    const k = ymKey(actY, actM);
+    const list = state.personas.filter(p => p.grupo == g && !p.sacado).sort((a,b)=>a.nombre.localeCompare(b.nombre));
+    
+    const cEl = document.getElementById('cAct'); if(cEl) cEl.innerText = `(${list.length})`;
+    
+    if(list.length === 0) { 
+        tb.innerHTML = `<tr><td colspan="6" style="padding:25px; text-align:center; color:#6b7280;">No hay miembros en el Grupo ${g}.</td></tr>`; 
+        return; 
+    }
 
-        // Dibujamos las filas
-        list.forEach(p => {
-            const r = state.activity[k]?.[p.id] || {part:false, horas:0, est:0, pa:false, nota:''};
-            
-            tb.innerHTML += `
-                <tr>
-                    <td style="font-weight:600; color:#374151;">${p.nombre}</td>
-                    <td style="text-align:center;"><input type="checkbox" ${r.part?'checked':''} onchange="updAct('${p.id}','part',this.checked)" style="transform:scale(1.2);"></td>
-                    <td style="text-align:center;"><input type="number" value="${r.horas}" onchange="updAct('${p.id}','horas',this.value)" style="width:50px; text-align:center; padding:4px; border:1px solid #d1d5db; border-radius:4px;"></td>
-                    <td style="text-align:center;"><input type="number" value="${r.est}" onchange="updAct('${p.id}','est',this.value)" style="width:50px; text-align:center; padding:4px; border:1px solid #d1d5db; border-radius:4px;"></td>
-                    <td style="text-align:center;"><input type="checkbox" ${r.pa?'checked':''} onchange="updAct('${p.id}','pa',this.checked)" style="transform:scale(1.2);"></td>
-                    <td><input type="text" value="${r.nota||''}" onchange="updAct('${p.id}','nota',this.value)" placeholder="..." style="width:100%; border:1px solid #d1d5db; border-radius:4px; padding:4px;"></td>
-                </tr>`;
-        });
-    };
+    // Estilo para inputs bloqueados
+    const disableAttr = isLocked ? 'disabled' : '';
+    const styleAttr = isLocked ? 'background-color:#f3f4f6; color:#9ca3af; cursor:not-allowed;' : '';
+
+    list.forEach(p => {
+        const r = state.activity[k]?.[p.id] || {part:false, horas:0, est:0, pa:false, nota:''};
+        
+        tb.innerHTML += `
+            <tr>
+                <td style="font-weight:600; color:#374151;">${p.nombre}</td>
+                
+                <td style="text-align:center;">
+                    <input type="checkbox" ${r.part?'checked':''} ${disableAttr} 
+                    onchange="updAct('${p.id}','part',this.checked)" style="transform:scale(1.2); ${isLocked ? 'opacity:0.5' : ''}">
+                </td>
+                
+                <td style="text-align:center;">
+                    <input type="number" value="${r.horas}" ${disableAttr} 
+                    onchange="updAct('${p.id}','horas',this.value)" 
+                    style="width:50px; text-align:center; padding:4px; border:1px solid #d1d5db; border-radius:4px; ${styleAttr}">
+                </td>
+                
+                <td style="text-align:center;">
+                    <input type="number" value="${r.est}" ${disableAttr} 
+                    onchange="updAct('${p.id}','est',this.value)" 
+                    style="width:50px; text-align:center; padding:4px; border:1px solid #d1d5db; border-radius:4px; ${styleAttr}">
+                </td>
+                
+                <td style="text-align:center;">
+                    <input type="checkbox" ${r.pa?'checked':''} ${disableAttr} 
+                    onchange="updAct('${p.id}','pa',this.checked)" style="transform:scale(1.2); ${isLocked ? 'opacity:0.5' : ''}">
+                </td>
+                
+                <td>
+                    <input type="text" value="${r.nota||''}" ${disableAttr} 
+                    onchange="updAct('${p.id}','nota',this.value)" placeholder="..." 
+                    style="width:100%; border:1px solid #d1d5db; border-radius:4px; padding:4px; ${styleAttr}">
+                </td>
+            </tr>`;
+    });
+};
+
     window.updAct = (pid, f, v) => { 
         const k = ymKey(actY, actM); 
         if(!state.activity[k]) state.activity[k] = {}; 
@@ -2154,216 +2217,166 @@ window.renderAllPrecursores = function() {
     console.log("Buscando datos para:", y, m); 
     window.renderPrecursores(y, m);
     
-    // Si tienes auxiliares, actualizarlos también
-    if(window.renderAuxiliares) window.renderAuxiliares(y, m);
+
 };
- // ==========================================
-// PRECURSORES REGULARES (V6.1 FINAL: Lógica Año Corregida)
-// ==========================================
 window.renderPrecursores = function(yearIn, monthIn) {
-    const tb = $('#tblPrecursores tbody');
+    // 1. LOCALIZAR LA TABLA
+    let tb = document.querySelector('#tblPrecursores tbody');
+    if (!tb) {
+        const section = document.getElementById('precursores');
+        if (section) tb = section.querySelector('table tbody');
+    }
     if (!tb) return;
-    tb.innerHTML = '';
+    
+    // Títulos de Tabla (Se generan solos para asegurar que estén bien)
+    const table = tb.closest('table');
+    const thead = table.querySelector('thead');
+    if (thead) {
+        thead.innerHTML = `
+            <tr>
+                <th style="width: 30%; color:#334155;">Publicador</th>
+                <th style="text-align:center; width: 15%; color:#334155;">Realizado</th>
+                <th style="text-align:center; width: 25%; color:#334155;">Progreso</th>
+                <th style="text-align:center; width: 30%; color:#334155;">Meta Anual (600)</th>
+            </tr>
+        `;
+    }
+    tb.innerHTML = ''; 
 
-    const META_ANUAL = 600;
-    const TOPE_SUMA_MENSUAL = 55;
-
-    // 1. Determinar fechas
+    // 2. CONFIGURAR FECHAS
     let curY = parseInt(yearIn);
     let curM = parseInt(monthIn);
+    if (!curY || isNaN(curY)) { const d = new Date(); curY = d.getFullYear(); curM = d.getMonth(); }
+
+    const selectedServiceIndex = (curM >= 8) ? (curM - 8) : (curM + 4);
     
-    // Si viene vacío, usamos fecha actual
-    if (!curY || isNaN(curY)) { 
-        const d = new Date(); 
-        curY = d.getFullYear(); 
-        curM = d.getMonth(); 
+    // Lógica de tiempo
+    const hoyReal = new Date();
+    const valorMesHoy = (hoyReal.getFullYear() * 12) + hoyReal.getMonth();
+    const anioDelMesSeleccionado = (curM >= 8) ? curY - 1 : curY;
+    const valorMesSeleccionado = (anioDelMesSeleccionado * 12) + curM;
+    const esMesPasado = valorMesSeleccionado < valorMesHoy;
+    const mesesACobrar = esMesPasado ? (selectedServiceIndex + 1) : selectedServiceIndex;
+
+    // 3. OBTENER DATOS
+    if (!state || !state.personas) return;
+    const list = state.personas.filter(p => (p.pr || p.pa) && !p.sacado).sort((a,b) => a.nombre.localeCompare(b.nombre));
+    const cEl = document.getElementById('cPre'); if (cEl) cEl.innerText = list.length;
+
+    if (list.length === 0) {
+        tb.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color:#9ca3af;">No hay datos.</td></tr>';
+        return;
     }
 
-    // ✅ CORRECCIÓN CLAVE: El selector ya nos da el año de servicio (ej: 2026)
-    // No le sumamos nada.
-    const serviceYear = curY; 
-    
-    // Calcular índice límite para la columna "A la Fecha"
-    // (Sep=0, Oct=1, ... Ago=11)
-    let targetIndex = (curM >= 8) ? (curM - 8) : (curM + 4);
-
-    // Meta ideal al día de hoy
-    let mesServicioActual = (curM >= 8) ? (curM - 7) : (curM + 5);
-    const metaIdealHoy = mesServicioActual * 50; 
-
-    const list = state.personas.filter(p => p.pr && !p.sacado).sort((a,b) => a.nombre.localeCompare(b.nombre));
-    const cEl = $('#cPre'); if(cEl) cEl.innerText = `(${list.length})`;
+    // 4. GENERAR FILAS
+    let html = '';
+    const cicloMeses = [8,9,10,11,0,1,2,3,4,5,6,7]; 
 
     list.forEach(p => {
-        let horasTotalAnual = 0;
-        let horasHastaFecha = 0;
-        
-        // Auxiliares visuales
-        let anualCampo = 0;
-        let anualCredito = 0;
+        let totalSincronizado = 0;
+        let detalleCampo = 0;
+        let detalleLDC = 0;
 
-        const cicloMeses = [9,10,11,12,1,2,3,4,5,6,7,8];
-        
         cicloMeses.forEach((m, index) => {
-            // Lógica de año: Sep-Dic son del año anterior (serviceYear - 1)
-            const y = (m >= 9) ? serviceYear - 1 : serviceYear;
-            const key = `${y}-${String(m).padStart(2, '0')}`;
-            
-            let hCampoMes = 0;
-            let hCreditoMes = 0; 
-            let hCreditoAplicable = 0;
+            if (index <= selectedServiceIndex) {
+                const calculatedYear = (m >= 8) ? (curY - 1) : curY;
+                const key = `${calculatedYear}-${String(m + 1).padStart(2,'0')}`;
 
-            if (state.activity[key] && state.activity[key][p.id]) {
-                const registro = state.activity[key][p.id];
-                hCampoMes = (Number(registro.horas) || 0);
-                
-                const textoNota = (registro.nota || registro.notas || "").toLowerCase();
-                const regexNum = /(\d+(?:[\.,]\d+)?)\s*(?:ldc|escuela)|(?:ldc|escuela)\s*:?\s*(\d+(?:[\.,]\d+)?)/;
-                const match = textoNota.match(regexNum);
+                if (state.activity[key] && state.activity[key][p.id]) {
+                    const reg = state.activity[key][p.id];
+                    let h = parseFloat(reg.horas) || 0;
+                    
+                    // 🔥 CORRECCIÓN AQUÍ: Leemos 'nota' (singular) O 'notas' (plural)
+                    // Y convertimos a minúsculas
+                    const txt = (reg.nota || reg.notas || "").toLowerCase();
+                    let ldc = 0;
 
-                if (match) {
-                    let numRaw = match[1] || match[2];
-                    hCreditoMes = parseFloat(numRaw.replace(',', '.'));
-                }
+                    // Regex Mágico (Busca "16ldc", "ldc 16", "escuela 30", etc)
+                    const match = txt.match(/(?:ldc|escuela)\s*(\d+)|(\d+)\s*(?:ldc|escuela)/);
+                    
+                    if (match) {
+                        ldc = parseInt(match[1] || match[2]);
+                    }
 
-                // Norma 55h
-                let espacioDisponible = TOPE_SUMA_MENSUAL - hCampoMes;
-                if (espacioDisponible < 0) espacioDisponible = 0;
-                hCreditoAplicable = (hCreditoMes > espacioDisponible) ? espacioDisponible : hCreditoMes;
+                    // Regla 55h Mensual
+                    let espacio = 55 - h;
+                    if (espacio < 0) espacio = 0;
+                    let ldcAplicable = (ldc > espacio) ? espacio : ldc;
 
-                const sumaMes = hCampoMes + hCreditoAplicable;
-
-                // Sumar al total anual
-                horasTotalAnual += sumaMes;
-                anualCampo += hCampoMes;
-                anualCredito += hCreditoAplicable;
-
-                // Sumar a la fecha (solo si el mes ya pasó o es el actual)
-                if (index <= targetIndex) {
-                    horasHastaFecha += sumaMes;
+                    totalSincronizado += (h + ldcAplicable);
+                    detalleCampo += h;
+                    detalleLDC += ldcAplicable;
                 }
             }
         });
 
-        // Redondeos
-        horasTotalAnual = Math.round(horasTotalAnual * 10) / 10;
-        horasHastaFecha = Math.round(horasHastaFecha * 10) / 10;
+        // --- CÁLCULOS ---
+        const metaBase = (p.pr) ? 50 : 30; 
+        const metaIdeal = mesesACobrar * metaBase;
+        const diff = totalSincronizado - metaIdeal;
 
-        // Ritmo
-        let faltan = META_ANUAL - horasTotalAnual;
-        if (faltan < 0) faltan = 0; else faltan = Math.round(faltan * 10) / 10;
+        // Semáforo
+        let statusColor = '#dc2626'; let statusBg = '#fef2f2'; let statusIcon = '⚠️'; let statusText = `Atraso ${diff}`;
 
-        let diferenciaRitmo = horasTotalAnual - metaIdealHoy;
-        diferenciaRitmo = Math.round(diferenciaRitmo * 10) / 10;
-        
-        let ritmoHTML = '';
-        if (diferenciaRitmo >= 0) {
-            ritmoHTML = `<div style="font-size:0.7rem; color:#166534; font-weight:600; margin-top:2px;">👍 Bien (+${diferenciaRitmo})</div>`;
+        if (p.pr && totalSincronizado >= 600) {
+            statusColor = '#16a34a'; statusBg = '#dcfce7'; statusIcon = '🏆'; statusText = 'LOGRADO';
+        } else if (diff >= 0) {
+            statusColor = '#2563eb'; statusBg = '#eff6ff'; statusIcon = '👍'; statusText = `Bien (+${diff})`;
+        }
+
+        // Meta Anual
+        let htmlMetaAnual = '';
+        if (p.pr) { 
+            const faltan = 600 - totalSincronizado;
+            if (faltan <= 0) {
+                htmlMetaAnual = `<span style="color:#16a34a; font-weight:800; font-size:0.8rem;">¡COMPLETADA!</span>`;
+            } else {
+                htmlMetaAnual = `
+                    <div style="display:flex; flex-direction:column; align-items:center;">
+                        <span style="font-size:0.65rem; color:#64748b; text-transform:uppercase;">Faltan</span>
+                        <span style="font-weight:800; color:#ea580c; font-size:1rem;">${faltan}</span>
+                        <span style="font-size:0.65rem; color:#94a3b8;">de 600</span>
+                    </div>
+                `;
+            }
         } else {
-            ritmoHTML = `<div style="font-size:0.7rem; color:#dc2626; font-weight:600; margin-top:2px;">⚠️ Atraso ${diferenciaRitmo}</div>`;
+            htmlMetaAnual = `<span style="font-size:0.7rem; color:#cbd5e1;">-</span>`;
         }
 
-        let etiquetaHTML = '';
-        if (faltan <= 0) {
-            etiquetaHTML = `<div style="background:#dcfce7; color:#166534; padding:4px 8px; border-radius:12px; border:1px solid #bbf7d0; display:inline-flex; align-items:center; gap:3px;"><span>🎉</span> <span style="font-weight:800; font-size:0.75rem;">CUMPLIDO</span></div>`;
-            ritmoHTML = ''; 
-        } else {
-            etiquetaHTML = `<div style="background:#fff7ed; color:#c2410c; padding:3px 8px; border-radius:12px; border:1px solid #fdba74; display:inline-block;"><span style="font-size:0.65rem; font-weight:600;">FALTAN</span> <span style="font-size:0.9rem; font-weight:800;">${faltan}</span></div>`;
-        }
+        const tipoBadge = p.pr ? 
+            `<span style="background:#dbeafe; color:#1e40af; font-size:0.65rem; padding:2px 6px; border-radius:4px;">REG</span>` : 
+            `<span style="background:#fef3c7; color:#92400e; font-size:0.65rem; padding:2px 6px; border-radius:4px;">AUX</span>`;
 
-        let detalleTotalHTML = `<div style="font-size:1.1rem; font-weight:800; color:#374151;">${horasTotalAnual}</div>`;
-        if (anualCredito > 0) {
-            detalleTotalHTML += `<div style="font-size:0.65rem; color:#2563eb;">(C:${Math.round(anualCampo)}+L:${Math.round(anualCredito)})</div>`;
-        }
+        html += `
+        <tr style="border-bottom:1px solid #f1f5f9;">
+            <td style="padding:10px;">
+                <div style="font-weight:700; color:#334155; font-size:0.95rem;">${p.nombre}</div>
+                <div style="margin-top:2px;">${tipoBadge} <span style="font-size:0.75rem; color:#94a3b8;">G-${p.grupo}</span></div>
+            </td>
+            
+            <td style="text-align:center;">
+                <div style="font-weight:800; font-size:1.1rem; color:#334155;">${Math.round(totalSincronizado)}</div>
+                <div style="font-size:0.65rem; color:#64748b;">(C:${Math.round(detalleCampo)} + L:${Math.round(detalleLDC)})</div>
+            </td>
 
-        let detalleHastaFechaHTML = `<div style="font-size:1.2rem; font-weight:800; color:#059669;">${horasHastaFecha}</div>`;
+            <td style="text-align:right; padding:8px;">
+                 <div style="background:${statusBg}; color:${statusColor}; border:1px solid ${statusColor}30; padding:4px 8px; border-radius:8px; display:inline-block; text-align:right; width:100%;">
+                    <div style="font-size:0.65rem; font-weight:700; opacity:0.7; color:#334155;">Debería llevar: ${metaIdeal}</div>
+                    <div style="font-weight:700; font-size:0.85rem;">${statusIcon} ${statusText}</div>
+                 </div>
+            </td>
 
-        tb.innerHTML += `
-            <tr style="vertical-align: middle;">
-                <td style="padding: 10px;">
-                    <div style="font-weight:700; font-size:0.95rem; color:#1f2937;">${p.nombre}</div>
-                    <div style="font-size:0.7rem; color:#6b7280;">Grupo ${p.grupo}</div>
-                </td>
-                <td style="text-align:center; vertical-align:middle; background-color:#ecfdf5;">${detalleHastaFechaHTML}</td>
-                <td style="text-align:center; vertical-align:middle; background-color:#f9fafb;">${detalleTotalHTML}</td>
-                <td style="text-align:center; vertical-align:middle; padding:8px 4px;">${etiquetaHTML}${ritmoHTML}</td>
-            </tr>`;
-    });
-};
-// ==========================================
-// PRECURSORES AUXILIARES (DEFINITIVO: SIMPLE)
-// ==========================================
-window.renderAuxiliares = function(yearIn, monthIn) {
-    // 1. Determinar Fecha
-    let curY = yearIn;
-    let curM = monthIn;
-    if (curY === undefined) { const d = new Date(); curY = d.getFullYear(); curM = d.getMonth(); }
-
-    // 2. Buscar Contenedor
-    const section = document.getElementById('precursores');
-    let container = null;
-    let header = null;
-
-    section.querySelectorAll('h3').forEach(h => {
-        if(h.innerText.includes('Auxiliares')) {
-            header = h;
-            container = h.parentElement;
-        }
-    });
-
-    if(!container) return;
-
-    // 3. Actualizar Título
-    const meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
-    header.innerText = `🏃 Precursores Auxiliares (${meses[curM]} ${curY})`;
-
-    // 4. Preparar Tabla
-    let tableContainer = container.querySelector('#auxContent');
-    if (!tableContainer) {
-        tableContainer = document.createElement('div');
-        tableContainer.id = 'auxContent';
-        container.appendChild(tableContainer);
-    }
-    tableContainer.innerHTML = ''; 
-
-    // 5. Filtrar Datos
-    const key = `${curY}-${String(curM).padStart(2, '0')}`;
-    const list = state.personas.filter(p => {
-        const reg = state.activity[key] && state.activity[key][p.id];
-        return reg && reg.pa; 
-    }).sort((a,b) => a.nombre.localeCompare(b.nombre));
-
-    if(list.length === 0) {
-        tableContainer.innerHTML = '<div style="padding:20px; text-align:center; color:#9ca3af;">No hay auxiliares registrados en este mes.</div>';
-        return;
-    }
-
-    // 6. Generar Tabla Simple
-    let html = `<table class="table" style="margin-top:10px; width:100%;">
-        <thead>
-            <tr style="background:#f9fafb; font-size:0.85rem; color:#6b7280;">
-                <th style="padding:10px; text-align:left;">Nombre</th>
-                <th style="text-align:center; width:100px;">Horas</th>
-            </tr>
-        </thead>
-        <tbody>`;
-
-    list.forEach(p => {
-        const reg = state.activity[key][p.id];
-        // Solo horas numéricas, sin notas/LDC
-        const horas = (Number(reg.horas) || 0);
-        
-        html += `<tr style="border-bottom:1px solid #eee;">
-            <td style="padding:10px; font-weight:600; color:#374151;">${p.nombre}</td>
-            <td style="text-align:center; font-weight:800; font-size:1.1rem; color:#1f2937;">
-                ${horas}
+            <td style="text-align:center; padding:8px; border-left:1px dashed #e2e8f0; vertical-align:middle;">
+                ${htmlMetaAnual}
             </td>
         </tr>`;
     });
-    html += '</tbody></table>';
-    tableContainer.innerHTML = html;
-};    
-    window.renderAsistInputs=function(){const k=ymKey(asistY,asistM);if(!state.attendance[k])state.attendance[k]={es:[0,0,0,0,0,0],fs:[0,0,0,0,0,0]};const cES=$('#contES'),cFS=$('#contFS');cES.innerHTML='';cFS.innerHTML='';for(let i=0;i<5;i++){cES.innerHTML+=`<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;"><label style="margin:0;">Semana ${i+1}</label><input type="number" value="${state.attendance[k].es[i]||0}" onchange="updAsist('es',${i},this.value)" style="width:80px; text-align:center;"></div>`;cFS.innerHTML+=`<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;"><label style="margin:0;">Semana ${i+1}</label><input type="number" value="${state.attendance[k].fs[i]||0}" onchange="updAsist('fs',${i},this.value)" style="width:80px; text-align:center;"></div>`;}}
+
+    tb.innerHTML = html;
+};
+
+
+window.renderAsistInputs=function(){const k=ymKey(asistY,asistM);if(!state.attendance[k])state.attendance[k]={es:[0,0,0,0,0,0],fs:[0,0,0,0,0,0]};const cES=$('#contES'),cFS=$('#contFS');cES.innerHTML='';cFS.innerHTML='';for(let i=0;i<5;i++){cES.innerHTML+=`<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;"><label style="margin:0;">Semana ${i+1}</label><input type="number" value="${state.attendance[k].es[i]||0}" onchange="updAsist('es',${i},this.value)" style="width:80px; text-align:center;"></div>`;cFS.innerHTML+=`<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;"><label style="margin:0;">Semana ${i+1}</label><input type="number" value="${state.attendance[k].fs[i]||0}" onchange="updAsist('fs',${i},this.value)" style="width:80px; text-align:center;"></div>`;}}
     window.updAsist=(t,i,v)=>{const k=ymKey(asistY,asistM);state.attendance[k][t][i]=parseInt(v||0);save();}
 
 window.renderEstadoEspiritual = function() { 
@@ -2839,6 +2852,7 @@ window.resetPForm = function() {
 // Ejecutar al inicio también para asegurar que aparezcan
 setTimeout(window.renderizarHistorialRapido, 500);
 
+
 </script>
 <div id="modalManual" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15, 23, 42, 0.95); backdrop-filter:blur(5px); z-index:10000; align-items:center; justify-content:center;">
     <div style="background:var(--surface); width:95%; max-width:750px; height:90vh; border-radius:24px; display:flex; flex-direction:column; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); overflow:hidden; border:1px solid var(--border-light); font-family:'Inter', sans-serif;">
@@ -2940,25 +2954,25 @@ setTimeout(window.renderizarHistorialRapido, 500);
                     </label>
 
                     <details style="margin-bottom:8px; border:1px solid var(--border-light); border-radius:12px; background:var(--surface);">
-                        <summary style="padding:15px; cursor:pointer; font-weight:600; color:var(--text-main);">📝 ¿Cómo registro los informes del mes?</summary>
+                        <summary style="padding:15px; cursor:pointer; font-weight:600; color:var(--text-main);">📝 ¿Cómo registro los informes y cómo funciona el candado?</summary>
                         <div style="padding:15px 20px; border-top:1px solid var(--border-light); font-size:0.95em; color:var(--text-muted);">
                             Ve a la pestaña <b>3. Informes</b>. El sistema tiene <b>Autoguardado</b>: basta con escribir el número y tocar fuera de la casilla.
                             <br><br>
-                            <b>Significado de las casillas:</b>
-                            <br>☑️ <b>Part:</b> Participó en el ministerio.
-                            <br>☑️ <b>P. Aux:</b> Cumplió el requisito de Precursor Auxiliar.
-                            <br>✏️ <b>Notas:</b> Úsalo para horas de crédito (LDC) o notas breves.
+                            <b>🔒 Seguridad (Candado):</b>
+                            <br>• El sistema protege tu historial. Los meses de "Diciembre hacia atrás" aparecen siempre bloqueados con un banner azul.
+                            <br>• <b>Periodo de Gracia:</b> El mes anterior (Enero) permanecerá abierto y editable automáticamente durante los primeros <b>15 días</b> del mes actual (Febrero). 
+                            <br>• El día 16, el mes anterior se cerrará solo. 
+                            <br>• <b>¿Cómo editar si está bloqueado?</b> Solo pulsa el botón naranja <b>"🔓 Desbloquear"</b> para habilitar la edición manual.
                         </div>
                     </details>
 
                     <details style="margin-bottom:8px; border:1px solid var(--border-light); border-radius:12px; background:var(--surface);">
-                        <summary style="padding:15px; cursor:pointer; font-weight:600; color:var(--text-main);">🏆 ¿Cómo entiendo la Tabla de Precursores (LDC)?</summary>
+                        <summary style="padding:15px; cursor:pointer; font-weight:600; color:var(--text-main);">🏆 ¿Cómo entiendo la Tabla de Precursores?</summary>
                         <div style="padding:15px 20px; border-top:1px solid var(--border-light); font-size:0.95em; color:var(--text-muted);">
-                            En la pestaña <b>5. Precursores</b>, el sistema hace los cálculos por ti:
+                            En la pestaña <b>5. Precursores</b>, el sistema hace los cálculos por ti: 
                             <ul style="margin-top:5px; padding-left:20px; line-height:1.6;">
-                                <li><b>Columna Verde (A la Fecha):</b> Suma lo acumulado solo hasta el mes actual.</li>
-                                <li><b>Crédito LDC Inteligente:</b> Escribe en notas "LDC 20" y el sistema lo detecta.</li>
-                                <li><b>Regla 55h:</b> Si se pasa de 55h (Campo + Crédito), el sistema recorta el excedente automáticamente.</li>
+                                <li><b>Regulares:</b> Muestra el progreso hacia la meta anual de 600 horas. Calcula automáticamente el atraso o adelanto según el mes de servicio.</li>
+                                <li><b>Crédito LDC:</b> Escribe en notas "LDC 10" y el sistema sumará esas horas al total del precursor.</li>
                                 <li><b>Estado:</b> Te avisa si va "👍 Bien" o lleva "⚠️ Atraso" en su meta.</li>
                             </ul>
                         </div>
@@ -2982,14 +2996,18 @@ setTimeout(window.renderizarHistorialRapido, 500);
                                 <li>Pulsa el botón azul 👁️ <b>Ver</b>.</li>
                                 <li>Pulsa el botón verde 📥 <b>PDF</b> para descargar.</li>
                             </ol>
-                            <i>Nota: Siempre sale con fondo blanco para ahorrar tinta.</i>
                         </div>
                     </details>
-
                     <details style="margin-bottom:8px; border:1px solid var(--border-light); border-radius:12px; background:var(--surface);">
                         <summary style="padding:15px; cursor:pointer; font-weight:600; color:var(--text-main);">🚫 ¿Cómo elimino a alguien (Bajas)?</summary>
                         <div style="padding:15px 20px; border-top:1px solid var(--border-light); font-size:0.95em; color:var(--text-muted);">
                             Busca a la persona en la pestaña <b>1. Gestión</b> y pon una fecha en el campo <b>"Fecha Sacado"</b>. El sistema lo moverá a la papelera (Sección 9).
+                        </div>
+                    </details>
+                    <details style="margin-bottom:8px; border:1px solid var(--border-light); border-radius:12px; background:var(--surface);">
+                        <summary style="padding:15px; cursor:pointer; font-weight:600; color:var(--text-main);">🔌 Offline y Online</summary>
+                        <div style="padding:15px 20px; border-top:1px solid var(--border-light); font-size:0.95em; color:var(--text-muted);">
+                            <b>Modo Offline:</b> Toca el indicador superior (🟢/⚪) para desconectar la App de internet si estás en una zona sin señal. Los datos se guardan en el celular hasta que vuelvas a conectarte.
                         </div>
                     </details>
                 </div>
@@ -3010,15 +3028,8 @@ setTimeout(window.renderizarHistorialRapido, 500);
                                 <li style="margin-bottom:8px;">Crea un proyecto y una base de datos <b>Firestore</b>.</li>
                                 <li style="margin-bottom:8px;">Copia el <code>apiKey</code> y el <code>projectId</code>.</li>
                                 <li>Pégalos en los Ajustes de esta App.</li>
+                                <p style="margin-bottom:0; margin-top:10px; color:#166534; font-weight:bold;">Una vez configurado, usa la "Llave Rápida" para conectar a los demás hermanos fácilmente.</p>
                             </ol>
-                            <p style="margin-bottom:0; margin-top:10px; color:#166534; font-weight:bold;">Una vez configurado, usa la "Llave Rápida" para conectar a los demás hermanos fácilmente.</p>
-                        </div>
-                    </details>
-
-                    <details style="margin-bottom:8px; border:1px solid var(--border-light); border-radius:12px; background:var(--surface);">
-                        <summary style="padding:15px; cursor:pointer; font-weight:600; color:var(--text-main);">🔌 Offline y Online</summary>
-                        <div style="padding:15px 20px; border-top:1px solid var(--border-light); font-size:0.95em; color:var(--text-muted);">
-                            <b>Modo Offline:</b> Toca el indicador superior (🟢/⚪) para desconectar la App de internet si estás en una zona sin señal. Los datos se guardan en el celular hasta que vuelvas a conectarte.
                         </div>
                     </details>
                 </div>
@@ -3034,9 +3045,7 @@ setTimeout(window.renderizarHistorialRapido, 500);
                         </summary>
                         <div style="padding:20px; border-top:1px solid #bfdbfe; font-size:0.95em; line-height:1.6; color:#1e3a8a;">
                             <p style="margin-top:0;">Sí, <b>esta App es 100% gratuita</b>.</p>
-                            <p>Sin embargo, mantener el sistema y las actualizaciones requiere recursos. Si deseas apoyar voluntariamente con el mantenimiento técnico, puedes encontrar las opciones en:</p>
-                            <p style="font-weight:bold;">Ajustes ⚙️ > Botón "Acerca de & Soporte".</p>
-                            <p style="margin-bottom:0;">¡Muchas gracias!</p>
+                            <p>Si deseas apoyar voluntariamente con el mantenimiento técnico, puedes encontrar las opciones en: <b>Ajustes ⚙️ > Botón "Acerca de & Soporte".</b></p>
                         </div>
                     </details>
                 </div>
@@ -3044,7 +3053,7 @@ setTimeout(window.renderizarHistorialRapido, 500);
             </div>
 
             <div style="padding:20px; text-align:center; color:var(--text-muted); border-top:1px solid var(--border-light); background:var(--surface);">
-                <span style="font-size:0.8em;">Congregación Pro - Manual v1.2.0</span>
+                <span style="font-size:0.8em;">Congregación Pro - Manual v1.2.5</span>
             </div>
         </div>
     </div>
